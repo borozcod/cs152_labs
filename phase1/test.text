@@ -1,6 +1,6 @@
 function test1;
-beginparams
-endparams
+be_ginparams
+endparams_
 beginlocals _rw
 2n : integer;
 endlocals

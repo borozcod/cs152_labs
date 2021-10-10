@@ -37,6 +37,7 @@ GT [>]
 LTE (<=)
 GTE (>=)
 IDENT [a-zA-Z]+([0-9]+)?[a-zA-Z]?(_[a-zA-Z0-9]+)?
+NUMBER [0-9]+
 SEMICOLON [;]
 COLON [:]
 COMMA [,]
@@ -45,11 +46,13 @@ R_PAREN [)]
 L_SQUARE_BRACKET [[]
 R_SQUARE_BRACKET []]
 ASSIGN (:=)
-
 NO_IDENT1 [0-9_][a-zA-Z]+([0-9]+)?[a-zA-Z]?(_[a-zA-Z0-9]+)?
+NO_IDENT2 [a-zA-Z]+([0-9]+)?[a-zA-Z]?(_[a-zA-Z0-9]+)?_[^a-zA-Z0-9]
+COMMENT ##[^\n]+
     int line_num = 0, num_chars = 0;
 %%
 \n ++line_num; num_chars = 0;
+{COMMENT}
 {FUNCTION} printf("FUNCTION\n", yytext);
 {BEGIN_PARAMS} printf("BEGIN_PARAMS\n", yytext);
 {END_PARAMS} printf("END_PARAMS\n", yytext);
@@ -89,6 +92,7 @@ NO_IDENT1 [0-9_][a-zA-Z]+([0-9]+)?[a-zA-Z]?(_[a-zA-Z0-9]+)?
 {LTE} printf("LTE\n", yytext);
 {GTE} printf("GTE\n", yytext);
 {IDENT} printf("IDENT %s\n", yytext);
+{NUMBER} printf("NUMBER %s\n", yytext);
 {SEMICOLON} printf("SEMICOLON\n", yytext);
 {COLON} printf("COLON\n", yytext);
 {COMMA} printf("COMMA\n", yytext);
@@ -98,6 +102,7 @@ NO_IDENT1 [0-9_][a-zA-Z]+([0-9]+)?[a-zA-Z]?(_[a-zA-Z0-9]+)?
 {R_SQUARE_BRACKET} printf("R_SQUARE_BRACKET\n", yytext);
 {ASSIGN} printf("ASSIGN\n", yytext);
 {NO_IDENT1} printf("Error at line %d, column %d: identifier \"%s\" must begin with a letter\n", line_num, num_chars, yytext); yyterminate();
+{NO_IDENT2} printf("Error at line %d, column %d: identifier \"%s\" cannot end with an underscore\n", line_num, num_chars, yytext); yyterminate();
 . ++num_chars;
 %%
 
