@@ -46,11 +46,11 @@ L_SQUARE_BRACKET [[]
 R_SQUARE_BRACKET []]
 ASSIGN (:=)
 
-    int line_num = 1;
+NO_IDENT1 [0-9_][a-zA-Z]+([0-9]+)?[a-zA-Z]?(_[a-zA-Z0-9]+)?
+    int line_num = 0, num_chars = 0;
 %%
-
-\n ++line_num;
-{FUNCTION} printf("FUNCTION, %d\n", yytext, line_num);
+\n ++line_num; num_chars = 0;
+{FUNCTION} printf("FUNCTION\n", yytext);
 {BEGIN_PARAMS} printf("BEGIN_PARAMS\n", yytext);
 {END_PARAMS} printf("END_PARAMS\n", yytext);
 {BEGIN_LOCALS} printf("BEGIN_LOCALS\n", yytext);
@@ -77,7 +77,7 @@ ASSIGN (:=)
 {TRUE} printf("TRUE\n", yytext);
 {FALSE} printf("FALSE\n", yytext);
 {RETURN} printf("RETURN\n", yytext);
-{IDENT} printf("IDENT %s line: %d\n", yytext, yylineno);
+{IDENT} printf("IDENT %s\n", yytext);
 {SEMICOLON} printf("SEMICOLON\n", yytext);
 {COLON} printf("COLON\n", yytext);
 {COMMA} printf("COMMA\n", yytext);
@@ -86,6 +86,8 @@ ASSIGN (:=)
 {L_SQUARE_BRACKET} printf("L_SQUARE_BRACKET\n", yytext);
 {R_SQUARE_BRACKET} printf("R_SQUARE_BRACKET\n", yytext);
 {ASSIGN} printf("ASSIGN\n", yytext);
+{NO_IDENT1} printf("Error at line %d, column %d: identifier \"%s\" must begin with a letter\n", line_num, num_chars, yytext); yyterminate();
+. ++num_chars;
 %%
 
 main(){
