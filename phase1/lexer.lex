@@ -47,45 +47,44 @@ R_SQUARE_BRACKET []]
 ASSIGN (:=)
 
 %%
-{FUNCTION} printf("FUNCTION", yytext);
-{BEGIN_PARAMS} printf("BEGIN_PARAMS", yytext);
-{END_PARAMS} printf("END_PARAMS", yytext);
-{BEGIN_LOCALS} printf("BEGIN_LOCALS", yytext);
-{END_LOCALS} printf("END_LOCALS", yytext);
-{BEGIN_BODY} printf("BEGIN_BODY", yytext);
-{END_BODY} printf("END_BODY", yytext);
-{INTEGER} printf("INTEGER", yytext);
-{ARRAY} printf("ARRAY", yytext);
-{OF} printf("OF", yytext);
-{IF} printf("IF", yytext);
-{THEN} printf("THEN", yytext);
-{ENDIF} printf("ENDIF", yytext);
-{ELSE} printf("ELSE", yytext);
-{WHILE} printf("WHILE", yytext);
-{DO} printf("DO", yytext);
-{BEGINLOOP} printf("BEGINLOOP", yytext);
-{ENDLOOP} printf("ENDLOOP", yytext);
-{CONTINUE} printf("CONTINUE", yytext);
-{READ} printf("READ", yytext);
-{WRITE} printf("WRITE", yytext);
-{AND} printf("AND", yytext);
-{OR} printf("OR", yytext);
-{NOT} printf("NOT", yytext);
-{TRUE} printf("TRUE", yytext);
-{FALSE} printf("FALSE", yytext);
-{RETURN} printf("RETURN", yytext);
-{IDENT} printf("IDENT %s", yytext);
-{SEMICOLON} printf("SEMICOLON", yytext);
-{COLON} printf("COLON", yytext);
-{COMMA} printf("COMMA", yytext);
-{L_PAREN} printf("L_PAREN", yytext);
-{R_PAREN} printf("R_PAREN", yytext);
-{L_SQUARE_BRACKET} printf("L_SQUARE_BRACKET", yytext);
-{R_SQUARE_BRACKET} printf("R_SQUARE_BRACKET", yytext);
-{ASSIGN} printf("ASSIGN", yytext);
+{FUNCTION} printf("FUNCTION\n", yytext);
+{BEGIN_PARAMS} printf("BEGIN_PARAMS\n", yytext);
+{END_PARAMS} printf("END_PARAMS\n", yytext);
+{BEGIN_LOCALS} printf("BEGIN_LOCALS\n", yytext);
+{END_LOCALS} printf("END_LOCALS\n", yytext);
+{BEGIN_BODY} printf("BEGIN_BODY\n", yytext);
+{END_BODY} printf("END_BODY\n", yytext);
+{INTEGER} printf("INTEGER\n", yytext);
+{ARRAY} printf("ARRAY\n", yytext);
+{OF} printf("OF\n", yytext);
+{IF} printf("IF\n", yytext);
+{THEN} printf("THEN\n", yytext);
+{ENDIF} printf("ENDIF\n", yytext);
+{ELSE} printf("ELSE\n", yytext);
+{WHILE} printf("WHILE\n", yytext);
+{DO} printf("DO\n", yytext);
+{BEGINLOOP} printf("BEGINLOOP\n", yytext);
+{ENDLOOP} printf("ENDLOOP\n", yytext);
+{CONTINUE} printf("CONTINUE\n", yytext);
+{READ} printf("READ\n", yytext);
+{WRITE} printf("WRITE\n", yytext);
+{AND} printf("AND\n", yytext);
+{OR} printf("OR\n", yytext);
+{NOT} printf("NOT\n", yytext);
+{TRUE} printf("TRUE\n", yytext);
+{FALSE} printf("FALSE\n", yytext);
+{RETURN} printf("RETURN\n", yytext);
+{IDENT} printf("IDENT %s\n", yytext);
+{SEMICOLON} printf("SEMICOLON\n", yytext);
+{COLON} printf("COLON\n", yytext);
+{COMMA} printf("COMMA\n", yytext);
+{L_PAREN} printf("L_PAREN\n", yytext);
+{R_PAREN} printf("R_PAREN\n", yytext);
+{L_SQUARE_BRACKET} printf("L_SQUARE_BRACKET\n", yytext);
+{R_SQUARE_BRACKET} printf("R_SQUARE_BRACKET\n", yytext);
+{ASSIGN} printf("ASSIGN\n", yytext);
 %%
 
 main(){
-    printf("Give me your input:\n");
     yylex();   
 }
