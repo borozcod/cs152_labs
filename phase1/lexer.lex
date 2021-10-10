@@ -77,6 +77,17 @@ NO_IDENT1 [0-9_][a-zA-Z]+([0-9]+)?[a-zA-Z]?(_[a-zA-Z0-9]+)?
 {TRUE} printf("TRUE\n", yytext);
 {FALSE} printf("FALSE\n", yytext);
 {RETURN} printf("RETURN\n", yytext);
+{SUB} printf("SUB\n", yytext);
+{ADD} printf("ADD\n", yytext);
+{MULT} printf("MULT\n", yytext);
+{DIV} printf("DIV\n", yytext);
+{MOD} printf("MOD\n", yytext);
+{EQ} printf("EQ\n", yytext);
+{NEQ} printf("NEQ\n", yytext);
+{LT} printf("LT\n", yytext);
+{GT} printf("GT\n", yytext);
+{LTE} printf("LTE\n", yytext);
+{GTE} printf("GTE\n", yytext);
 {IDENT} printf("IDENT %s\n", yytext);
 {SEMICOLON} printf("SEMICOLON\n", yytext);
 {COLON} printf("COLON\n", yytext);
