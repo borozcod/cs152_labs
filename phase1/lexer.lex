@@ -46,8 +46,11 @@ L_SQUARE_BRACKET [[]
 R_SQUARE_BRACKET []]
 ASSIGN (:=)
 
+    int line_num = 1;
 %%
-{FUNCTION} printf("FUNCTION\n", yytext);
+
+\n ++line_num;
+{FUNCTION} printf("FUNCTION, %d\n", yytext, line_num);
 {BEGIN_PARAMS} printf("BEGIN_PARAMS\n", yytext);
 {END_PARAMS} printf("END_PARAMS\n", yytext);
 {BEGIN_LOCALS} printf("BEGIN_LOCALS\n", yytext);
@@ -74,7 +77,7 @@ ASSIGN (:=)
 {TRUE} printf("TRUE\n", yytext);
 {FALSE} printf("FALSE\n", yytext);
 {RETURN} printf("RETURN\n", yytext);
-{IDENT} printf("IDENT %s\n", yytext);
+{IDENT} printf("IDENT %s line: %d\n", yytext, yylineno);
 {SEMICOLON} printf("SEMICOLON\n", yytext);
 {COLON} printf("COLON\n", yytext);
 {COMMA} printf("COMMA\n", yytext);
