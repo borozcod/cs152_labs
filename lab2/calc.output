@@ -1,0 +1,167 @@
+Grammar
+
+    0 $accept: expr $end
+
+    1 expr: LEFT_PAREN expr RIGHT_PAREN expr
+    2     | expr PLUS
+    3     | expr MINUS
+    4     | expr MULT
+    5     | expr DIV
+    6     | expr NUMBER
+    7     | expr EQUAL
+    8     | %empty
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+error (256)
+LEFT_PAREN (258) 1
+RIGHT_PAREN (259) 1
+PLUS (260) 2
+MINUS (261) 3
+MULT (262) 4
+DIV (263) 5
+NUMBER (264) 6
+EQUAL (265) 7
+
+
+Nonterminals, with rules where they appear
+
+$accept (11)
+    on left: 0
+expr (12)
+    on left: 1 2 3 4 5 6 7 8, on right: 0 1 2 3 4 5 6 7
+
+
+State 0
+
+    0 $accept: . expr $end
+
+    LEFT_PAREN  shift, and go to state 1
+
+    $default  reduce using rule 8 (expr)
+
+    expr  go to state 2
+
+
+State 1
+
+    1 expr: LEFT_PAREN . expr RIGHT_PAREN expr
+
+    LEFT_PAREN  shift, and go to state 1
+
+    $default  reduce using rule 8 (expr)
+
+    expr  go to state 3
+
+
+State 2
+
+    0 $accept: expr . $end
+    2 expr: expr . PLUS
+    3     | expr . MINUS
+    4     | expr . MULT
+    5     | expr . DIV
+    6     | expr . NUMBER
+    7     | expr . EQUAL
+
+    $end    shift, and go to state 4
+    PLUS    shift, and go to state 5
+    MINUS   shift, and go to state 6
+    MULT    shift, and go to state 7
+    DIV     shift, and go to state 8
+    NUMBER  shift, and go to state 9
+    EQUAL   shift, and go to state 10
+
+
+State 3
+
+    1 expr: LEFT_PAREN expr . RIGHT_PAREN expr
+    2     | expr . PLUS
+    3     | expr . MINUS
+    4     | expr . MULT
+    5     | expr . DIV
+    6     | expr . NUMBER
+    7     | expr . EQUAL
+
+    RIGHT_PAREN  shift, and go to state 11
+    PLUS         shift, and go to state 5
+    MINUS        shift, and go to state 6
+    MULT         shift, and go to state 7
+    DIV          shift, and go to state 8
+    NUMBER       shift, and go to state 9
+    EQUAL        shift, and go to state 10
+
+
+State 4
+
+    0 $accept: expr $end .
+
+    $default  accept
+
+
+State 5
+
+    2 expr: expr PLUS .
+
+    $default  reduce using rule 2 (expr)
+
+
+State 6
+
+    3 expr: expr MINUS .
+
+    $default  reduce using rule 3 (expr)
+
+
+State 7
+
+    4 expr: expr MULT .
+
+    $default  reduce using rule 4 (expr)
+
+
+State 8
+
+    5 expr: expr DIV .
+
+    $default  reduce using rule 5 (expr)
+
+
+State 9
+
+    6 expr: expr NUMBER .
+
+    $default  reduce using rule 6 (expr)
+
+
+State 10
+
+    7 expr: expr EQUAL .
+
+    $default  reduce using rule 7 (expr)
+
+
+State 11
+
+    1 expr: LEFT_PAREN expr RIGHT_PAREN . expr
+
+    LEFT_PAREN  shift, and go to state 1
+
+    $default  reduce using rule 8 (expr)
+
+    expr  go to state 12
+
+
+State 12
+
+    1 expr: LEFT_PAREN expr RIGHT_PAREN expr .
+    2     | expr . PLUS
+    3     | expr . MINUS
+    4     | expr . MULT
+    5     | expr . DIV
+    6     | expr . NUMBER
+    7     | expr . EQUAL
+
+    $default  reduce using rule 1 (expr)
