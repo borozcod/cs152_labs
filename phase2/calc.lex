@@ -62,56 +62,56 @@ COMMENT ##[^\n]+
     int line_num = 0, num_chars = 0;
 %%
 \n ++line_num; num_chars = 0;
-{COMMENT}
-{FUNCTION} printf("FUNCTION\n", yytext);
-{BEGIN_PARAMS} printf("BEGIN_PARAMS\n", yytext);
-{END_PARAMS} printf("END_PARAMS\n", yytext);
-{BEGIN_LOCALS} printf("BEGIN_LOCALS\n", yytext);
-{END_LOCALS} printf("END_LOCALS\n", yytext);
-{BEGIN_BODY} printf("BEGIN_BODY\n", yytext);
-{END_BODY} printf("END_BODY\n", yytext);
-{INTEGER} printf("INTEGER\n", yytext);
-{ARRAY} printf("ARRAY\n", yytext);
-{OF} printf("OF\n", yytext);
-{IF} printf("IF\n", yytext);
-{THEN} printf("THEN\n", yytext);
-{ENDIF} printf("ENDIF\n", yytext);
-{ELSE} printf("ELSE\n", yytext);
-{WHILE} printf("WHILE\n", yytext);
-{DO} printf("DO\n", yytext);
-{BEGINLOOP} printf("BEGINLOOP\n", yytext);
-{ENDLOOP} printf("ENDLOOP\n", yytext);
-{CONTINUE} printf("CONTINUE\n", yytext);
-{READ} printf("READ\n", yytext);
-{WRITE} printf("WRITE\n", yytext);
-{AND} printf("AND\n", yytext);
-{OR} printf("OR\n", yytext);
-{NOT} printf("NOT\n", yytext);
-{TRUE} printf("TRUE\n", yytext);
-{FALSE} printf("FALSE\n", yytext);
-{RETURN} printf("RETURN\n", yytext);
-{SUB} printf("SUB\n", yytext);
-{ADD} printf("ADD\n", yytext);
-{MULT} printf("MULT\n", yytext);
-{DIV} printf("DIV\n", yytext);
-{MOD} printf("MOD\n", yytext);
-{EQ} printf("EQ\n", yytext);
-{NEQ} printf("NEQ\n", yytext);
-{LT} printf("LT\n", yytext);
-{GT} printf("GT\n", yytext);
-{LTE} printf("LTE\n", yytext);
-{GTE} printf("GTE\n", yytext);
-{IDENT} printf("IDENT %s\n", yytext);
-{NUMBER} printf("NUMBER %s\n", yytext);
-{SEMICOLON} printf("SEMICOLON\n", yytext);
-{COLON} printf("COLON\n", yytext);
-{COMMA} printf("COMMA\n", yytext);
-{L_PAREN} printf("L_PAREN\n", yytext);
-{R_PAREN} printf("R_PAREN\n", yytext);
-{L_SQUARE_BRACKET} printf("L_SQUARE_BRACKET\n", yytext);
-{R_SQUARE_BRACKET} printf("R_SQUARE_BRACKET\n", yytext);
-{ASSIGN} printf("ASSIGN\n", yytext);
-{NO_IDENT1} printf("Error at line %d, column %d: identifier \"%s\" must begin with a letter\n", line_num, num_chars, yytext); yyterminate();
-{NO_IDENT2} printf("Error at line %d, column %d: identifier \"%s\" cannot end with an underscore\n", line_num, num_chars, yytext); yyterminate();
+{COMMENT} {return COMMENT; }
+{FUNCTION} {return FUNCTION; }
+{BEGIN_PARAMS} {return BEGIN_PARAMS; }
+{END_PARAMS} {return END_PARAMS; }
+{BEGIN_LOCALS} {return BEGIN_LOCALS; }
+{END_LOCALS} {return END_LOCALS; }
+{BEGIN_BODY} {return BEGIN_BODY; }
+{END_BODY} {return END_BODY; }
+{INTEGER} {return INTEGER; }
+{ARRAY} {return ARRAY; }
+{OF} {return OF; }
+{IF} {return IF; }
+{THEN} {return THEN; }
+{ENDIF} {return ENDIF; }
+{ELSE} {return ELSE; }
+{WHILE} {return WHILE; }
+{DO} {return DO; }
+{BEGINLOOP} {return BEGINLOOP; }
+{ENDLOOP} {return ENDLOOP; }
+{CONTINUE} {return CONTINUE; }
+{READ} {return READ; }
+{WRITE} {return WRITE; }
+{AND} {return AND; }
+{OR} {return OR; }
+{NOT} {return NOT; }
+{TRUE} {return TRUE; }
+{FALSE} {return FALSE; }
+{RETURN} {return RETURN; }
+{SUB} {return SUB; }
+{ADD} {return ADD; }
+{MULT} {return MULT; }
+{DIV} {return DIV; }
+{MOD} {return MOD; }
+{EQ} {return EQ; }
+{NEQ} {return NEQ; }
+{LT} {return LT; }
+{GT} {return GT; }
+{LTE} {return LTE; }
+{GTE} {return GTE; }
+{IDENT} {return IDENT; }
+{NUMBER} {return NUMBER; }
+{SEMICOLON} {return SEMICOLON; }
+{COLON} {return COLON; }
+{COMMA} {return COMMA; }
+{L_PAREN} {return L_PAREN; }
+{R_PAREN} {return R_PAREN; }
+{L_SQUARE_BRACKET} {return L_SQUARE_BRACKET; }
+{R_SQUARE_BRACKET} {return R_SQUARE_BRACKET; }
+{ASSIGN} {return ASSIGN; }
+{NO_IDENT1} {return NO_IDENT1; }
+{NO_IDENT2} {return NO_IDENT2; }
 . ++num_chars;
 %%
