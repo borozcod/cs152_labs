@@ -1,0 +1,283 @@
+Terminals unused in grammar
+
+   BEGIN_LOCALS
+   END_LOCALS
+   BEGIN_BODY
+   END_BODY
+   ARRAY
+   OF
+   IF
+   THEN
+   ENDIF
+   ELSE
+   WHILE
+   DO
+   BEGINLOOP
+   ENDLOOP
+   CONTINUE
+   READ
+   WRITE
+   AND
+   OR
+   NOT
+   TRUE
+   FALSE
+   RETURN
+   SUB
+   ADD
+   MULT
+   DIV
+   MOD
+   EQ
+   NEQ
+   LT
+   GT
+   LTE
+   GTE
+   NUMBER
+   SEMICOLON
+   COMMA
+   L_PAREN
+   R_PAREN
+   L_SQUARE_BRACKET
+   R_SQUARE_BRACKET
+   ASSIGN
+   NO_IDENT1
+   NO_IDENT2
+   COMMENT
+
+
+Grammar
+
+    0 $accept: input $end
+
+    1 input: line
+    2      | input '\n' line
+
+    3 line: '\n'
+    4     | function '\n'
+
+    5 function: FUNCTION ident BEGIN_PARAMS declaration END_PARAMS
+
+    6 ident: IDENT
+
+    7 declaration: ident COLON INTEGER
+    8            | %empty
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'\n' (10) 2 3 4
+error (256)
+IDENT (258) 6
+FUNCTION (259) 5
+BEGIN_PARAMS (260) 5
+END_PARAMS (261) 5
+BEGIN_LOCALS (262)
+END_LOCALS (263)
+BEGIN_BODY (264)
+END_BODY (265)
+INTEGER (266) 7
+ARRAY (267)
+OF (268)
+IF (269)
+THEN (270)
+ENDIF (271)
+ELSE (272)
+WHILE (273)
+DO (274)
+BEGINLOOP (275)
+ENDLOOP (276)
+CONTINUE (277)
+READ (278)
+WRITE (279)
+AND (280)
+OR (281)
+NOT (282)
+TRUE (283)
+FALSE (284)
+RETURN (285)
+SUB (286)
+ADD (287)
+MULT (288)
+DIV (289)
+MOD (290)
+EQ (291)
+NEQ (292)
+LT (293)
+GT (294)
+LTE (295)
+GTE (296)
+NUMBER (297)
+SEMICOLON (298)
+COLON (299) 7
+COMMA (300)
+L_PAREN (301)
+R_PAREN (302)
+L_SQUARE_BRACKET (303)
+R_SQUARE_BRACKET (304)
+ASSIGN (305)
+NO_IDENT1 (306)
+NO_IDENT2 (307)
+COMMENT (308)
+
+
+Nonterminals, with rules where they appear
+
+$accept (55)
+    on left: 0
+input (56)
+    on left: 1 2, on right: 0 2
+line (57)
+    on left: 3 4, on right: 1 2
+function (58)
+    on left: 5, on right: 4
+ident (59)
+    on left: 6, on right: 5 7
+declaration (60)
+    on left: 7 8, on right: 5
+
+
+State 0
+
+    0 $accept: . input $end
+
+    FUNCTION  shift, and go to state 1
+    '\n'      shift, and go to state 2
+
+    input     go to state 3
+    line      go to state 4
+    function  go to state 5
+
+
+State 1
+
+    5 function: FUNCTION . ident BEGIN_PARAMS declaration END_PARAMS
+
+    IDENT  shift, and go to state 6
+
+    ident  go to state 7
+
+
+State 2
+
+    3 line: '\n' .
+
+    $default  reduce using rule 3 (line)
+
+
+State 3
+
+    0 $accept: input . $end
+    2 input: input . '\n' line
+
+    $end  shift, and go to state 8
+    '\n'  shift, and go to state 9
+
+
+State 4
+
+    1 input: line .
+
+    $default  reduce using rule 1 (input)
+
+
+State 5
+
+    4 line: function . '\n'
+
+    '\n'  shift, and go to state 10
+
+
+State 6
+
+    6 ident: IDENT .
+
+    $default  reduce using rule 6 (ident)
+
+
+State 7
+
+    5 function: FUNCTION ident . BEGIN_PARAMS declaration END_PARAMS
+
+    BEGIN_PARAMS  shift, and go to state 11
+
+
+State 8
+
+    0 $accept: input $end .
+
+    $default  accept
+
+
+State 9
+
+    2 input: input '\n' . line
+
+    FUNCTION  shift, and go to state 1
+    '\n'      shift, and go to state 2
+
+    line      go to state 12
+    function  go to state 5
+
+
+State 10
+
+    4 line: function '\n' .
+
+    $default  reduce using rule 4 (line)
+
+
+State 11
+
+    5 function: FUNCTION ident BEGIN_PARAMS . declaration END_PARAMS
+
+    IDENT  shift, and go to state 6
+
+    $default  reduce using rule 8 (declaration)
+
+    ident        go to state 13
+    declaration  go to state 14
+
+
+State 12
+
+    2 input: input '\n' line .
+
+    $default  reduce using rule 2 (input)
+
+
+State 13
+
+    7 declaration: ident . COLON INTEGER
+
+    COLON  shift, and go to state 15
+
+
+State 14
+
+    5 function: FUNCTION ident BEGIN_PARAMS declaration . END_PARAMS
+
+    END_PARAMS  shift, and go to state 16
+
+
+State 15
+
+    7 declaration: ident COLON . INTEGER
+
+    INTEGER  shift, and go to state 17
+
+
+State 16
+
+    5 function: FUNCTION ident BEGIN_PARAMS declaration END_PARAMS .
+
+    $default  reduce using rule 5 (function)
+
+
+State 17
+
+    7 declaration: ident COLON INTEGER .
+
+    $default  reduce using rule 7 (declaration)

@@ -5,7 +5,7 @@
 
 #define YY_DECL int yylex()
 
-#include "calc.tab.h"
+#include "y.tab.h"
 
 %}
 FUNCTION (function)
@@ -101,7 +101,7 @@ COMMENT ##[^\n]+
 {GT} {return GT; }
 {LTE} {return LTE; }
 {GTE} {return GTE; }
-{IDENT} {yylval.str = yytext; return IDENT; }
+{IDENT} {yylval.str = strdup(yytext); return IDENT; }
 {NUMBER} {return NUMBER; }
 {SEMICOLON} {return SEMICOLON; }
 {COLON} {return COLON; }

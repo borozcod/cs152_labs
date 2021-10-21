@@ -30,11 +30,11 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-#ifndef YY_YY_CALC_TAB_H_INCLUDED
-# define YY_YY_CALC_TAB_H_INCLUDED
+#ifndef YY_YY_Y_TAB_H_INCLUDED
+# define YY_YY_Y_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 1
+# define YYDEBUG 0
 #endif
 #if YYDEBUG
 extern int yydebug;
@@ -45,7 +45,57 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    IDENT = 258
+    IDENT = 258,
+    FUNCTION = 259,
+    BEGIN_PARAMS = 260,
+    END_PARAMS = 261,
+    BEGIN_LOCALS = 262,
+    END_LOCALS = 263,
+    BEGIN_BODY = 264,
+    END_BODY = 265,
+    INTEGER = 266,
+    ARRAY = 267,
+    OF = 268,
+    IF = 269,
+    THEN = 270,
+    ENDIF = 271,
+    ELSE = 272,
+    WHILE = 273,
+    DO = 274,
+    BEGINLOOP = 275,
+    ENDLOOP = 276,
+    CONTINUE = 277,
+    READ = 278,
+    WRITE = 279,
+    AND = 280,
+    OR = 281,
+    NOT = 282,
+    TRUE = 283,
+    FALSE = 284,
+    RETURN = 285,
+    SUB = 286,
+    ADD = 287,
+    MULT = 288,
+    DIV = 289,
+    MOD = 290,
+    EQ = 291,
+    NEQ = 292,
+    LT = 293,
+    GT = 294,
+    LTE = 295,
+    GTE = 296,
+    NUMBER = 297,
+    SEMICOLON = 298,
+    COLON = 299,
+    COMMA = 300,
+    L_PAREN = 301,
+    R_PAREN = 302,
+    L_SQUARE_BRACKET = 303,
+    R_SQUARE_BRACKET = 304,
+    ASSIGN = 305,
+    NO_IDENT1 = 306,
+    NO_IDENT2 = 307,
+    COMMENT = 308
   };
 #endif
 
@@ -54,11 +104,11 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 14 "calc.y" /* yacc.c:1909  */
+#line 15 "mini_l.y" /* yacc.c:1909  */
 
 char* str;
 
-#line 62 "calc.tab.h" /* yacc.c:1909  */
+#line 112 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -71,4 +121,4 @@ extern YYSTYPE yylval;
 
 int yyparse (void);
 
-#endif /* !YY_YY_CALC_TAB_H_INCLUDED  */
+#endif /* !YY_YY_Y_TAB_H_INCLUDED  */
