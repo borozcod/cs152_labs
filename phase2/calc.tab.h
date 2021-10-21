@@ -45,63 +45,23 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    FUNCTION = 258,
-    BEGIN_PARAMS = 259,
-    END_PARAMS = 260,
-    BEGIN_LOCALS = 261,
-    END_LOCALS = 262,
-    BEGIN_BODY = 263,
-    END_BODY = 264,
-    INTEGER = 265,
-    ARRAY = 266,
-    OF = 267,
-    IF = 268,
-    THEN = 269,
-    ENDIF = 270,
-    ELSE = 271,
-    WHILE = 272,
-    DO = 273,
-    BEGINLOOP = 274,
-    ENDLOOP = 275,
-    CONTINUE = 276,
-    READ = 277,
-    WRITE = 278,
-    AND = 279,
-    OR = 280,
-    NOT = 281,
-    TRUE = 282,
-    FALSE = 283,
-    RETURN = 284,
-    SUB = 285,
-    ADD = 286,
-    MULT = 287,
-    DIV = 288,
-    MOD = 289,
-    EQ = 290,
-    NEQ = 291,
-    LT = 292,
-    GT = 293,
-    LTE = 294,
-    GTE = 295,
-    IDENT = 296,
-    NUMBER = 297,
-    SEMICOLON = 298,
-    COLON = 299,
-    COMMA = 300,
-    L_PAREN = 301,
-    R_PAREN = 302,
-    L_SQUARE_BRACKET = 303,
-    R_SQUARE_BRACKET = 304,
-    ASSIGN = 305,
-    NO_IDENT1 = 306,
-    NO_IDENT2 = 307,
-    COMMENT = 308
+    IDENT = 258
   };
 #endif
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+
+union YYSTYPE
+{
+#line 14 "calc.y" /* yacc.c:1909  */
+
+char* str;
+
+#line 62 "calc.tab.h" /* yacc.c:1909  */
+};
+
+typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif

@@ -1,166 +1,50 @@
-Terminals unused in grammar
-
-   FUNCTION
-   BEGIN_PARAMS
-   END_PARAMS
-   BEGIN_LOCALS
-   END_LOCALS
-   BEGIN_BODY
-   END_BODY
-   INTEGER
-   ARRAY
-   OF
-   IF
-   THEN
-   ENDIF
-   ELSE
-   WHILE
-   DO
-   BEGINLOOP
-   ENDLOOP
-   CONTINUE
-   READ
-   WRITE
-   AND
-   OR
-   NOT
-   TRUE
-   FALSE
-   RETURN
-   MULT
-   DIV
-   MOD
-   EQ
-   NEQ
-   LT
-   GT
-   LTE
-   GTE
-   IDENT
-   NUMBER
-   SEMICOLON
-   COLON
-   COMMA
-   L_PAREN
-   R_PAREN
-   L_SQUARE_BRACKET
-   R_SQUARE_BRACKET
-   ASSIGN
-   NO_IDENT1
-   NO_IDENT2
-   COMMENT
-
-
 Grammar
 
-    0 $accept: expr $end
+    0 $accept: ident $end
 
-    1 expr: expr ADD
-    2     | expr SUB
-    3     | %empty
+    1 ident: IDENT
 
 
 Terminals, with rules where they appear
 
 $end (0) 0
 error (256)
-FUNCTION (258)
-BEGIN_PARAMS (259)
-END_PARAMS (260)
-BEGIN_LOCALS (261)
-END_LOCALS (262)
-BEGIN_BODY (263)
-END_BODY (264)
-INTEGER (265)
-ARRAY (266)
-OF (267)
-IF (268)
-THEN (269)
-ENDIF (270)
-ELSE (271)
-WHILE (272)
-DO (273)
-BEGINLOOP (274)
-ENDLOOP (275)
-CONTINUE (276)
-READ (277)
-WRITE (278)
-AND (279)
-OR (280)
-NOT (281)
-TRUE (282)
-FALSE (283)
-RETURN (284)
-SUB (285) 2
-ADD (286) 1
-MULT (287)
-DIV (288)
-MOD (289)
-EQ (290)
-NEQ (291)
-LT (292)
-GT (293)
-LTE (294)
-GTE (295)
-IDENT (296)
-NUMBER (297)
-SEMICOLON (298)
-COLON (299)
-COMMA (300)
-L_PAREN (301)
-R_PAREN (302)
-L_SQUARE_BRACKET (303)
-R_SQUARE_BRACKET (304)
-ASSIGN (305)
-NO_IDENT1 (306)
-NO_IDENT2 (307)
-COMMENT (308)
+IDENT (258) 1
 
 
 Nonterminals, with rules where they appear
 
-$accept (54)
+$accept (4)
     on left: 0
-expr (55)
-    on left: 1 2 3, on right: 0 1 2
+ident (5)
+    on left: 1, on right: 0
 
 
 State 0
 
-    0 $accept: . expr $end
+    0 $accept: . ident $end
 
-    $default  reduce using rule 3 (expr)
+    IDENT  shift, and go to state 1
 
-    expr  go to state 1
+    ident  go to state 2
 
 
 State 1
 
-    0 $accept: expr . $end
-    1 expr: expr . ADD
-    2     | expr . SUB
+    1 ident: IDENT .
 
-    $end  shift, and go to state 2
-    SUB   shift, and go to state 3
-    ADD   shift, and go to state 4
+    $default  reduce using rule 1 (ident)
 
 
 State 2
 
-    0 $accept: expr $end .
+    0 $accept: ident . $end
 
-    $default  accept
+    $end  shift, and go to state 3
 
 
 State 3
 
-    2 expr: expr SUB .
+    0 $accept: ident $end .
 
-    $default  reduce using rule 2 (expr)
-
-
-State 4
-
-    1 expr: expr ADD .
-
-    $default  reduce using rule 1 (expr)
+    $default  accept
