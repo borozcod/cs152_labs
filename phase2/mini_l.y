@@ -24,9 +24,50 @@ line
 line: '\n' 
     | function '\n' {printf("exp");}
 
-function: FUNCTION ident BEGIN_PARAMS declaration END_PARAMS
+function: FUNCTION ident SEMICOLON BEGIN_PARAMS declaration END_PARAMS BEGIN_LOCALS declaration END_LOCALS BEGIN_BODY statement END_BODY
+
+
 ident: IDENT {printf("ident %s\n", $1);} 
-declaration: ident COLON INTEGER {printf("delaration ident\n");} | {printf("declaration -> epsilone\n");}
+
+identifiers: ident {printf("identifiers -> ident\n");} | 
+
+declaration:
+    identifiers declarations
+    | declaration declaration
+    | {printf("declaration -> epsilone\n");}
+
+declarations:
+    COMMA identifiers declarations {printf("delaration comma\n");} 
+    | COLON arr INTEGER SEMICOLON {printf("delaration ident COLON INTEGER\n");}
+
+arr: ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF {printf("delaration array\n");} | 
+
+
+
+statement: var ASSIGN expression
+
+
+expression: multexpression expops
+expops: ADD multexpression
+    | SUB multexpression
+    |
+
+multexpression: term termop
+termop: MULT term
+    | DIV term
+    | MOD term
+    | 
+
+neg: SUB | 
+termoption: var | NUMBER | L_PAREN expression R_PAREN
+term: neg termoption
+    | identifiers L_PAREN expressionlist R_PAREN
+expressionlist: expression expressions
+expressions: COMMA expression expressions | 
+
+
+var: identifiers | identifiers L_SQUARE_BRACKET expression R_SQUARE_BRACKET
+    
 
 %%
 int main() {

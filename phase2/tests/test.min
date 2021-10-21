@@ -1,4 +1,12 @@
-function testing 
-beginparams 
+function fibonacci;
+beginparams
     k : integer;
 endparams
+beginlocals
+test,ing,the : integer;
+test,ing,the : integer;
+t : array [20] of integer;
+endlocals
+beginbody
+endbody
+
