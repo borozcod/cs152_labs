@@ -1,21 +1,10 @@
 function main;
 beginparams
 endparams
-
 beginlocals
-
-  n : integer;
-  i, j, k: integer;
-  t : array [20] of integer;
-
 endlocals
-
 beginbody
-
-  n := 20;
-  if i<j then
-     t[j] := k;
-  endif;
-
-
+ if k % 2 == 0 then
+           continue;
+       endif;
 endbody

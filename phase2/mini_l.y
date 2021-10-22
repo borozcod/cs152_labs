@@ -41,7 +41,7 @@ declarations:
 arr: ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF {printf("declaration -> identifiers COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER\n");} | {printf("declarations -> epsilon\n");}
 
 /*Statement*/
-statements: statement SEMICOLON statements |
+statements: statement SEMICOLON statements | {printf("statements -> epsilon\n");}
 
 assignment: var ASSIGN expression
 
@@ -49,10 +49,27 @@ ifstmt: IF boolexpr THEN statements else ENDIF SEMICOLON
 else:
      ELSE statements {printf("IF bool_exp THEN statements ELSE statements ENDIF\n");} 
     | {printf("statement -> IF bool_exp THEN statements ENDIF\n");}
+while: WHILE boolexpr BEGINLOOP statements ENDLOOP {printf("statement -> WHILE bool_exp BEGINLOOP statements ENDLOOP\n");}
+do: DO BEGINLOOP statements ENDLOOP WHILE boolexpr {printf("statement -> DO BEGINLOOP statements ENDLOOP WHILE bool_exp\n");}
+read: READ vars {printf("statement -> READ vars\n");}
+write: WRITE vars {printf("statement -> WRITE vars\n");}
+return: expression {printf("statement -> return expression\n");}
+
+vars: var varcomma
+varcomma: COMMA var varcomma | 
+
+
+
 
 statement: 
     assignment {printf("statement -> var ASSIGN expression\n");}
     | ifstmt
+    | while
+    | do
+    | read
+    | write
+    | CONTINUE {printf("statement -> CONTINUE\n");}
+    | return
 
 
 /*Expression*/
@@ -65,9 +82,9 @@ expressionseq:
 
 multexpression: term termseq
 termseq:
-      MULT term termseq
-    | DIV term termseq
-    | MOD term termseq
+      MULT term termseq {printf("multiplicative_expression -> term MULT term\n");}
+    | DIV term termseq {printf("multiplicative_expression -> term DIV term\n");}
+    | MOD term termseq {printf("multiplicative_expression -> term MOD term\n");}
     | 
 
 neg: SUB |
