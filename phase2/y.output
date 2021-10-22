@@ -50,7 +50,7 @@ Grammar
 
    16 assignment: var ASSIGN expression
 
-   17 ifstmt: IF boolexpr THEN statements else ENDIF SEMICOLON
+   17 ifstmt: IF boolexpr THEN statements else ENDIF
 
    18 else: ELSE statements
    19     | %empty
@@ -174,7 +174,7 @@ GT (294) 56
 LTE (295) 57
 GTE (296) 58
 NUMBER (297) 12 46
-SEMICOLON (298) 5 11 14 17
+SEMICOLON (298) 5 11 14
 COLON (299) 11
 COMMA (300) 10 26
 L_PAREN (301) 47 69
@@ -586,7 +586,7 @@ State 35
 
 State 36
 
-   17 ifstmt: IF . boolexpr THEN statements else ENDIF SEMICOLON
+   17 ifstmt: IF . boolexpr THEN statements else ENDIF
 
     NOT  shift, and go to state 59
 
@@ -821,7 +821,7 @@ State 60
 
 State 61
 
-   17 ifstmt: IF boolexpr . THEN statements else ENDIF SEMICOLON
+   17 ifstmt: IF boolexpr . THEN statements else ENDIF
 
     THEN  shift, and go to state 87
 
@@ -1149,7 +1149,7 @@ State 86
 
 State 87
 
-   17 ifstmt: IF boolexpr THEN . statements else ENDIF SEMICOLON
+   17 ifstmt: IF boolexpr THEN . statements else ENDIF
 
     IDENT     shift, and go to state 6
     IF        shift, and go to state 36
@@ -1434,7 +1434,7 @@ State 112
 
 State 113
 
-   17 ifstmt: IF boolexpr THEN statements . else ENDIF SEMICOLON
+   17 ifstmt: IF boolexpr THEN statements . else ENDIF
 
     ELSE  shift, and go to state 127
 
@@ -1581,7 +1581,7 @@ State 127
 
 State 128
 
-   17 ifstmt: IF boolexpr THEN statements else . ENDIF SEMICOLON
+   17 ifstmt: IF boolexpr THEN statements else . ENDIF
 
     ENDIF  shift, and go to state 135
 
@@ -1637,9 +1637,9 @@ State 134
 
 State 135
 
-   17 ifstmt: IF boolexpr THEN statements else ENDIF . SEMICOLON
+   17 ifstmt: IF boolexpr THEN statements else ENDIF .
 
-    SEMICOLON  shift, and go to state 137
+    $default  reduce using rule 17 (ifstmt)
 
 
 State 136
@@ -1647,10 +1647,3 @@ State 136
    21 do: DO BEGINLOOP statements ENDLOOP WHILE boolexpr .
 
     $default  reduce using rule 21 (do)
-
-
-State 137
-
-   17 ifstmt: IF boolexpr THEN statements else ENDIF SEMICOLON .
-
-    $default  reduce using rule 17 (ifstmt)

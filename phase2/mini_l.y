@@ -45,7 +45,7 @@ statements: statement SEMICOLON statements | {printf("statements -> epsilon\n");
 
 assignment: var ASSIGN expression
 
-ifstmt: IF boolexpr THEN statements else ENDIF SEMICOLON
+ifstmt: IF boolexpr THEN statements else ENDIF
 else:
      ELSE statements {printf("IF bool_exp THEN statements ELSE statements ENDIF\n");} 
     | {printf("statement -> IF bool_exp THEN statements ENDIF\n");}
@@ -76,8 +76,8 @@ statement:
 
 expression: multexpression expressionseq
 expressionseq: 
-      ADD multexpression expressionseq
-    | SUB multexpression expressionseq
+      ADD multexpression expressionseq {printf("expression -> multiplicative_expression ADD multiplicative_expression\n");}
+    | SUB multexpression expressionseq  {printf("expression -> multiplicative_expression SUB multiplicative_expression\n");}
     |
 
 multexpression: term termseq
