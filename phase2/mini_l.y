@@ -45,7 +45,7 @@ statements: statement SEMICOLON statements |
 
 assignment: var ASSIGN expression
 
-ifstmt: IF {printf("match!!!\n");} boolexpr THEN statements else ENDIF SEMICOLON
+ifstmt: IF boolexpr THEN statements else ENDIF SEMICOLON
 else:
      ELSE statements {printf("IF bool_exp THEN statements ELSE statements ENDIF\n");} 
     | {printf("statement -> IF bool_exp THEN statements ENDIF\n");}
@@ -79,7 +79,7 @@ termoption:
 
 term: 
       neg termoption
-    | ident L_PAREN expressionlist R_PAREN
+    | ident L_PAREN expressionlist R_PAREN {printf("ident L_PAREN expressionlist R_PAREN\n");}
 expressionlist: expression expressioncomma
 expressioncomma: COMMA expression expressioncomma  | 
 
@@ -105,12 +105,11 @@ relationandexpr: relationexpr relationandexprseq
 relationandexprseq: AND relationexpr relationandexprseq |
 
 relationexpr: not relationexproptions
-relationexproptions: expression comp expression
-    | TRUE
-    | FALSE
-    | L_PAREN boolexpr R_PAREN 
-
-   
+relationexproptions: 
+      expression comp expression {printf("relation_exp -> expression comp expression\n");}
+    | TRUE {printf("relation_exp -> TRUE\n");}
+    | FALSE {printf("relation_exp -> FALSE\n");}
+    | L_PAREN boolexpr R_PAREN {printf("relation_exp -> L_PAREN boolexpr R_PAREN\n");}
 
 %%
 int main() {
