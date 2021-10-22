@@ -70,7 +70,7 @@ termseq:
     | MOD term termseq
     | 
 
-neg: SUB | 
+neg: SUB |
 
 termoption: 
       var {printf("term -> var\n");}
@@ -78,11 +78,13 @@ termoption:
     | L_PAREN expression R_PAREN {printf("term -> L_PAREN expression R_PAREN\n");}
 
 term: 
-      neg termoption
-    | ident L_PAREN expressionlist R_PAREN {printf("ident L_PAREN expressionlist R_PAREN\n");}
+     termoption  {printf("term -> var\n");}
+    /*| ident L_PAREN expressionlist R_PAREN {printf("ident L_PAREN expressionlist R_PAREN\n");} TODO*/
+
+/*
 expressionlist: expression expressioncomma
 expressioncomma: COMMA expression expressioncomma  | 
-
+*/
 
 var: ident {printf("var -> ident\n");}
     | ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET {printf("var -> ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET\n");}

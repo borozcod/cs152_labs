@@ -1,3 +1,8 @@
+Nonterminals useless in grammar
+
+   neg
+
+
 Terminals unused in grammar
 
    WHILE
@@ -13,28 +18,13 @@ Terminals unused in grammar
    COMMENT
 
 
-Rules useless in parser due to conflicts
+Rules useless in grammar
 
-   27 expressionseq: ADD multexpression
-   28              | SUB multexpression
-   29              | %empty
+   56 neg: SUB
+   57    | %empty
 
 
-State 44 conflicts: 2 shift/reduce
-State 48 conflicts: 1 shift/reduce
-State 51 conflicts: 1 shift/reduce
-State 58 conflicts: 13 reduce/reduce
-State 71 conflicts: 1 shift/reduce
-State 78 conflicts: 1 shift/reduce
-State 79 conflicts: 1 shift/reduce
-State 80 conflicts: 1 shift/reduce
-State 84 conflicts: 1 shift/reduce
-State 87 conflicts: 1 shift/reduce
-State 88 conflicts: 1 shift/reduce
-State 89 conflicts: 1 shift/reduce
-State 99 conflicts: 13 reduce/reduce
-State 100 conflicts: 13 reduce/reduce
-State 109 conflicts: 1 shift/reduce
+State 55 conflicts: 3 shift/reduce
 
 
 Grammar
@@ -75,69 +65,54 @@ Grammar
    20 statement: assignment
    21          | ifstmt
 
-   22 expression: multexpression expops
+   22 expression: multexpression expressionseq
 
-   23 expops: ADD multexpression
-   24       | SUB multexpression
-   25       | %empty
+   23 expressionseq: ADD multexpression expressionseq
+   24              | SUB multexpression expressionseq
+   25              | %empty
 
-   26 expression: multexpression expressionseq
+   26 multexpression: term termseq
 
-   27 expressionseq: ADD multexpression
-   28              | SUB multexpression
-   29              | %empty
+   27 termseq: MULT term termseq
+   28        | DIV term termseq
+   29        | MOD term termseq
+   30        | %empty
 
-   30 multexpression: term termseq
+   31 termoption: var
+   32           | NUMBER
+   33           | L_PAREN expression R_PAREN
 
-   31 termseq: MULT term
-   32        | DIV term
-   33        | MOD term
-   34        | %empty
+   34 term: termoption
 
-   35 neg: SUB
-   36    | %empty
+   35 var: ident
+   36    | ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
 
-   37 termoption: var
-   38           | NUMBER
-   39           | L_PAREN expression R_PAREN
+   37 not: NOT
+   38    | %empty
 
-   40 term: neg termoption
-   41     | ident L_PAREN expressionlist R_PAREN
+   39 comp: EQ
+   40     | NEQ
+   41     | LT
+   42     | GT
+   43     | LTE
+   44     | GTE
 
-   42 expressionlist: expression expressioncomma
+   45 boolexpr: relationandexpr boolexprseq
 
-   43 expressioncomma: COMMA expression expressioncomma
-   44                | %empty
+   46 boolexprseq: OR relationandexpr boolexprseq
+   47            | %empty
 
-   45 var: ident
-   46    | ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
+   48 relationandexpr: relationexpr relationandexprseq
 
-   47 not: NOT
-   48    | %empty
+   49 relationandexprseq: AND relationexpr relationandexprseq
+   50                   | %empty
 
-   49 comp: EQ
-   50     | NEQ
-   51     | LT
-   52     | GT
-   53     | LTE
-   54     | GTE
+   51 relationexpr: not relationexproptions
 
-   55 boolexpr: relationandexpr boolexprseq
-
-   56 boolexprseq: OR relationandexpr boolexprseq
-   57            | %empty
-
-   58 relationandexpr: relationexpr relationandexprseq
-
-   59 relationandexprseq: AND relationexpr relationandexprseq
-   60                   | %empty
-
-   61 relationexpr: not relationexproptions
-
-   62 relationexproptions: expression comp expression
-   63                    | TRUE
-   64                    | FALSE
-   65                    | L_PAREN boolexpr R_PAREN
+   52 relationexproptions: expression comp expression
+   53                    | TRUE
+   54                    | FALSE
+   55                    | L_PAREN boolexpr R_PAREN
 
 
 Terminals, with rules where they appear
@@ -167,31 +142,31 @@ ENDLOOP (276)
 CONTINUE (277)
 READ (278)
 WRITE (279)
-AND (280) 59
-OR (281) 56
-NOT (282) 47
-TRUE (283) 63
-FALSE (284) 64
+AND (280) 49
+OR (281) 46
+NOT (282) 37
+TRUE (283) 53
+FALSE (284) 54
 RETURN (285)
-SUB (286) 24 28 35
-ADD (287) 23 27
-MULT (288) 31
-DIV (289) 32
-MOD (290) 33
-EQ (291) 49
-NEQ (292) 50
-LT (293) 51
-GT (294) 52
-LTE (295) 53
-GTE (296) 54
-NUMBER (297) 12 38
+SUB (286) 24
+ADD (287) 23
+MULT (288) 27
+DIV (289) 28
+MOD (290) 29
+EQ (291) 39
+NEQ (292) 40
+LT (293) 41
+GT (294) 42
+LTE (295) 43
+GTE (296) 44
+NUMBER (297) 12 32
 SEMICOLON (298) 5 11 14 17
 COLON (299) 11
-COMMA (300) 10 43
-L_PAREN (301) 39 41 65
-R_PAREN (302) 39 41 65
-L_SQUARE_BRACKET (303) 12 46
-R_SQUARE_BRACKET (304) 12 46
+COMMA (300) 10
+L_PAREN (301) 33 55
+R_PAREN (302) 33 55
+L_SQUARE_BRACKET (303) 12 36
+R_SQUARE_BRACKET (304) 12 36
 ASSIGN (305) 16
 NO_IDENT1 (306)
 NO_IDENT2 (307)
@@ -209,7 +184,7 @@ line (57)
 function (58)
     on left: 5, on right: 4
 ident (59)
-    on left: 6, on right: 5 9 10 41 45 46
+    on left: 6, on right: 5 9 10 35 36
 declarationseq (60)
     on left: 7 8, on right: 5 7
 declaration (61)
@@ -229,43 +204,35 @@ else (67)
 statement (68)
     on left: 20 21, on right: 14
 expression (69)
-    on left: 22 26, on right: 16 39 42 43 46 62
-expops (70)
-    on left: 23 24 25, on right: 22
-expressionseq (71)
-    on left: 27 28 29, on right: 26
-multexpression (72)
-    on left: 30, on right: 22 23 24 26 27 28
-termseq (73)
-    on left: 31 32 33 34, on right: 30
-neg (74)
-    on left: 35 36, on right: 40
-termoption (75)
-    on left: 37 38 39, on right: 40
-term (76)
-    on left: 40 41, on right: 30 31 32 33
-expressionlist (77)
-    on left: 42, on right: 41
-expressioncomma (78)
-    on left: 43 44, on right: 42 43
-var (79)
-    on left: 45 46, on right: 16 37
-not (80)
-    on left: 47 48, on right: 61
-comp (81)
-    on left: 49 50 51 52 53 54, on right: 62
-boolexpr (82)
-    on left: 55, on right: 17 65
-boolexprseq (83)
-    on left: 56 57, on right: 55 56
-relationandexpr (84)
-    on left: 58, on right: 55 56
-relationandexprseq (85)
-    on left: 59 60, on right: 58 59
-relationexpr (86)
-    on left: 61, on right: 58 59
-relationexproptions (87)
-    on left: 62 63 64 65, on right: 61
+    on left: 22, on right: 16 33 36 52
+expressionseq (70)
+    on left: 23 24 25, on right: 22 23 24
+multexpression (71)
+    on left: 26, on right: 22 23 24
+termseq (72)
+    on left: 27 28 29 30, on right: 26 27 28 29
+termoption (73)
+    on left: 31 32 33, on right: 34
+term (74)
+    on left: 34, on right: 26 27 28 29
+var (75)
+    on left: 35 36, on right: 16 31
+not (76)
+    on left: 37 38, on right: 51
+comp (77)
+    on left: 39 40 41 42 43 44, on right: 52
+boolexpr (78)
+    on left: 45, on right: 17 55
+boolexprseq (79)
+    on left: 46 47, on right: 45 46
+relationandexpr (80)
+    on left: 48, on right: 45 46
+relationandexprseq (81)
+    on left: 49 50, on right: 48 49
+relationexpr (82)
+    on left: 51, on right: 48 49
+relationexproptions (83)
+    on left: 52 53 54 55, on right: 51
 
 
 State 0
@@ -579,7 +546,7 @@ State 36
 
     NOT  shift, and go to state 43
 
-    $default  reduce using rule 48 (not)
+    $default  reduce using rule 38 (not)
 
     not              go to state 44
     boolexpr         go to state 45
@@ -589,12 +556,12 @@ State 36
 
 State 37
 
-   45 var: ident .
-   46    | ident . L_SQUARE_BRACKET expression R_SQUARE_BRACKET
+   35 var: ident .
+   36    | ident . L_SQUARE_BRACKET expression R_SQUARE_BRACKET
 
     L_SQUARE_BRACKET  shift, and go to state 48
 
-    $default  reduce using rule 45 (var)
+    $default  reduce using rule 35 (var)
 
 
 State 38
@@ -634,30 +601,27 @@ State 42
 
 State 43
 
-   47 not: NOT .
+   37 not: NOT .
 
-    $default  reduce using rule 47 (not)
+    $default  reduce using rule 37 (not)
 
 
 State 44
 
-   61 relationexpr: not . relationexproptions
+   51 relationexpr: not . relationexproptions
 
     IDENT    shift, and go to state 6
     TRUE     shift, and go to state 52
     FALSE    shift, and go to state 53
-    SUB      shift, and go to state 54
+    NUMBER   shift, and go to state 54
     L_PAREN  shift, and go to state 55
 
-    IDENT     [reduce using rule 36 (neg)]
-    L_PAREN   [reduce using rule 36 (neg)]
-    $default  reduce using rule 36 (neg)
-
-    ident                go to state 56
-    expression           go to state 57
-    multexpression       go to state 58
-    neg                  go to state 59
-    term                 go to state 60
+    ident                go to state 37
+    expression           go to state 56
+    multexpression       go to state 57
+    termoption           go to state 58
+    term                 go to state 59
+    var                  go to state 60
     relationexproptions  go to state 61
 
 
@@ -670,41 +634,40 @@ State 45
 
 State 46
 
-   55 boolexpr: relationandexpr . boolexprseq
+   45 boolexpr: relationandexpr . boolexprseq
 
     OR  shift, and go to state 63
 
-    $default  reduce using rule 57 (boolexprseq)
+    $default  reduce using rule 47 (boolexprseq)
 
     boolexprseq  go to state 64
 
 
 State 47
 
-   58 relationandexpr: relationexpr . relationandexprseq
+   48 relationandexpr: relationexpr . relationandexprseq
 
     AND  shift, and go to state 65
 
-    $default  reduce using rule 60 (relationandexprseq)
+    $default  reduce using rule 50 (relationandexprseq)
 
     relationandexprseq  go to state 66
 
 
 State 48
 
-   46 var: ident L_SQUARE_BRACKET . expression R_SQUARE_BRACKET
+   36 var: ident L_SQUARE_BRACKET . expression R_SQUARE_BRACKET
 
-    IDENT  shift, and go to state 6
-    SUB    shift, and go to state 54
+    IDENT    shift, and go to state 6
+    NUMBER   shift, and go to state 54
+    L_PAREN  shift, and go to state 67
 
-    IDENT     [reduce using rule 36 (neg)]
-    $default  reduce using rule 36 (neg)
-
-    ident           go to state 56
-    expression      go to state 67
-    multexpression  go to state 58
-    neg             go to state 59
-    term            go to state 60
+    ident           go to state 37
+    expression      go to state 68
+    multexpression  go to state 57
+    termoption      go to state 58
+    term            go to state 59
+    var             go to state 60
 
 
 State 49
@@ -724,7 +687,7 @@ State 50
     $default  reduce using rule 15 (statements)
 
     ident       go to state 37
-    statements  go to state 68
+    statements  go to state 69
     assignment  go to state 39
     ifstmt      go to state 40
     statement   go to state 41
@@ -735,146 +698,124 @@ State 51
 
    16 assignment: var ASSIGN . expression
 
-    IDENT  shift, and go to state 6
-    SUB    shift, and go to state 54
+    IDENT    shift, and go to state 6
+    NUMBER   shift, and go to state 54
+    L_PAREN  shift, and go to state 67
 
-    IDENT     [reduce using rule 36 (neg)]
-    $default  reduce using rule 36 (neg)
-
-    ident           go to state 56
-    expression      go to state 69
-    multexpression  go to state 58
-    neg             go to state 59
-    term            go to state 60
+    ident           go to state 37
+    expression      go to state 70
+    multexpression  go to state 57
+    termoption      go to state 58
+    term            go to state 59
+    var             go to state 60
 
 
 State 52
 
-   63 relationexproptions: TRUE .
+   53 relationexproptions: TRUE .
 
-    $default  reduce using rule 63 (relationexproptions)
+    $default  reduce using rule 53 (relationexproptions)
 
 
 State 53
 
-   64 relationexproptions: FALSE .
+   54 relationexproptions: FALSE .
 
-    $default  reduce using rule 64 (relationexproptions)
+    $default  reduce using rule 54 (relationexproptions)
 
 
 State 54
 
-   35 neg: SUB .
+   32 termoption: NUMBER .
 
-    $default  reduce using rule 35 (neg)
+    $default  reduce using rule 32 (termoption)
 
 
 State 55
 
-   65 relationexproptions: L_PAREN . boolexpr R_PAREN
+   33 termoption: L_PAREN . expression R_PAREN
+   55 relationexproptions: L_PAREN . boolexpr R_PAREN
 
-    NOT  shift, and go to state 43
+    IDENT    shift, and go to state 6
+    NOT      shift, and go to state 43
+    NUMBER   shift, and go to state 54
+    L_PAREN  shift, and go to state 67
 
-    $default  reduce using rule 48 (not)
+    IDENT     [reduce using rule 38 (not)]
+    NUMBER    [reduce using rule 38 (not)]
+    L_PAREN   [reduce using rule 38 (not)]
+    $default  reduce using rule 38 (not)
 
+    ident            go to state 37
+    expression       go to state 71
+    multexpression   go to state 57
+    termoption       go to state 58
+    term             go to state 59
+    var              go to state 60
     not              go to state 44
-    boolexpr         go to state 70
+    boolexpr         go to state 72
     relationandexpr  go to state 46
     relationexpr     go to state 47
 
 
 State 56
 
-   41 term: ident . L_PAREN expressionlist R_PAREN
+   52 relationexproptions: expression . comp expression
 
-    L_PAREN  shift, and go to state 71
+    EQ   shift, and go to state 73
+    NEQ  shift, and go to state 74
+    LT   shift, and go to state 75
+    GT   shift, and go to state 76
+    LTE  shift, and go to state 77
+    GTE  shift, and go to state 78
+
+    comp  go to state 79
 
 
 State 57
 
-   62 relationexproptions: expression . comp expression
+   22 expression: multexpression . expressionseq
 
-    EQ   shift, and go to state 72
-    NEQ  shift, and go to state 73
-    LT   shift, and go to state 74
-    GT   shift, and go to state 75
-    LTE  shift, and go to state 76
-    GTE  shift, and go to state 77
+    SUB  shift, and go to state 80
+    ADD  shift, and go to state 81
 
-    comp  go to state 78
+    $default  reduce using rule 25 (expressionseq)
+
+    expressionseq  go to state 82
 
 
 State 58
 
-   22 expression: multexpression . expops
-   26           | multexpression . expressionseq
+   34 term: termoption .
 
-    SUB  shift, and go to state 79
-    ADD  shift, and go to state 80
-
-    THEN              reduce using rule 25 (expops)
-    THEN              [reduce using rule 29 (expressionseq)]
-    AND               reduce using rule 25 (expops)
-    AND               [reduce using rule 29 (expressionseq)]
-    OR                reduce using rule 25 (expops)
-    OR                [reduce using rule 29 (expressionseq)]
-    EQ                reduce using rule 25 (expops)
-    EQ                [reduce using rule 29 (expressionseq)]
-    NEQ               reduce using rule 25 (expops)
-    NEQ               [reduce using rule 29 (expressionseq)]
-    LT                reduce using rule 25 (expops)
-    LT                [reduce using rule 29 (expressionseq)]
-    GT                reduce using rule 25 (expops)
-    GT                [reduce using rule 29 (expressionseq)]
-    LTE               reduce using rule 25 (expops)
-    LTE               [reduce using rule 29 (expressionseq)]
-    GTE               reduce using rule 25 (expops)
-    GTE               [reduce using rule 29 (expressionseq)]
-    SEMICOLON         reduce using rule 25 (expops)
-    SEMICOLON         [reduce using rule 29 (expressionseq)]
-    COMMA             reduce using rule 25 (expops)
-    COMMA             [reduce using rule 29 (expressionseq)]
-    R_PAREN           reduce using rule 25 (expops)
-    R_PAREN           [reduce using rule 29 (expressionseq)]
-    R_SQUARE_BRACKET  reduce using rule 25 (expops)
-    R_SQUARE_BRACKET  [reduce using rule 29 (expressionseq)]
-    $default          reduce using rule 25 (expops)
-
-    expops         go to state 81
-    expressionseq  go to state 82
+    $default  reduce using rule 34 (term)
 
 
 State 59
 
-   40 term: neg . termoption
+   26 multexpression: term . termseq
 
-    IDENT    shift, and go to state 6
-    NUMBER   shift, and go to state 83
-    L_PAREN  shift, and go to state 84
+    MULT  shift, and go to state 83
+    DIV   shift, and go to state 84
+    MOD   shift, and go to state 85
 
-    ident       go to state 37
-    termoption  go to state 85
-    var         go to state 86
+    $default  reduce using rule 30 (termseq)
+
+    termseq  go to state 86
 
 
 State 60
 
-   30 multexpression: term . termseq
+   31 termoption: var .
 
-    MULT  shift, and go to state 87
-    DIV   shift, and go to state 88
-    MOD   shift, and go to state 89
-
-    $default  reduce using rule 34 (termseq)
-
-    termseq  go to state 90
+    $default  reduce using rule 31 (termoption)
 
 
 State 61
 
-   61 relationexpr: not relationexproptions .
+   51 relationexpr: not relationexproptions .
 
-    $default  reduce using rule 61 (relationexpr)
+    $default  reduce using rule 51 (relationexpr)
 
 
 State 62
@@ -887,7 +828,7 @@ State 62
     $default  reduce using rule 15 (statements)
 
     ident       go to state 37
-    statements  go to state 91
+    statements  go to state 87
     assignment  go to state 39
     ifstmt      go to state 40
     statement   go to state 41
@@ -896,455 +837,363 @@ State 62
 
 State 63
 
-   56 boolexprseq: OR . relationandexpr boolexprseq
+   46 boolexprseq: OR . relationandexpr boolexprseq
 
     NOT  shift, and go to state 43
 
-    $default  reduce using rule 48 (not)
+    $default  reduce using rule 38 (not)
 
     not              go to state 44
-    relationandexpr  go to state 92
+    relationandexpr  go to state 88
     relationexpr     go to state 47
 
 
 State 64
 
-   55 boolexpr: relationandexpr boolexprseq .
+   45 boolexpr: relationandexpr boolexprseq .
 
-    $default  reduce using rule 55 (boolexpr)
+    $default  reduce using rule 45 (boolexpr)
 
 
 State 65
 
-   59 relationandexprseq: AND . relationexpr relationandexprseq
+   49 relationandexprseq: AND . relationexpr relationandexprseq
 
     NOT  shift, and go to state 43
 
-    $default  reduce using rule 48 (not)
+    $default  reduce using rule 38 (not)
 
     not           go to state 44
-    relationexpr  go to state 93
+    relationexpr  go to state 89
 
 
 State 66
 
-   58 relationandexpr: relationexpr relationandexprseq .
+   48 relationandexpr: relationexpr relationandexprseq .
 
-    $default  reduce using rule 58 (relationandexpr)
+    $default  reduce using rule 48 (relationandexpr)
 
 
 State 67
 
-   46 var: ident L_SQUARE_BRACKET expression . R_SQUARE_BRACKET
+   33 termoption: L_PAREN . expression R_PAREN
 
-    R_SQUARE_BRACKET  shift, and go to state 94
+    IDENT    shift, and go to state 6
+    NUMBER   shift, and go to state 54
+    L_PAREN  shift, and go to state 67
+
+    ident           go to state 37
+    expression      go to state 71
+    multexpression  go to state 57
+    termoption      go to state 58
+    term            go to state 59
+    var             go to state 60
 
 
 State 68
+
+   36 var: ident L_SQUARE_BRACKET expression . R_SQUARE_BRACKET
+
+    R_SQUARE_BRACKET  shift, and go to state 90
+
+
+State 69
 
    14 statements: statement SEMICOLON statements .
 
     $default  reduce using rule 14 (statements)
 
 
-State 69
+State 70
 
    16 assignment: var ASSIGN expression .
 
     $default  reduce using rule 16 (assignment)
 
 
-State 70
-
-   65 relationexproptions: L_PAREN boolexpr . R_PAREN
-
-    R_PAREN  shift, and go to state 95
-
-
 State 71
 
-   41 term: ident L_PAREN . expressionlist R_PAREN
+   33 termoption: L_PAREN expression . R_PAREN
 
-    IDENT  shift, and go to state 6
-    SUB    shift, and go to state 54
-
-    IDENT     [reduce using rule 36 (neg)]
-    $default  reduce using rule 36 (neg)
-
-    ident           go to state 56
-    expression      go to state 96
-    multexpression  go to state 58
-    neg             go to state 59
-    term            go to state 60
-    expressionlist  go to state 97
+    R_PAREN  shift, and go to state 91
 
 
 State 72
 
-   49 comp: EQ .
+   55 relationexproptions: L_PAREN boolexpr . R_PAREN
 
-    $default  reduce using rule 49 (comp)
+    R_PAREN  shift, and go to state 92
 
 
 State 73
 
-   50 comp: NEQ .
+   39 comp: EQ .
 
-    $default  reduce using rule 50 (comp)
+    $default  reduce using rule 39 (comp)
 
 
 State 74
 
-   51 comp: LT .
+   40 comp: NEQ .
 
-    $default  reduce using rule 51 (comp)
+    $default  reduce using rule 40 (comp)
 
 
 State 75
 
-   52 comp: GT .
+   41 comp: LT .
 
-    $default  reduce using rule 52 (comp)
+    $default  reduce using rule 41 (comp)
 
 
 State 76
 
-   53 comp: LTE .
+   42 comp: GT .
 
-    $default  reduce using rule 53 (comp)
+    $default  reduce using rule 42 (comp)
 
 
 State 77
 
-   54 comp: GTE .
+   43 comp: LTE .
 
-    $default  reduce using rule 54 (comp)
+    $default  reduce using rule 43 (comp)
 
 
 State 78
 
-   62 relationexproptions: expression comp . expression
+   44 comp: GTE .
 
-    IDENT  shift, and go to state 6
-    SUB    shift, and go to state 54
-
-    IDENT     [reduce using rule 36 (neg)]
-    $default  reduce using rule 36 (neg)
-
-    ident           go to state 56
-    expression      go to state 98
-    multexpression  go to state 58
-    neg             go to state 59
-    term            go to state 60
+    $default  reduce using rule 44 (comp)
 
 
 State 79
 
-   24 expops: SUB . multexpression
-   28 expressionseq: SUB . multexpression
+   52 relationexproptions: expression comp . expression
 
-    IDENT  shift, and go to state 6
-    SUB    shift, and go to state 54
+    IDENT    shift, and go to state 6
+    NUMBER   shift, and go to state 54
+    L_PAREN  shift, and go to state 67
 
-    IDENT     [reduce using rule 36 (neg)]
-    $default  reduce using rule 36 (neg)
-
-    ident           go to state 56
-    multexpression  go to state 99
-    neg             go to state 59
-    term            go to state 60
+    ident           go to state 37
+    expression      go to state 93
+    multexpression  go to state 57
+    termoption      go to state 58
+    term            go to state 59
+    var             go to state 60
 
 
 State 80
 
-   23 expops: ADD . multexpression
-   27 expressionseq: ADD . multexpression
+   24 expressionseq: SUB . multexpression expressionseq
 
-    IDENT  shift, and go to state 6
-    SUB    shift, and go to state 54
+    IDENT    shift, and go to state 6
+    NUMBER   shift, and go to state 54
+    L_PAREN  shift, and go to state 67
 
-    IDENT     [reduce using rule 36 (neg)]
-    $default  reduce using rule 36 (neg)
-
-    ident           go to state 56
-    multexpression  go to state 100
-    neg             go to state 59
-    term            go to state 60
+    ident           go to state 37
+    multexpression  go to state 94
+    termoption      go to state 58
+    term            go to state 59
+    var             go to state 60
 
 
 State 81
 
-   22 expression: multexpression expops .
+   23 expressionseq: ADD . multexpression expressionseq
 
-    $default  reduce using rule 22 (expression)
+    IDENT    shift, and go to state 6
+    NUMBER   shift, and go to state 54
+    L_PAREN  shift, and go to state 67
+
+    ident           go to state 37
+    multexpression  go to state 95
+    termoption      go to state 58
+    term            go to state 59
+    var             go to state 60
 
 
 State 82
 
-   26 expression: multexpression expressionseq .
+   22 expression: multexpression expressionseq .
 
-    $default  reduce using rule 26 (expression)
+    $default  reduce using rule 22 (expression)
 
 
 State 83
 
-   38 termoption: NUMBER .
+   27 termseq: MULT . term termseq
 
-    $default  reduce using rule 38 (termoption)
+    IDENT    shift, and go to state 6
+    NUMBER   shift, and go to state 54
+    L_PAREN  shift, and go to state 67
+
+    ident       go to state 37
+    termoption  go to state 58
+    term        go to state 96
+    var         go to state 60
 
 
 State 84
 
-   39 termoption: L_PAREN . expression R_PAREN
+   28 termseq: DIV . term termseq
 
-    IDENT  shift, and go to state 6
-    SUB    shift, and go to state 54
+    IDENT    shift, and go to state 6
+    NUMBER   shift, and go to state 54
+    L_PAREN  shift, and go to state 67
 
-    IDENT     [reduce using rule 36 (neg)]
-    $default  reduce using rule 36 (neg)
-
-    ident           go to state 56
-    expression      go to state 101
-    multexpression  go to state 58
-    neg             go to state 59
-    term            go to state 60
+    ident       go to state 37
+    termoption  go to state 58
+    term        go to state 97
+    var         go to state 60
 
 
 State 85
 
-   40 term: neg termoption .
+   29 termseq: MOD . term termseq
 
-    $default  reduce using rule 40 (term)
+    IDENT    shift, and go to state 6
+    NUMBER   shift, and go to state 54
+    L_PAREN  shift, and go to state 67
+
+    ident       go to state 37
+    termoption  go to state 58
+    term        go to state 98
+    var         go to state 60
 
 
 State 86
 
-   37 termoption: var .
+   26 multexpression: term termseq .
 
-    $default  reduce using rule 37 (termoption)
+    $default  reduce using rule 26 (multexpression)
 
 
 State 87
 
-   31 termseq: MULT . term
+   17 ifstmt: IF boolexpr THEN statements . else ENDIF SEMICOLON
 
-    IDENT  shift, and go to state 6
-    SUB    shift, and go to state 54
+    ELSE  shift, and go to state 99
 
-    IDENT     [reduce using rule 36 (neg)]
-    $default  reduce using rule 36 (neg)
+    $default  reduce using rule 19 (else)
 
-    ident  go to state 56
-    neg    go to state 59
-    term   go to state 102
+    else  go to state 100
 
 
 State 88
 
-   32 termseq: DIV . term
+   46 boolexprseq: OR relationandexpr . boolexprseq
 
-    IDENT  shift, and go to state 6
-    SUB    shift, and go to state 54
+    OR  shift, and go to state 63
 
-    IDENT     [reduce using rule 36 (neg)]
-    $default  reduce using rule 36 (neg)
+    $default  reduce using rule 47 (boolexprseq)
 
-    ident  go to state 56
-    neg    go to state 59
-    term   go to state 103
+    boolexprseq  go to state 101
 
 
 State 89
 
-   33 termseq: MOD . term
+   49 relationandexprseq: AND relationexpr . relationandexprseq
 
-    IDENT  shift, and go to state 6
-    SUB    shift, and go to state 54
+    AND  shift, and go to state 65
 
-    IDENT     [reduce using rule 36 (neg)]
-    $default  reduce using rule 36 (neg)
+    $default  reduce using rule 50 (relationandexprseq)
 
-    ident  go to state 56
-    neg    go to state 59
-    term   go to state 104
+    relationandexprseq  go to state 102
 
 
 State 90
 
-   30 multexpression: term termseq .
+   36 var: ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET .
 
-    $default  reduce using rule 30 (multexpression)
+    $default  reduce using rule 36 (var)
 
 
 State 91
 
-   17 ifstmt: IF boolexpr THEN statements . else ENDIF SEMICOLON
+   33 termoption: L_PAREN expression R_PAREN .
 
-    ELSE  shift, and go to state 105
-
-    $default  reduce using rule 19 (else)
-
-    else  go to state 106
+    $default  reduce using rule 33 (termoption)
 
 
 State 92
 
-   56 boolexprseq: OR relationandexpr . boolexprseq
+   55 relationexproptions: L_PAREN boolexpr R_PAREN .
 
-    OR  shift, and go to state 63
-
-    $default  reduce using rule 57 (boolexprseq)
-
-    boolexprseq  go to state 107
+    $default  reduce using rule 55 (relationexproptions)
 
 
 State 93
 
-   59 relationandexprseq: AND relationexpr . relationandexprseq
+   52 relationexproptions: expression comp expression .
 
-    AND  shift, and go to state 65
-
-    $default  reduce using rule 60 (relationandexprseq)
-
-    relationandexprseq  go to state 108
+    $default  reduce using rule 52 (relationexproptions)
 
 
 State 94
 
-   46 var: ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET .
+   24 expressionseq: SUB multexpression . expressionseq
 
-    $default  reduce using rule 46 (var)
+    SUB  shift, and go to state 80
+    ADD  shift, and go to state 81
+
+    $default  reduce using rule 25 (expressionseq)
+
+    expressionseq  go to state 103
 
 
 State 95
 
-   65 relationexproptions: L_PAREN boolexpr R_PAREN .
+   23 expressionseq: ADD multexpression . expressionseq
 
-    $default  reduce using rule 65 (relationexproptions)
+    SUB  shift, and go to state 80
+    ADD  shift, and go to state 81
+
+    $default  reduce using rule 25 (expressionseq)
+
+    expressionseq  go to state 104
 
 
 State 96
 
-   42 expressionlist: expression . expressioncomma
+   27 termseq: MULT term . termseq
 
-    COMMA  shift, and go to state 109
+    MULT  shift, and go to state 83
+    DIV   shift, and go to state 84
+    MOD   shift, and go to state 85
 
-    $default  reduce using rule 44 (expressioncomma)
+    $default  reduce using rule 30 (termseq)
 
-    expressioncomma  go to state 110
+    termseq  go to state 105
 
 
 State 97
 
-   41 term: ident L_PAREN expressionlist . R_PAREN
+   28 termseq: DIV term . termseq
 
-    R_PAREN  shift, and go to state 111
+    MULT  shift, and go to state 83
+    DIV   shift, and go to state 84
+    MOD   shift, and go to state 85
+
+    $default  reduce using rule 30 (termseq)
+
+    termseq  go to state 106
 
 
 State 98
 
-   62 relationexproptions: expression comp expression .
+   29 termseq: MOD term . termseq
 
-    $default  reduce using rule 62 (relationexproptions)
+    MULT  shift, and go to state 83
+    DIV   shift, and go to state 84
+    MOD   shift, and go to state 85
+
+    $default  reduce using rule 30 (termseq)
+
+    termseq  go to state 107
 
 
 State 99
-
-   24 expops: SUB multexpression .
-   28 expressionseq: SUB multexpression .
-
-    THEN              reduce using rule 24 (expops)
-    THEN              [reduce using rule 28 (expressionseq)]
-    AND               reduce using rule 24 (expops)
-    AND               [reduce using rule 28 (expressionseq)]
-    OR                reduce using rule 24 (expops)
-    OR                [reduce using rule 28 (expressionseq)]
-    EQ                reduce using rule 24 (expops)
-    EQ                [reduce using rule 28 (expressionseq)]
-    NEQ               reduce using rule 24 (expops)
-    NEQ               [reduce using rule 28 (expressionseq)]
-    LT                reduce using rule 24 (expops)
-    LT                [reduce using rule 28 (expressionseq)]
-    GT                reduce using rule 24 (expops)
-    GT                [reduce using rule 28 (expressionseq)]
-    LTE               reduce using rule 24 (expops)
-    LTE               [reduce using rule 28 (expressionseq)]
-    GTE               reduce using rule 24 (expops)
-    GTE               [reduce using rule 28 (expressionseq)]
-    SEMICOLON         reduce using rule 24 (expops)
-    SEMICOLON         [reduce using rule 28 (expressionseq)]
-    COMMA             reduce using rule 24 (expops)
-    COMMA             [reduce using rule 28 (expressionseq)]
-    R_PAREN           reduce using rule 24 (expops)
-    R_PAREN           [reduce using rule 28 (expressionseq)]
-    R_SQUARE_BRACKET  reduce using rule 24 (expops)
-    R_SQUARE_BRACKET  [reduce using rule 28 (expressionseq)]
-    $default          reduce using rule 24 (expops)
-
-
-State 100
-
-   23 expops: ADD multexpression .
-   27 expressionseq: ADD multexpression .
-
-    THEN              reduce using rule 23 (expops)
-    THEN              [reduce using rule 27 (expressionseq)]
-    AND               reduce using rule 23 (expops)
-    AND               [reduce using rule 27 (expressionseq)]
-    OR                reduce using rule 23 (expops)
-    OR                [reduce using rule 27 (expressionseq)]
-    EQ                reduce using rule 23 (expops)
-    EQ                [reduce using rule 27 (expressionseq)]
-    NEQ               reduce using rule 23 (expops)
-    NEQ               [reduce using rule 27 (expressionseq)]
-    LT                reduce using rule 23 (expops)
-    LT                [reduce using rule 27 (expressionseq)]
-    GT                reduce using rule 23 (expops)
-    GT                [reduce using rule 27 (expressionseq)]
-    LTE               reduce using rule 23 (expops)
-    LTE               [reduce using rule 27 (expressionseq)]
-    GTE               reduce using rule 23 (expops)
-    GTE               [reduce using rule 27 (expressionseq)]
-    SEMICOLON         reduce using rule 23 (expops)
-    SEMICOLON         [reduce using rule 27 (expressionseq)]
-    COMMA             reduce using rule 23 (expops)
-    COMMA             [reduce using rule 27 (expressionseq)]
-    R_PAREN           reduce using rule 23 (expops)
-    R_PAREN           [reduce using rule 27 (expressionseq)]
-    R_SQUARE_BRACKET  reduce using rule 23 (expops)
-    R_SQUARE_BRACKET  [reduce using rule 27 (expressionseq)]
-    $default          reduce using rule 23 (expops)
-
-
-State 101
-
-   39 termoption: L_PAREN expression . R_PAREN
-
-    R_PAREN  shift, and go to state 112
-
-
-State 102
-
-   31 termseq: MULT term .
-
-    $default  reduce using rule 31 (termseq)
-
-
-State 103
-
-   32 termseq: DIV term .
-
-    $default  reduce using rule 32 (termseq)
-
-
-State 104
-
-   33 termseq: MOD term .
-
-    $default  reduce using rule 33 (termseq)
-
-
-State 105
 
    18 else: ELSE . statements
 
@@ -1354,106 +1203,85 @@ State 105
     $default  reduce using rule 15 (statements)
 
     ident       go to state 37
-    statements  go to state 113
+    statements  go to state 108
     assignment  go to state 39
     ifstmt      go to state 40
     statement   go to state 41
     var         go to state 42
 
 
-State 106
+State 100
 
    17 ifstmt: IF boolexpr THEN statements else . ENDIF SEMICOLON
 
-    ENDIF  shift, and go to state 114
+    ENDIF  shift, and go to state 109
+
+
+State 101
+
+   46 boolexprseq: OR relationandexpr boolexprseq .
+
+    $default  reduce using rule 46 (boolexprseq)
+
+
+State 102
+
+   49 relationandexprseq: AND relationexpr relationandexprseq .
+
+    $default  reduce using rule 49 (relationandexprseq)
+
+
+State 103
+
+   24 expressionseq: SUB multexpression expressionseq .
+
+    $default  reduce using rule 24 (expressionseq)
+
+
+State 104
+
+   23 expressionseq: ADD multexpression expressionseq .
+
+    $default  reduce using rule 23 (expressionseq)
+
+
+State 105
+
+   27 termseq: MULT term termseq .
+
+    $default  reduce using rule 27 (termseq)
+
+
+State 106
+
+   28 termseq: DIV term termseq .
+
+    $default  reduce using rule 28 (termseq)
 
 
 State 107
 
-   56 boolexprseq: OR relationandexpr boolexprseq .
+   29 termseq: MOD term termseq .
 
-    $default  reduce using rule 56 (boolexprseq)
+    $default  reduce using rule 29 (termseq)
 
 
 State 108
-
-   59 relationandexprseq: AND relationexpr relationandexprseq .
-
-    $default  reduce using rule 59 (relationandexprseq)
-
-
-State 109
-
-   43 expressioncomma: COMMA . expression expressioncomma
-
-    IDENT  shift, and go to state 6
-    SUB    shift, and go to state 54
-
-    IDENT     [reduce using rule 36 (neg)]
-    $default  reduce using rule 36 (neg)
-
-    ident           go to state 56
-    expression      go to state 115
-    multexpression  go to state 58
-    neg             go to state 59
-    term            go to state 60
-
-
-State 110
-
-   42 expressionlist: expression expressioncomma .
-
-    $default  reduce using rule 42 (expressionlist)
-
-
-State 111
-
-   41 term: ident L_PAREN expressionlist R_PAREN .
-
-    $default  reduce using rule 41 (term)
-
-
-State 112
-
-   39 termoption: L_PAREN expression R_PAREN .
-
-    $default  reduce using rule 39 (termoption)
-
-
-State 113
 
    18 else: ELSE statements .
 
     $default  reduce using rule 18 (else)
 
 
-State 114
+State 109
 
    17 ifstmt: IF boolexpr THEN statements else ENDIF . SEMICOLON
 
-    SEMICOLON  shift, and go to state 116
+    SEMICOLON  shift, and go to state 110
 
 
-State 115
-
-   43 expressioncomma: COMMA expression . expressioncomma
-
-    COMMA  shift, and go to state 109
-
-    $default  reduce using rule 44 (expressioncomma)
-
-    expressioncomma  go to state 117
-
-
-State 116
+State 110
 
    17 ifstmt: IF boolexpr THEN statements else ENDIF SEMICOLON .
 
     $default  reduce using rule 17 (ifstmt)
-
-
-State 117
-
-   43 expressioncomma: COMMA expression expressioncomma .
-
-    $default  reduce using rule 43 (expressioncomma)

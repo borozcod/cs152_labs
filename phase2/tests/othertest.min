@@ -13,7 +13,7 @@ endlocals
 beginbody
 
   n := 20;
-  if true then
+  if i<j then
      t[j] := k;
   endif;
 
