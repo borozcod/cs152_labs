@@ -24,50 +24,99 @@ line
 line: '\n' 
     | function '\n' {printf("exp");}
 
-function: FUNCTION ident SEMICOLON BEGIN_PARAMS declaration END_PARAMS BEGIN_LOCALS declaration END_LOCALS BEGIN_BODY statement END_BODY
+function: FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
 
 
-ident: IDENT {printf("ident %s\n", $1);} 
+ident: IDENT {printf("ident -> IDENT %s\n", $1);} 
 
-identifiers: ident {printf("identifiers -> ident\n");} | 
+declarationseq: declaration declarationseq | {printf("declaration -> epsilone\n");}
 
 declaration:
-    identifiers declarations
-    | declaration declaration
-    | {printf("declaration -> epsilone\n");}
+    ident declarations {printf("identifiers -> ident\n");}
 
 declarations:
-    COMMA identifiers declarations {printf("delaration comma\n");} 
-    | COLON arr INTEGER SEMICOLON {printf("delaration ident COLON INTEGER\n");}
+    COMMA ident declarations {printf("identifiers -> ident COMMA identifiers\n");} 
+    | COLON arr INTEGER SEMICOLON {printf("declaration -> identifier COLON INTEGER\n");}
 
-arr: ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF {printf("delaration array\n");} | 
+arr: ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF {printf("declaration -> identifiers COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER\n");} | {printf("declarations -> epsilon\n");}
+
+/*Statement*/
+statements: statement SEMICOLON statements |
+
+assignment: var ASSIGN expression
 
 
+ifstmt: IF boolexpr THEN statements else ENDIF SEMICOLON
+else:
+     ELSE statements {printf("IF bool_exp THEN statements ELSE statements ENDIF\n");} 
+    | {printf("statement -> IF bool_exp THEN statements ENDIF\n");}
 
-statement: var ASSIGN expression
+statement: 
+    assignment {printf("statement -> var ASSIGN expression\n");}
+    | ifstmt
 
+
+/*Expression*/
 
 expression: multexpression expops
 expops: ADD multexpression
     | SUB multexpression
     |
 
-multexpression: term termop
-termop: MULT term
+expression: multexpression expressionseq
+expressionseq: 
+      ADD multexpression 
+    | SUB multexpression
+    |
+
+multexpression: term termseq
+termseq:
+      MULT term
     | DIV term
     | MOD term
     | 
 
 neg: SUB | 
-termoption: var | NUMBER | L_PAREN expression R_PAREN
-term: neg termoption
-    | identifiers L_PAREN expressionlist R_PAREN
-expressionlist: expression expressions
-expressions: COMMA expression expressions | 
+
+termoption: 
+      var {printf("term -> var\n");}
+    | NUMBER {printf("term -> NUMBER\n");} 
+    | L_PAREN expression R_PAREN {printf("term -> L_PAREN expression R_PAREN\n");}
+
+term: 
+      neg termoption
+    | ident L_PAREN expressionlist R_PAREN
+expressionlist: expression expressioncomma
+expressioncomma: COMMA expression expressioncomma  | 
 
 
-var: identifiers | identifiers L_SQUARE_BRACKET expression R_SQUARE_BRACKET
-    
+var: ident {printf("var -> ident\n");}
+    | ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET {printf("var -> ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET\n");}
+ 
+
+/*Relation Expr*/
+not: NOT | 
+comp: 
+    EQ {printf("comp -> EQ\n");} 
+    | NEQ {printf("comp -> NEQ\n");}
+    | LT {printf("comp -> LT\n");}
+    | GT {printf("comp -> GT\n");}
+    | LTE {printf("comp -> LTE\n");}
+    | GTE {printf("comp -> GTE\n");}
+
+boolexpr: relationandexpr boolexprseq
+boolexprseq: OR relationandexpr boolexprseq | {printf("bool_exp -> relation_and_exp\n");} 
+
+relationandexpr: relationexpr relationandexprseq 
+relationandexprseq: AND relationexpr relationandexprseq |
+
+relationexpr: not relationexproptions
+relationexproptions: expression comp expression
+    | TRUE
+    | FALSE
+    | L_PAREN boolexpr R_PAREN 
+
+   
 
 %%
 int main() {
