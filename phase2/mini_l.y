@@ -45,8 +45,7 @@ statements: statement SEMICOLON statements |
 
 assignment: var ASSIGN expression
 
-
-ifstmt: IF boolexpr THEN statements else ENDIF SEMICOLON
+ifstmt: IF {printf("match!!!\n");} boolexpr THEN statements else ENDIF SEMICOLON
 else:
      ELSE statements {printf("IF bool_exp THEN statements ELSE statements ENDIF\n");} 
     | {printf("statement -> IF bool_exp THEN statements ENDIF\n");}
@@ -58,22 +57,17 @@ statement:
 
 /*Expression*/
 
-expression: multexpression expops
-expops: ADD multexpression
-    | SUB multexpression
-    |
-
 expression: multexpression expressionseq
 expressionseq: 
-      ADD multexpression 
-    | SUB multexpression
+      ADD multexpression expressionseq
+    | SUB multexpression expressionseq
     |
 
 multexpression: term termseq
 termseq:
-      MULT term
-    | DIV term
-    | MOD term
+      MULT term termseq
+    | DIV term termseq
+    | MOD term termseq
     | 
 
 neg: SUB | 
