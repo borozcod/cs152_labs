@@ -8,6 +8,9 @@ extern int yyparse();
 extern FILE* yyin;
 void yyerror(const char* s);
 %}
+
+%define parse.error verbose 
+
 %token IDENT
 %token NO_EQ
 %token FUNCTION BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY END_BODY INTEGER ARRAY OF IF THEN ENDIF ELSE WHILE DO BEGINLOOP ENDLOOP CONTINUE READ WRITE AND OR NOT TRUE FALSE RETURN SUB ADD MULT DIV MOD EQ NEQ LT GT LTE GTE NUMBER SEMICOLON COLON COMMA L_PAREN R_PAREN L_SQUARE_BRACKET R_SQUARE_BRACKET ASSIGN NO_IDENT1 NO_IDENT2 COMMENT
@@ -32,7 +35,10 @@ line: '\n'
 
 function: FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
 
-ident: IDENT {printf("ident -> IDENT %s\n", $1);} 
+ident:
+NO_IDENT1 {yyerror("syntax error, identifier must begin with a letter" );} 
+| NO_IDENT2 {yyerror("syntax error, identifier must begin with a letter" );} 
+| IDENT {printf("ident -> IDENT %s\n", $1);} 
 
 declarationseq: declaration declarationseq | {printf("declaration -> epsilone\n");}
 
@@ -67,11 +73,9 @@ return: expression {printf("statement -> return expression\n");}
 
 vars: var varcomma
 varcomma: COMMA var varcomma | 
-invalid: var NO_EQ {printf("Syntax error at line %d: ':=' expected\n",$2);}
 
 statement: 
-     invalid
-    | assignment {printf("statement -> var ASSIGN expression\n");}
+    assignment {printf("statement -> var ASSIGN expression\n");}
     | ifstmt
     | while
     | do
@@ -149,7 +153,13 @@ int main() {
 }
 
 void yyerror(const char* s) {
+extern int line_num;
+/*
+eventual update:
+arguments: const char* s
 printf("%s\n", s);
+*/
+    printf("%s in line %d\n", s, line_num);
     exit(1);
 }
 
