@@ -2,8 +2,8 @@ function main;
 beginparams
 endparams
 beginlocals
-_a : integer;
+a integer;
 endlocals
 beginbody
-a = 1 + 2 * 3;
+a := 1 + 2 * 3;
 endbody 

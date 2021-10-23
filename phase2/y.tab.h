@@ -46,7 +46,7 @@ extern int yydebug;
   enum yytokentype
   {
     IDENT = 258,
-    NO_EQ = 259,
+    EQUAL = 259,
     FUNCTION = 260,
     BEGIN_PARAMS = 261,
     END_PARAMS = 262,
@@ -108,9 +108,8 @@ union YYSTYPE
 #line 19 "mini_l.y" /* yacc.c:1909  */
 
  char* str;
- int val;
 
-#line 114 "y.tab.h" /* yacc.c:1909  */
+#line 113 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

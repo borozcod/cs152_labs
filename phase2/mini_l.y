@@ -12,17 +12,15 @@ void yyerror(const char* s);
 %define parse.error verbose 
 
 %token IDENT
-%token NO_EQ
+%token EQUAL
 %token FUNCTION BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY END_BODY INTEGER ARRAY OF IF THEN ENDIF ELSE WHILE DO BEGINLOOP ENDLOOP CONTINUE READ WRITE AND OR NOT TRUE FALSE RETURN SUB ADD MULT DIV MOD EQ NEQ LT GT LTE GTE NUMBER SEMICOLON COLON COMMA L_PAREN R_PAREN L_SQUARE_BRACKET R_SQUARE_BRACKET ASSIGN NO_IDENT1 NO_IDENT2 COMMENT
 
 
 %union{
  char* str;
- int val;
 }
 
 %type<str> IDENT
-%type<val> NO_EQ
 %start input
 
 %%
@@ -30,8 +28,7 @@ input: line
 | input '\n' line
 
 line: '\n' 
-    | function '\n' {printf("exp");}
-
+    | function
 
 function: FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
 
@@ -108,7 +105,7 @@ termoption:
     | L_PAREN expression R_PAREN {printf("term -> L_PAREN expression R_PAREN\n");}
 
 term: 
-     termoption  {printf("term -> var\n");}
+     neg termoption  {printf("term -> var\n");}
     /*| ident L_PAREN expressionlist R_PAREN {printf("ident L_PAREN expressionlist R_PAREN\n");} TODO*/
 
 /*
@@ -153,12 +150,7 @@ int main() {
 }
 
 void yyerror(const char* s) {
-extern int line_num;
-/*
-eventual update:
-arguments: const char* s
-printf("%s\n", s);
-*/
+    extern int line_num;
     printf("%s in line %d\n", s, line_num);
     exit(1);
 }

@@ -58,7 +58,7 @@ R_SQUARE_BRACKET []]
 ASSIGN (:=)
 NO_IDENT1 [0-9_][a-zA-Z]+([0-9]+)?[a-zA-Z]?(_[a-zA-Z0-9]+)?
 NO_IDENT2 [a-zA-Z]+([0-9]+)?[a-zA-Z]?(_[a-zA-Z0-9]+)?_[^a-zA-Z0-9]
-NO_EQ [\=]
+EQUAL [\=]
 COMMENT ##[^\n]+
 NEW_LINE [\n]
     int line_num = 1, num_chars = 0;
@@ -114,7 +114,7 @@ NEW_LINE [\n]
 {ASSIGN} {return ASSIGN; }
 {NO_IDENT1} {return NO_IDENT1; }
 {NO_IDENT2} {return NO_IDENT2; }
-{NO_EQ} {yylval.val = line_num; return NO_EQ;}
+{EQUAL} {return EQUAL;}
 {NEW_LINE} {++line_num; num_chars = 0; }
 . {++num_chars; }
 %%

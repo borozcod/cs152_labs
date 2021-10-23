@@ -1158,7 +1158,7 @@ YY_RULE_SETUP
 case 52:
 YY_RULE_SETUP
 #line 117 "mini_l.lex"
-{yylval.val = line_num; return NO_EQ;}
+{return EQUAL;}
 	YY_BREAK
 case 53:
 /* rule 53 can match eol */
