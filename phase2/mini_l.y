@@ -9,23 +9,28 @@ extern FILE* yyin;
 void yyerror(const char* s);
 %}
 %token IDENT
+%token NO_EQ
 %token FUNCTION BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY END_BODY INTEGER ARRAY OF IF THEN ENDIF ELSE WHILE DO BEGINLOOP ENDLOOP CONTINUE READ WRITE AND OR NOT TRUE FALSE RETURN SUB ADD MULT DIV MOD EQ NEQ LT GT LTE GTE NUMBER SEMICOLON COLON COMMA L_PAREN R_PAREN L_SQUARE_BRACKET R_SQUARE_BRACKET ASSIGN NO_IDENT1 NO_IDENT2 COMMENT
-%type <str> IDENT
+
 
 %union{
-char* str;
+ char* str;
+ int val;
 }
+
+%type<str> IDENT
+%type<val> NO_EQ
 %start input
+
 %%
-input: 
-line
+input: line
 | input '\n' line
 
 line: '\n' 
     | function '\n' {printf("exp");}
 
-function: FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
 
+function: FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
 
 ident: IDENT {printf("ident -> IDENT %s\n", $1);} 
 
@@ -41,7 +46,12 @@ declarations:
 arr: ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF {printf("declaration -> identifiers COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER\n");} | {printf("declarations -> epsilon\n");}
 
 /*Statement*/
-statements: statement SEMICOLON statements | {printf("statements -> epsilon\n");}
+comment: COMMENT
+
+statements: 
+comment statements {printf("statement -> comment\n");}
+| statement SEMICOLON statements 
+| {printf("statements -> epsilon\n");}
 
 assignment: var ASSIGN expression
 
@@ -57,12 +67,11 @@ return: expression {printf("statement -> return expression\n");}
 
 vars: var varcomma
 varcomma: COMMA var varcomma | 
-
-
-
+invalid: var NO_EQ {printf("Syntax error at line %d: ':=' expected\n",$2);}
 
 statement: 
-    assignment {printf("statement -> var ASSIGN expression\n");}
+     invalid
+    | assignment {printf("statement -> var ASSIGN expression\n");}
     | ifstmt
     | while
     | do

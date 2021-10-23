@@ -10,7 +10,7 @@ beginlocals
 
 endlocals
 
-beginbody
+beginbody	## main program
 
   read i, j;
 
@@ -35,7 +35,7 @@ beginbody
      t[i] := t[j];
      t[j] := k;
   else
-     while  i >= j or false 
+     while  i == j or false 
        beginloop
         k := (1 + i - j ) % 3;
         i := i - 1;

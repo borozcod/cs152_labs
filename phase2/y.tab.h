@@ -46,56 +46,57 @@ extern int yydebug;
   enum yytokentype
   {
     IDENT = 258,
-    FUNCTION = 259,
-    BEGIN_PARAMS = 260,
-    END_PARAMS = 261,
-    BEGIN_LOCALS = 262,
-    END_LOCALS = 263,
-    BEGIN_BODY = 264,
-    END_BODY = 265,
-    INTEGER = 266,
-    ARRAY = 267,
-    OF = 268,
-    IF = 269,
-    THEN = 270,
-    ENDIF = 271,
-    ELSE = 272,
-    WHILE = 273,
-    DO = 274,
-    BEGINLOOP = 275,
-    ENDLOOP = 276,
-    CONTINUE = 277,
-    READ = 278,
-    WRITE = 279,
-    AND = 280,
-    OR = 281,
-    NOT = 282,
-    TRUE = 283,
-    FALSE = 284,
-    RETURN = 285,
-    SUB = 286,
-    ADD = 287,
-    MULT = 288,
-    DIV = 289,
-    MOD = 290,
-    EQ = 291,
-    NEQ = 292,
-    LT = 293,
-    GT = 294,
-    LTE = 295,
-    GTE = 296,
-    NUMBER = 297,
-    SEMICOLON = 298,
-    COLON = 299,
-    COMMA = 300,
-    L_PAREN = 301,
-    R_PAREN = 302,
-    L_SQUARE_BRACKET = 303,
-    R_SQUARE_BRACKET = 304,
-    ASSIGN = 305,
-    NO_IDENT1 = 306,
-    NO_IDENT2 = 307,
-    COMMENT = 308
+    NO_EQ = 259,
+    FUNCTION = 260,
+    BEGIN_PARAMS = 261,
+    END_PARAMS = 262,
+    BEGIN_LOCALS = 263,
+    END_LOCALS = 264,
+    BEGIN_BODY = 265,
+    END_BODY = 266,
+    INTEGER = 267,
+    ARRAY = 268,
+    OF = 269,
+    IF = 270,
+    THEN = 271,
+    ENDIF = 272,
+    ELSE = 273,
+    WHILE = 274,
+    DO = 275,
+    BEGINLOOP = 276,
+    ENDLOOP = 277,
+    CONTINUE = 278,
+    READ = 279,
+    WRITE = 280,
+    AND = 281,
+    OR = 282,
+    NOT = 283,
+    TRUE = 284,
+    FALSE = 285,
+    RETURN = 286,
+    SUB = 287,
+    ADD = 288,
+    MULT = 289,
+    DIV = 290,
+    MOD = 291,
+    EQ = 292,
+    NEQ = 293,
+    LT = 294,
+    GT = 295,
+    LTE = 296,
+    GTE = 297,
+    NUMBER = 298,
+    SEMICOLON = 299,
+    COLON = 300,
+    COMMA = 301,
+    L_PAREN = 302,
+    R_PAREN = 303,
+    L_SQUARE_BRACKET = 304,
+    R_SQUARE_BRACKET = 305,
+    ASSIGN = 306,
+    NO_IDENT1 = 307,
+    NO_IDENT2 = 308,
+    COMMENT = 309
   };
 #endif
 
@@ -104,11 +105,12 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 15 "mini_l.y" /* yacc.c:1909  */
+#line 16 "mini_l.y" /* yacc.c:1909  */
 
-char* str;
+ char* str;
+ int val;
 
-#line 112 "y.tab.h" /* yacc.c:1909  */
+#line 114 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
