@@ -28,7 +28,8 @@ input: line
 | input '\n' line
 
 line: '\n' 
-    | function
+    | function line
+    |
 
 function: FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
 
@@ -66,7 +67,7 @@ while: WHILE boolexpr BEGINLOOP statements ENDLOOP {printf("statement -> WHILE b
 do: DO BEGINLOOP statements ENDLOOP WHILE boolexpr {printf("statement -> DO BEGINLOOP statements ENDLOOP WHILE bool_exp\n");}
 read: READ vars {printf("statement -> READ vars\n");}
 write: WRITE vars {printf("statement -> WRITE vars\n");}
-return: expression {printf("statement -> return expression\n");}
+return: RETURN expression {printf("statement -> return expression\n");}
 
 vars: var varcomma
 varcomma: COMMA var varcomma | 
@@ -100,18 +101,19 @@ termseq:
 neg: SUB |
 
 termoption: 
-      var {printf("term -> var\n");}
-    | NUMBER {printf("term -> NUMBER\n");} 
+     NUMBER {printf("term -> NUMBER\n");} 
     | L_PAREN expression R_PAREN {printf("term -> L_PAREN expression R_PAREN\n");}
 
-term: 
-     neg termoption  {printf("term -> var\n");}
-    /*| ident L_PAREN expressionlist R_PAREN {printf("ident L_PAREN expressionlist R_PAREN\n");} TODO*/
+term: neg ident termmatch | neg termoption
 
-/*
+termmatch: matchterm
+    | notmatchterm
+    |
+matchterm: L_PAREN expressionlist R_PAREN {printf("ident L_PAREN expressionlist R_PAREN\n");}
+notmatchterm: L_SQUARE_BRACKET expression R_SQUARE_BRACKET {printf("var -> ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET\n");}
+
 expressionlist: expression expressioncomma
 expressioncomma: COMMA expression expressioncomma  | 
-*/
 
 var: ident {printf("var -> ident\n");}
     | ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET {printf("var -> ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET\n");}
