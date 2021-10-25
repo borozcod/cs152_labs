@@ -5,8 +5,8 @@ Terminals unused in grammar
 
 State 0 conflicts: 1 shift/reduce
 State 5 conflicts: 1 shift/reduce
-State 11 conflicts: 1 shift/reduce
-State 59 conflicts: 1 shift/reduce
+State 9 conflicts: 1 shift/reduce
+State 64 conflicts: 1 shift/reduce
 
 
 Grammar
@@ -20,124 +20,128 @@ Grammar
     4     | function line
     5     | %empty
 
-    6 function: FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
+    6 function: comments FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
 
     7 ident: NO_IDENT1
     8      | NO_IDENT2
     9      | IDENT
 
    10 declarationseq: declaration declarationseq
-   11               | %empty
+   11               | comment declarationseq
+   12               | %empty
 
-   12 declaration: ident declarations
+   13 declaration: ident declarations
 
-   13 declarations: COMMA ident declarations
-   14             | COLON arr INTEGER SEMICOLON
+   14 declarations: COMMA ident declarations
+   15             | COLON arr INTEGER SEMICOLON
 
-   15 arr: ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF
-   16    | %empty
+   16 arr: ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF
+   17    | %empty
 
-   17 comment: COMMENT
+   18 comment: COMMENT
 
-   18 statements: comment statements
-   19           | statement SEMICOLON statements
-   20           | %empty
+   19 comments: comment comments
+   20         | %empty
 
-   21 assignment: var ASSIGN expression
+   21 statements: comment statements
+   22           | statement SEMICOLON statements
+   23           | %empty
 
-   22 ifstmt: IF boolexpr THEN statements else ENDIF
+   24 assignment: var ASSIGN expression
 
-   23 else: ELSE statements
-   24     | %empty
+   25 ifstmt: IF boolexpr THEN statements else ENDIF
 
-   25 while: WHILE boolexpr BEGINLOOP statements ENDLOOP
+   26 else: ELSE statements
+   27     | %empty
 
-   26 do: DO BEGINLOOP statements ENDLOOP WHILE boolexpr
+   28 while: WHILE boolexpr BEGINLOOP statements ENDLOOP
 
-   27 read: READ vars
+   29 do: DO BEGINLOOP statements ENDLOOP WHILE boolexpr
 
-   28 write: WRITE vars
+   30 read: READ vars
 
-   29 return: RETURN expression
+   31 write: WRITE vars
 
-   30 vars: var varcomma
+   32 return: RETURN expression
 
-   31 varcomma: COMMA var varcomma
-   32         | %empty
+   33 vars: var varcomma
 
-   33 statement: assignment
-   34          | ifstmt
-   35          | while
-   36          | do
-   37          | read
-   38          | write
-   39          | CONTINUE
-   40          | return
+   34 varcomma: COMMA var varcomma
+   35         | %empty
 
-   41 expression: multexpression expressionseq
+   36 statement: assignment
+   37          | ifstmt
+   38          | while
+   39          | do
+   40          | read
+   41          | write
+   42          | CONTINUE
+   43          | return
 
-   42 expressionseq: ADD multexpression expressionseq
-   43              | SUB multexpression expressionseq
-   44              | %empty
+   44 expression: multexpression expressionseq
 
-   45 multexpression: term termseq
+   45 expressionseq: ADD multexpression expressionseq
+   46              | SUB multexpression expressionseq
+   47              | %empty
 
-   46 termseq: MULT term termseq
-   47        | DIV term termseq
-   48        | MOD term termseq
-   49        | %empty
+   48 multexpression: term termseq
 
-   50 neg: SUB
-   51    | %empty
+   49 termseq: MULT term termseq
+   50        | DIV term termseq
+   51        | MOD term termseq
+   52        | %empty
 
-   52 termoption: NUMBER
-   53           | L_PAREN expression R_PAREN
+   53 neg: SUB
+   54    | %empty
 
-   54 term: neg ident termmatch
-   55     | neg termoption
+   55 termoption: NUMBER
+   56           | L_PAREN expression R_PAREN
 
-   56 termmatch: matchterm
-   57          | notmatchterm
-   58          | %empty
+   57 term: neg ident termmatch
+   58     | neg termoption
 
-   59 matchterm: L_PAREN expressionlist R_PAREN
+   59 termmatch: matchterm
+   60          | notmatchterm
+   61          | %empty
 
-   60 notmatchterm: L_SQUARE_BRACKET expression R_SQUARE_BRACKET
+   62 matchterm: L_PAREN expressionlist R_PAREN
 
-   61 expressionlist: expression expressioncomma
+   63 notmatchterm: L_SQUARE_BRACKET expression R_SQUARE_BRACKET
 
-   62 expressioncomma: COMMA expression expressioncomma
-   63                | %empty
+   64 expressionlist: expression expressioncomma
 
-   64 var: ident
-   65    | ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
+   65 expressioncomma: COMMA expression expressioncomma
+   66                | %empty
 
-   66 not: NOT
-   67    | %empty
+   67 var: ident
+   68    | ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
 
-   68 comp: EQ
-   69     | NEQ
-   70     | LT
-   71     | GT
-   72     | LTE
-   73     | GTE
+   69 not: NOT
+   70    | %empty
 
-   74 boolexpr: relationandexpr boolexprseq
+   71 comp: EQ
+   72     | NEQ
+   73     | LT
+   74     | GT
+   75     | LTE
+   76     | GTE
 
-   75 boolexprseq: OR relationandexpr boolexprseq
-   76            | %empty
+   77 boolexpr: relationandexpr boolexprseq
 
-   77 relationandexpr: relationexpr relationandexprseq
+   78 boolexprseq: OR relationandexpr boolexprseq
+   79            | %empty
 
-   78 relationandexprseq: AND relationexpr relationandexprseq
-   79                   | %empty
+   80 relationandexpr: relationexpr relationandexprseq
 
-   80 relationexpr: not relationexproptions
+   81 relationandexprseq: AND relationexpr relationandexprseq
+   82                   | %empty
 
-   81 relationexproptions: expression comp expression
-   82                    | TRUE
-   83                    | FALSE
-   84                    | L_PAREN boolexpr R_PAREN
+   83 relationexpr: not relationexproptions
+
+   84 relationexproptions: expression comp expression
+   85                    | TRUE
+   86                    | FALSE
+   87                    | L_PAREN boolexpr R_PAREN
 
 
 Terminals, with rules where they appear
@@ -154,49 +158,49 @@ BEGIN_LOCALS (263) 6
 END_LOCALS (264) 6
 BEGIN_BODY (265) 6
 END_BODY (266) 6
-INTEGER (267) 14
-ARRAY (268) 15
-OF (269) 15
-IF (270) 22
-THEN (271) 22
-ENDIF (272) 22
-ELSE (273) 23
-WHILE (274) 25 26
-DO (275) 26
-BEGINLOOP (276) 25 26
-ENDLOOP (277) 25 26
-CONTINUE (278) 39
-READ (279) 27
-WRITE (280) 28
-AND (281) 78
-OR (282) 75
-NOT (283) 66
-TRUE (284) 82
-FALSE (285) 83
-RETURN (286) 29
-SUB (287) 43 50
-ADD (288) 42
-MULT (289) 46
-DIV (290) 47
-MOD (291) 48
-EQ (292) 68
-NEQ (293) 69
-LT (294) 70
-GT (295) 71
-LTE (296) 72
-GTE (297) 73
-NUMBER (298) 15 52
-SEMICOLON (299) 6 14 19
-COLON (300) 14
-COMMA (301) 13 31 62
-L_PAREN (302) 53 59 84
-R_PAREN (303) 53 59 84
-L_SQUARE_BRACKET (304) 15 60 65
-R_SQUARE_BRACKET (305) 15 60 65
-ASSIGN (306) 21
+INTEGER (267) 15
+ARRAY (268) 16
+OF (269) 16
+IF (270) 25
+THEN (271) 25
+ENDIF (272) 25
+ELSE (273) 26
+WHILE (274) 28 29
+DO (275) 29
+BEGINLOOP (276) 28 29
+ENDLOOP (277) 28 29
+CONTINUE (278) 42
+READ (279) 30
+WRITE (280) 31
+AND (281) 81
+OR (282) 78
+NOT (283) 69
+TRUE (284) 85
+FALSE (285) 86
+RETURN (286) 32
+SUB (287) 46 53
+ADD (288) 45
+MULT (289) 49
+DIV (290) 50
+MOD (291) 51
+EQ (292) 71
+NEQ (293) 72
+LT (294) 73
+GT (295) 74
+LTE (296) 75
+GTE (297) 76
+NUMBER (298) 16 55
+SEMICOLON (299) 6 15 22
+COLON (300) 15
+COMMA (301) 14 34 65
+L_PAREN (302) 56 62 87
+R_PAREN (303) 56 62 87
+L_SQUARE_BRACKET (304) 16 63 68
+R_SQUARE_BRACKET (305) 16 63 68
+ASSIGN (306) 24
 NO_IDENT1 (307) 7
 NO_IDENT2 (308) 8
-COMMENT (309) 17
+COMMENT (309) 18
 
 
 Nonterminals, with rules where they appear
@@ -210,109 +214,110 @@ line (58)
 function (59)
     on left: 6, on right: 4
 ident (60)
-    on left: 7 8 9, on right: 6 12 13 54 64 65
+    on left: 7 8 9, on right: 6 13 14 57 67 68
 declarationseq (61)
-    on left: 10 11, on right: 6 10
+    on left: 10 11 12, on right: 6 10 11
 declaration (62)
-    on left: 12, on right: 10
+    on left: 13, on right: 10
 declarations (63)
-    on left: 13 14, on right: 12 13
+    on left: 14 15, on right: 13 14
 arr (64)
-    on left: 15 16, on right: 14
+    on left: 16 17, on right: 15
 comment (65)
-    on left: 17, on right: 18
-statements (66)
-    on left: 18 19 20, on right: 6 18 19 22 23 25 26
-assignment (67)
-    on left: 21, on right: 33
-ifstmt (68)
-    on left: 22, on right: 34
-else (69)
-    on left: 23 24, on right: 22
-while (70)
-    on left: 25, on right: 35
-do (71)
-    on left: 26, on right: 36
-read (72)
-    on left: 27, on right: 37
-write (73)
+    on left: 18, on right: 11 19 21
+comments (66)
+    on left: 19 20, on right: 6 19
+statements (67)
+    on left: 21 22 23, on right: 6 21 22 25 26 28 29
+assignment (68)
+    on left: 24, on right: 36
+ifstmt (69)
+    on left: 25, on right: 37
+else (70)
+    on left: 26 27, on right: 25
+while (71)
     on left: 28, on right: 38
-return (74)
-    on left: 29, on right: 40
-vars (75)
-    on left: 30, on right: 27 28
-varcomma (76)
-    on left: 31 32, on right: 30 31
-statement (77)
-    on left: 33 34 35 36 37 38 39 40, on right: 19
-expression (78)
-    on left: 41, on right: 21 29 53 60 61 62 65 81
-expressionseq (79)
-    on left: 42 43 44, on right: 41 42 43
-multexpression (80)
-    on left: 45, on right: 41 42 43
-termseq (81)
-    on left: 46 47 48 49, on right: 45 46 47 48
-neg (82)
-    on left: 50 51, on right: 54 55
-termoption (83)
-    on left: 52 53, on right: 55
-term (84)
-    on left: 54 55, on right: 45 46 47 48
-termmatch (85)
-    on left: 56 57 58, on right: 54
-matchterm (86)
-    on left: 59, on right: 56
-notmatchterm (87)
-    on left: 60, on right: 57
-expressionlist (88)
-    on left: 61, on right: 59
-expressioncomma (89)
-    on left: 62 63, on right: 61 62
-var (90)
-    on left: 64 65, on right: 21 30 31
-not (91)
-    on left: 66 67, on right: 80
-comp (92)
-    on left: 68 69 70 71 72 73, on right: 81
-boolexpr (93)
-    on left: 74, on right: 22 25 26 84
-boolexprseq (94)
-    on left: 75 76, on right: 74 75
-relationandexpr (95)
-    on left: 77, on right: 74 75
-relationandexprseq (96)
+do (72)
+    on left: 29, on right: 39
+read (73)
+    on left: 30, on right: 40
+write (74)
+    on left: 31, on right: 41
+return (75)
+    on left: 32, on right: 43
+vars (76)
+    on left: 33, on right: 30 31
+varcomma (77)
+    on left: 34 35, on right: 33 34
+statement (78)
+    on left: 36 37 38 39 40 41 42 43, on right: 22
+expression (79)
+    on left: 44, on right: 24 32 56 63 64 65 68 84
+expressionseq (80)
+    on left: 45 46 47, on right: 44 45 46
+multexpression (81)
+    on left: 48, on right: 44 45 46
+termseq (82)
+    on left: 49 50 51 52, on right: 48 49 50 51
+neg (83)
+    on left: 53 54, on right: 57 58
+termoption (84)
+    on left: 55 56, on right: 58
+term (85)
+    on left: 57 58, on right: 48 49 50 51
+termmatch (86)
+    on left: 59 60 61, on right: 57
+matchterm (87)
+    on left: 62, on right: 59
+notmatchterm (88)
+    on left: 63, on right: 60
+expressionlist (89)
+    on left: 64, on right: 62
+expressioncomma (90)
+    on left: 65 66, on right: 64 65
+var (91)
+    on left: 67 68, on right: 24 33 34
+not (92)
+    on left: 69 70, on right: 83
+comp (93)
+    on left: 71 72 73 74 75 76, on right: 84
+boolexpr (94)
+    on left: 77, on right: 25 28 29 87
+boolexprseq (95)
     on left: 78 79, on right: 77 78
-relationexpr (97)
+relationandexpr (96)
     on left: 80, on right: 77 78
-relationexproptions (98)
-    on left: 81 82 83 84, on right: 80
+relationandexprseq (97)
+    on left: 81 82, on right: 80 81
+relationexpr (98)
+    on left: 83, on right: 80 81
+relationexproptions (99)
+    on left: 84 85 86 87, on right: 83
 
 
 State 0
 
     0 $accept: . input $end
 
-    FUNCTION  shift, and go to state 1
-    '\n'      shift, and go to state 2
+    COMMENT  shift, and go to state 1
+    '\n'     shift, and go to state 2
 
+    FUNCTION  reduce using rule 20 (comments)
     '\n'      [reduce using rule 5 (line)]
     $default  reduce using rule 5 (line)
 
     input     go to state 3
     line      go to state 4
     function  go to state 5
+    comment   go to state 6
+    comments  go to state 7
 
 
 State 1
 
-    6 function: FUNCTION . ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
+   18 comment: COMMENT .
 
-    IDENT      shift, and go to state 6
-    NO_IDENT1  shift, and go to state 7
-    NO_IDENT2  shift, and go to state 8
-
-    ident  go to state 9
+    $default  reduce using rule 18 (comment)
 
 
 State 2
@@ -327,8 +332,8 @@ State 3
     0 $accept: input . $end
     2 input: input . '\n' line
 
-    $end  shift, and go to state 10
-    '\n'  shift, and go to state 11
+    $end  shift, and go to state 8
+    '\n'  shift, and go to state 9
 
 
 State 4
@@ -342,1554 +347,1620 @@ State 5
 
     4 line: function . line
 
-    FUNCTION  shift, and go to state 1
-    '\n'      shift, and go to state 2
+    COMMENT  shift, and go to state 1
+    '\n'     shift, and go to state 2
 
+    FUNCTION  reduce using rule 20 (comments)
     '\n'      [reduce using rule 5 (line)]
     $default  reduce using rule 5 (line)
 
-    line      go to state 12
+    line      go to state 10
     function  go to state 5
+    comment   go to state 6
+    comments  go to state 7
 
 
 State 6
 
-    9 ident: IDENT .
+   19 comments: comment . comments
 
-    $default  reduce using rule 9 (ident)
+    COMMENT  shift, and go to state 1
+
+    $default  reduce using rule 20 (comments)
+
+    comment   go to state 6
+    comments  go to state 11
 
 
 State 7
 
-    7 ident: NO_IDENT1 .
+    6 function: comments . FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
 
-    $default  reduce using rule 7 (ident)
+    FUNCTION  shift, and go to state 12
 
 
 State 8
-
-    8 ident: NO_IDENT2 .
-
-    $default  reduce using rule 8 (ident)
-
-
-State 9
-
-    6 function: FUNCTION ident . SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
-
-    SEMICOLON  shift, and go to state 13
-
-
-State 10
 
     0 $accept: input $end .
 
     $default  accept
 
 
-State 11
+State 9
 
     2 input: input '\n' . line
 
-    FUNCTION  shift, and go to state 1
-    '\n'      shift, and go to state 2
+    COMMENT  shift, and go to state 1
+    '\n'     shift, and go to state 2
 
+    FUNCTION  reduce using rule 20 (comments)
     '\n'      [reduce using rule 5 (line)]
     $default  reduce using rule 5 (line)
 
-    line      go to state 14
+    line      go to state 13
     function  go to state 5
+    comment   go to state 6
+    comments  go to state 7
 
 
-State 12
+State 10
 
     4 line: function line .
 
     $default  reduce using rule 4 (line)
 
 
+State 11
+
+   19 comments: comment comments .
+
+    $default  reduce using rule 19 (comments)
+
+
+State 12
+
+    6 function: comments FUNCTION . ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
+
+    IDENT      shift, and go to state 14
+    NO_IDENT1  shift, and go to state 15
+    NO_IDENT2  shift, and go to state 16
+
+    ident  go to state 17
+
+
 State 13
-
-    6 function: FUNCTION ident SEMICOLON . BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
-
-    BEGIN_PARAMS  shift, and go to state 15
-
-
-State 14
 
     2 input: input '\n' line .
 
     $default  reduce using rule 2 (input)
 
 
+State 14
+
+    9 ident: IDENT .
+
+    $default  reduce using rule 9 (ident)
+
+
 State 15
 
-    6 function: FUNCTION ident SEMICOLON BEGIN_PARAMS . declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
+    7 ident: NO_IDENT1 .
 
-    IDENT      shift, and go to state 6
-    NO_IDENT1  shift, and go to state 7
-    NO_IDENT2  shift, and go to state 8
-
-    $default  reduce using rule 11 (declarationseq)
-
-    ident           go to state 16
-    declarationseq  go to state 17
-    declaration     go to state 18
+    $default  reduce using rule 7 (ident)
 
 
 State 16
 
-   12 declaration: ident . declarations
+    8 ident: NO_IDENT2 .
 
-    COLON  shift, and go to state 19
-    COMMA  shift, and go to state 20
-
-    declarations  go to state 21
+    $default  reduce using rule 8 (ident)
 
 
 State 17
 
-    6 function: FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq . END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
+    6 function: comments FUNCTION ident . SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
 
-    END_PARAMS  shift, and go to state 22
+    SEMICOLON  shift, and go to state 18
 
 
 State 18
 
-   10 declarationseq: declaration . declarationseq
+    6 function: comments FUNCTION ident SEMICOLON . BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
 
-    IDENT      shift, and go to state 6
-    NO_IDENT1  shift, and go to state 7
-    NO_IDENT2  shift, and go to state 8
-
-    $default  reduce using rule 11 (declarationseq)
-
-    ident           go to state 16
-    declarationseq  go to state 23
-    declaration     go to state 18
+    BEGIN_PARAMS  shift, and go to state 19
 
 
 State 19
 
-   14 declarations: COLON . arr INTEGER SEMICOLON
+    6 function: comments FUNCTION ident SEMICOLON BEGIN_PARAMS . declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
 
-    ARRAY  shift, and go to state 24
+    IDENT      shift, and go to state 14
+    NO_IDENT1  shift, and go to state 15
+    NO_IDENT2  shift, and go to state 16
+    COMMENT    shift, and go to state 1
 
-    $default  reduce using rule 16 (arr)
+    $default  reduce using rule 12 (declarationseq)
 
-    arr  go to state 25
+    ident           go to state 20
+    declarationseq  go to state 21
+    declaration     go to state 22
+    comment         go to state 23
 
 
 State 20
 
-   13 declarations: COMMA . ident declarations
+   13 declaration: ident . declarations
 
-    IDENT      shift, and go to state 6
-    NO_IDENT1  shift, and go to state 7
-    NO_IDENT2  shift, and go to state 8
+    COLON  shift, and go to state 24
+    COMMA  shift, and go to state 25
 
-    ident  go to state 26
+    declarations  go to state 26
 
 
 State 21
 
-   12 declaration: ident declarations .
+    6 function: comments FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq . END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
 
-    $default  reduce using rule 12 (declaration)
+    END_PARAMS  shift, and go to state 27
 
 
 State 22
 
-    6 function: FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS . BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
+   10 declarationseq: declaration . declarationseq
 
-    BEGIN_LOCALS  shift, and go to state 27
+    IDENT      shift, and go to state 14
+    NO_IDENT1  shift, and go to state 15
+    NO_IDENT2  shift, and go to state 16
+    COMMENT    shift, and go to state 1
+
+    $default  reduce using rule 12 (declarationseq)
+
+    ident           go to state 20
+    declarationseq  go to state 28
+    declaration     go to state 22
+    comment         go to state 23
 
 
 State 23
+
+   11 declarationseq: comment . declarationseq
+
+    IDENT      shift, and go to state 14
+    NO_IDENT1  shift, and go to state 15
+    NO_IDENT2  shift, and go to state 16
+    COMMENT    shift, and go to state 1
+
+    $default  reduce using rule 12 (declarationseq)
+
+    ident           go to state 20
+    declarationseq  go to state 29
+    declaration     go to state 22
+    comment         go to state 23
+
+
+State 24
+
+   15 declarations: COLON . arr INTEGER SEMICOLON
+
+    ARRAY  shift, and go to state 30
+
+    $default  reduce using rule 17 (arr)
+
+    arr  go to state 31
+
+
+State 25
+
+   14 declarations: COMMA . ident declarations
+
+    IDENT      shift, and go to state 14
+    NO_IDENT1  shift, and go to state 15
+    NO_IDENT2  shift, and go to state 16
+
+    ident  go to state 32
+
+
+State 26
+
+   13 declaration: ident declarations .
+
+    $default  reduce using rule 13 (declaration)
+
+
+State 27
+
+    6 function: comments FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS . BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
+
+    BEGIN_LOCALS  shift, and go to state 33
+
+
+State 28
 
    10 declarationseq: declaration declarationseq .
 
     $default  reduce using rule 10 (declarationseq)
 
 
-State 24
-
-   15 arr: ARRAY . L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF
-
-    L_SQUARE_BRACKET  shift, and go to state 28
-
-
-State 25
-
-   14 declarations: COLON arr . INTEGER SEMICOLON
-
-    INTEGER  shift, and go to state 29
-
-
-State 26
-
-   13 declarations: COMMA ident . declarations
-
-    COLON  shift, and go to state 19
-    COMMA  shift, and go to state 20
-
-    declarations  go to state 30
-
-
-State 27
-
-    6 function: FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS . declarationseq END_LOCALS BEGIN_BODY statements END_BODY
-
-    IDENT      shift, and go to state 6
-    NO_IDENT1  shift, and go to state 7
-    NO_IDENT2  shift, and go to state 8
-
-    $default  reduce using rule 11 (declarationseq)
-
-    ident           go to state 16
-    declarationseq  go to state 31
-    declaration     go to state 18
-
-
-State 28
-
-   15 arr: ARRAY L_SQUARE_BRACKET . NUMBER R_SQUARE_BRACKET OF
-
-    NUMBER  shift, and go to state 32
-
-
 State 29
 
-   14 declarations: COLON arr INTEGER . SEMICOLON
+   11 declarationseq: comment declarationseq .
 
-    SEMICOLON  shift, and go to state 33
+    $default  reduce using rule 11 (declarationseq)
 
 
 State 30
 
-   13 declarations: COMMA ident declarations .
+   16 arr: ARRAY . L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF
 
-    $default  reduce using rule 13 (declarations)
+    L_SQUARE_BRACKET  shift, and go to state 34
 
 
 State 31
 
-    6 function: FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq . END_LOCALS BEGIN_BODY statements END_BODY
+   15 declarations: COLON arr . INTEGER SEMICOLON
 
-    END_LOCALS  shift, and go to state 34
+    INTEGER  shift, and go to state 35
 
 
 State 32
 
-   15 arr: ARRAY L_SQUARE_BRACKET NUMBER . R_SQUARE_BRACKET OF
+   14 declarations: COMMA ident . declarations
 
-    R_SQUARE_BRACKET  shift, and go to state 35
+    COLON  shift, and go to state 24
+    COMMA  shift, and go to state 25
+
+    declarations  go to state 36
 
 
 State 33
 
-   14 declarations: COLON arr INTEGER SEMICOLON .
+    6 function: comments FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS . declarationseq END_LOCALS BEGIN_BODY statements END_BODY
 
-    $default  reduce using rule 14 (declarations)
+    IDENT      shift, and go to state 14
+    NO_IDENT1  shift, and go to state 15
+    NO_IDENT2  shift, and go to state 16
+    COMMENT    shift, and go to state 1
+
+    $default  reduce using rule 12 (declarationseq)
+
+    ident           go to state 20
+    declarationseq  go to state 37
+    declaration     go to state 22
+    comment         go to state 23
 
 
 State 34
 
-    6 function: FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS . BEGIN_BODY statements END_BODY
+   16 arr: ARRAY L_SQUARE_BRACKET . NUMBER R_SQUARE_BRACKET OF
 
-    BEGIN_BODY  shift, and go to state 36
+    NUMBER  shift, and go to state 38
 
 
 State 35
 
-   15 arr: ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET . OF
+   15 declarations: COLON arr INTEGER . SEMICOLON
 
-    OF  shift, and go to state 37
+    SEMICOLON  shift, and go to state 39
 
 
 State 36
 
-    6 function: FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY . statements END_BODY
+   14 declarations: COMMA ident declarations .
 
-    IDENT      shift, and go to state 6
-    IF         shift, and go to state 38
-    WHILE      shift, and go to state 39
-    DO         shift, and go to state 40
-    CONTINUE   shift, and go to state 41
-    READ       shift, and go to state 42
-    WRITE      shift, and go to state 43
-    RETURN     shift, and go to state 44
-    NO_IDENT1  shift, and go to state 7
-    NO_IDENT2  shift, and go to state 8
-    COMMENT    shift, and go to state 45
-
-    $default  reduce using rule 20 (statements)
-
-    ident       go to state 46
-    comment     go to state 47
-    statements  go to state 48
-    assignment  go to state 49
-    ifstmt      go to state 50
-    while       go to state 51
-    do          go to state 52
-    read        go to state 53
-    write       go to state 54
-    return      go to state 55
-    statement   go to state 56
-    var         go to state 57
+    $default  reduce using rule 14 (declarations)
 
 
 State 37
 
-   15 arr: ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF .
+    6 function: comments FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq . END_LOCALS BEGIN_BODY statements END_BODY
 
-    $default  reduce using rule 15 (arr)
+    END_LOCALS  shift, and go to state 40
 
 
 State 38
 
-   22 ifstmt: IF . boolexpr THEN statements else ENDIF
+   16 arr: ARRAY L_SQUARE_BRACKET NUMBER . R_SQUARE_BRACKET OF
 
-    NOT  shift, and go to state 58
-
-    $default  reduce using rule 67 (not)
-
-    not              go to state 59
-    boolexpr         go to state 60
-    relationandexpr  go to state 61
-    relationexpr     go to state 62
+    R_SQUARE_BRACKET  shift, and go to state 41
 
 
 State 39
 
-   25 while: WHILE . boolexpr BEGINLOOP statements ENDLOOP
+   15 declarations: COLON arr INTEGER SEMICOLON .
 
-    NOT  shift, and go to state 58
-
-    $default  reduce using rule 67 (not)
-
-    not              go to state 59
-    boolexpr         go to state 63
-    relationandexpr  go to state 61
-    relationexpr     go to state 62
+    $default  reduce using rule 15 (declarations)
 
 
 State 40
 
-   26 do: DO . BEGINLOOP statements ENDLOOP WHILE boolexpr
+    6 function: comments FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS . BEGIN_BODY statements END_BODY
 
-    BEGINLOOP  shift, and go to state 64
+    BEGIN_BODY  shift, and go to state 42
 
 
 State 41
 
-   39 statement: CONTINUE .
+   16 arr: ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET . OF
 
-    $default  reduce using rule 39 (statement)
+    OF  shift, and go to state 43
 
 
 State 42
 
-   27 read: READ . vars
+    6 function: comments FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY . statements END_BODY
 
-    IDENT      shift, and go to state 6
-    NO_IDENT1  shift, and go to state 7
-    NO_IDENT2  shift, and go to state 8
+    IDENT      shift, and go to state 14
+    IF         shift, and go to state 44
+    WHILE      shift, and go to state 45
+    DO         shift, and go to state 46
+    CONTINUE   shift, and go to state 47
+    READ       shift, and go to state 48
+    WRITE      shift, and go to state 49
+    RETURN     shift, and go to state 50
+    NO_IDENT1  shift, and go to state 15
+    NO_IDENT2  shift, and go to state 16
+    COMMENT    shift, and go to state 1
 
-    ident  go to state 46
-    vars   go to state 65
-    var    go to state 66
+    $default  reduce using rule 23 (statements)
+
+    ident       go to state 51
+    comment     go to state 52
+    statements  go to state 53
+    assignment  go to state 54
+    ifstmt      go to state 55
+    while       go to state 56
+    do          go to state 57
+    read        go to state 58
+    write       go to state 59
+    return      go to state 60
+    statement   go to state 61
+    var         go to state 62
 
 
 State 43
 
-   28 write: WRITE . vars
+   16 arr: ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF .
 
-    IDENT      shift, and go to state 6
-    NO_IDENT1  shift, and go to state 7
-    NO_IDENT2  shift, and go to state 8
-
-    ident  go to state 46
-    vars   go to state 67
-    var    go to state 66
+    $default  reduce using rule 16 (arr)
 
 
 State 44
 
-   29 return: RETURN . expression
+   25 ifstmt: IF . boolexpr THEN statements else ENDIF
 
-    SUB  shift, and go to state 68
+    NOT  shift, and go to state 63
 
-    $default  reduce using rule 51 (neg)
+    $default  reduce using rule 70 (not)
 
-    expression      go to state 69
-    multexpression  go to state 70
-    neg             go to state 71
-    term            go to state 72
+    not              go to state 64
+    boolexpr         go to state 65
+    relationandexpr  go to state 66
+    relationexpr     go to state 67
 
 
 State 45
 
-   17 comment: COMMENT .
+   28 while: WHILE . boolexpr BEGINLOOP statements ENDLOOP
 
-    $default  reduce using rule 17 (comment)
+    NOT  shift, and go to state 63
+
+    $default  reduce using rule 70 (not)
+
+    not              go to state 64
+    boolexpr         go to state 68
+    relationandexpr  go to state 66
+    relationexpr     go to state 67
 
 
 State 46
 
-   64 var: ident .
-   65    | ident . L_SQUARE_BRACKET expression R_SQUARE_BRACKET
+   29 do: DO . BEGINLOOP statements ENDLOOP WHILE boolexpr
 
-    L_SQUARE_BRACKET  shift, and go to state 73
-
-    $default  reduce using rule 64 (var)
+    BEGINLOOP  shift, and go to state 69
 
 
 State 47
 
-   18 statements: comment . statements
+   42 statement: CONTINUE .
 
-    IDENT      shift, and go to state 6
-    IF         shift, and go to state 38
-    WHILE      shift, and go to state 39
-    DO         shift, and go to state 40
-    CONTINUE   shift, and go to state 41
-    READ       shift, and go to state 42
-    WRITE      shift, and go to state 43
-    RETURN     shift, and go to state 44
-    NO_IDENT1  shift, and go to state 7
-    NO_IDENT2  shift, and go to state 8
-    COMMENT    shift, and go to state 45
-
-    $default  reduce using rule 20 (statements)
-
-    ident       go to state 46
-    comment     go to state 47
-    statements  go to state 74
-    assignment  go to state 49
-    ifstmt      go to state 50
-    while       go to state 51
-    do          go to state 52
-    read        go to state 53
-    write       go to state 54
-    return      go to state 55
-    statement   go to state 56
-    var         go to state 57
+    $default  reduce using rule 42 (statement)
 
 
 State 48
 
-    6 function: FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements . END_BODY
+   30 read: READ . vars
 
-    END_BODY  shift, and go to state 75
+    IDENT      shift, and go to state 14
+    NO_IDENT1  shift, and go to state 15
+    NO_IDENT2  shift, and go to state 16
+
+    ident  go to state 51
+    vars   go to state 70
+    var    go to state 71
 
 
 State 49
 
-   33 statement: assignment .
+   31 write: WRITE . vars
 
-    $default  reduce using rule 33 (statement)
+    IDENT      shift, and go to state 14
+    NO_IDENT1  shift, and go to state 15
+    NO_IDENT2  shift, and go to state 16
+
+    ident  go to state 51
+    vars   go to state 72
+    var    go to state 71
 
 
 State 50
 
-   34 statement: ifstmt .
+   32 return: RETURN . expression
 
-    $default  reduce using rule 34 (statement)
+    SUB  shift, and go to state 73
+
+    $default  reduce using rule 54 (neg)
+
+    expression      go to state 74
+    multexpression  go to state 75
+    neg             go to state 76
+    term            go to state 77
 
 
 State 51
 
-   35 statement: while .
+   67 var: ident .
+   68    | ident . L_SQUARE_BRACKET expression R_SQUARE_BRACKET
 
-    $default  reduce using rule 35 (statement)
+    L_SQUARE_BRACKET  shift, and go to state 78
+
+    $default  reduce using rule 67 (var)
 
 
 State 52
 
-   36 statement: do .
+   21 statements: comment . statements
 
-    $default  reduce using rule 36 (statement)
+    IDENT      shift, and go to state 14
+    IF         shift, and go to state 44
+    WHILE      shift, and go to state 45
+    DO         shift, and go to state 46
+    CONTINUE   shift, and go to state 47
+    READ       shift, and go to state 48
+    WRITE      shift, and go to state 49
+    RETURN     shift, and go to state 50
+    NO_IDENT1  shift, and go to state 15
+    NO_IDENT2  shift, and go to state 16
+    COMMENT    shift, and go to state 1
+
+    $default  reduce using rule 23 (statements)
+
+    ident       go to state 51
+    comment     go to state 52
+    statements  go to state 79
+    assignment  go to state 54
+    ifstmt      go to state 55
+    while       go to state 56
+    do          go to state 57
+    read        go to state 58
+    write       go to state 59
+    return      go to state 60
+    statement   go to state 61
+    var         go to state 62
 
 
 State 53
 
-   37 statement: read .
+    6 function: comments FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements . END_BODY
 
-    $default  reduce using rule 37 (statement)
+    END_BODY  shift, and go to state 80
 
 
 State 54
 
-   38 statement: write .
+   36 statement: assignment .
 
-    $default  reduce using rule 38 (statement)
+    $default  reduce using rule 36 (statement)
 
 
 State 55
 
-   40 statement: return .
+   37 statement: ifstmt .
 
-    $default  reduce using rule 40 (statement)
+    $default  reduce using rule 37 (statement)
 
 
 State 56
 
-   19 statements: statement . SEMICOLON statements
+   38 statement: while .
 
-    SEMICOLON  shift, and go to state 76
+    $default  reduce using rule 38 (statement)
 
 
 State 57
 
-   21 assignment: var . ASSIGN expression
+   39 statement: do .
 
-    ASSIGN  shift, and go to state 77
+    $default  reduce using rule 39 (statement)
 
 
 State 58
 
-   66 not: NOT .
+   40 statement: read .
 
-    $default  reduce using rule 66 (not)
+    $default  reduce using rule 40 (statement)
 
 
 State 59
 
-   80 relationexpr: not . relationexproptions
+   41 statement: write .
 
-    TRUE     shift, and go to state 78
-    FALSE    shift, and go to state 79
-    SUB      shift, and go to state 68
-    L_PAREN  shift, and go to state 80
-
-    L_PAREN   [reduce using rule 51 (neg)]
-    $default  reduce using rule 51 (neg)
-
-    expression           go to state 81
-    multexpression       go to state 70
-    neg                  go to state 71
-    term                 go to state 72
-    relationexproptions  go to state 82
+    $default  reduce using rule 41 (statement)
 
 
 State 60
 
-   22 ifstmt: IF boolexpr . THEN statements else ENDIF
+   43 statement: return .
 
-    THEN  shift, and go to state 83
+    $default  reduce using rule 43 (statement)
 
 
 State 61
 
-   74 boolexpr: relationandexpr . boolexprseq
+   22 statements: statement . SEMICOLON statements
 
-    OR  shift, and go to state 84
-
-    $default  reduce using rule 76 (boolexprseq)
-
-    boolexprseq  go to state 85
+    SEMICOLON  shift, and go to state 81
 
 
 State 62
 
-   77 relationandexpr: relationexpr . relationandexprseq
+   24 assignment: var . ASSIGN expression
 
-    AND  shift, and go to state 86
-
-    $default  reduce using rule 79 (relationandexprseq)
-
-    relationandexprseq  go to state 87
+    ASSIGN  shift, and go to state 82
 
 
 State 63
 
-   25 while: WHILE boolexpr . BEGINLOOP statements ENDLOOP
+   69 not: NOT .
 
-    BEGINLOOP  shift, and go to state 88
+    $default  reduce using rule 69 (not)
 
 
 State 64
 
-   26 do: DO BEGINLOOP . statements ENDLOOP WHILE boolexpr
+   83 relationexpr: not . relationexproptions
 
-    IDENT      shift, and go to state 6
-    IF         shift, and go to state 38
-    WHILE      shift, and go to state 39
-    DO         shift, and go to state 40
-    CONTINUE   shift, and go to state 41
-    READ       shift, and go to state 42
-    WRITE      shift, and go to state 43
-    RETURN     shift, and go to state 44
-    NO_IDENT1  shift, and go to state 7
-    NO_IDENT2  shift, and go to state 8
-    COMMENT    shift, and go to state 45
+    TRUE     shift, and go to state 83
+    FALSE    shift, and go to state 84
+    SUB      shift, and go to state 73
+    L_PAREN  shift, and go to state 85
 
-    $default  reduce using rule 20 (statements)
+    L_PAREN   [reduce using rule 54 (neg)]
+    $default  reduce using rule 54 (neg)
 
-    ident       go to state 46
-    comment     go to state 47
-    statements  go to state 89
-    assignment  go to state 49
-    ifstmt      go to state 50
-    while       go to state 51
-    do          go to state 52
-    read        go to state 53
-    write       go to state 54
-    return      go to state 55
-    statement   go to state 56
-    var         go to state 57
+    expression           go to state 86
+    multexpression       go to state 75
+    neg                  go to state 76
+    term                 go to state 77
+    relationexproptions  go to state 87
 
 
 State 65
 
-   27 read: READ vars .
+   25 ifstmt: IF boolexpr . THEN statements else ENDIF
 
-    $default  reduce using rule 27 (read)
+    THEN  shift, and go to state 88
 
 
 State 66
 
-   30 vars: var . varcomma
+   77 boolexpr: relationandexpr . boolexprseq
 
-    COMMA  shift, and go to state 90
+    OR  shift, and go to state 89
 
-    $default  reduce using rule 32 (varcomma)
+    $default  reduce using rule 79 (boolexprseq)
 
-    varcomma  go to state 91
+    boolexprseq  go to state 90
 
 
 State 67
 
-   28 write: WRITE vars .
+   80 relationandexpr: relationexpr . relationandexprseq
 
-    $default  reduce using rule 28 (write)
+    AND  shift, and go to state 91
+
+    $default  reduce using rule 82 (relationandexprseq)
+
+    relationandexprseq  go to state 92
 
 
 State 68
 
-   50 neg: SUB .
+   28 while: WHILE boolexpr . BEGINLOOP statements ENDLOOP
 
-    $default  reduce using rule 50 (neg)
+    BEGINLOOP  shift, and go to state 93
 
 
 State 69
 
-   29 return: RETURN expression .
+   29 do: DO BEGINLOOP . statements ENDLOOP WHILE boolexpr
 
-    $default  reduce using rule 29 (return)
+    IDENT      shift, and go to state 14
+    IF         shift, and go to state 44
+    WHILE      shift, and go to state 45
+    DO         shift, and go to state 46
+    CONTINUE   shift, and go to state 47
+    READ       shift, and go to state 48
+    WRITE      shift, and go to state 49
+    RETURN     shift, and go to state 50
+    NO_IDENT1  shift, and go to state 15
+    NO_IDENT2  shift, and go to state 16
+    COMMENT    shift, and go to state 1
+
+    $default  reduce using rule 23 (statements)
+
+    ident       go to state 51
+    comment     go to state 52
+    statements  go to state 94
+    assignment  go to state 54
+    ifstmt      go to state 55
+    while       go to state 56
+    do          go to state 57
+    read        go to state 58
+    write       go to state 59
+    return      go to state 60
+    statement   go to state 61
+    var         go to state 62
 
 
 State 70
 
-   41 expression: multexpression . expressionseq
+   30 read: READ vars .
 
-    SUB  shift, and go to state 92
-    ADD  shift, and go to state 93
-
-    $default  reduce using rule 44 (expressionseq)
-
-    expressionseq  go to state 94
+    $default  reduce using rule 30 (read)
 
 
 State 71
 
-   54 term: neg . ident termmatch
-   55     | neg . termoption
+   33 vars: var . varcomma
 
-    IDENT      shift, and go to state 6
-    NUMBER     shift, and go to state 95
-    L_PAREN    shift, and go to state 96
-    NO_IDENT1  shift, and go to state 7
-    NO_IDENT2  shift, and go to state 8
+    COMMA  shift, and go to state 95
 
-    ident       go to state 97
-    termoption  go to state 98
+    $default  reduce using rule 35 (varcomma)
+
+    varcomma  go to state 96
 
 
 State 72
 
-   45 multexpression: term . termseq
+   31 write: WRITE vars .
 
-    MULT  shift, and go to state 99
-    DIV   shift, and go to state 100
-    MOD   shift, and go to state 101
-
-    $default  reduce using rule 49 (termseq)
-
-    termseq  go to state 102
+    $default  reduce using rule 31 (write)
 
 
 State 73
 
-   65 var: ident L_SQUARE_BRACKET . expression R_SQUARE_BRACKET
+   53 neg: SUB .
 
-    SUB  shift, and go to state 68
-
-    $default  reduce using rule 51 (neg)
-
-    expression      go to state 103
-    multexpression  go to state 70
-    neg             go to state 71
-    term            go to state 72
+    $default  reduce using rule 53 (neg)
 
 
 State 74
 
-   18 statements: comment statements .
+   32 return: RETURN expression .
 
-    $default  reduce using rule 18 (statements)
+    $default  reduce using rule 32 (return)
 
 
 State 75
 
-    6 function: FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY .
+   44 expression: multexpression . expressionseq
 
-    $default  reduce using rule 6 (function)
+    SUB  shift, and go to state 97
+    ADD  shift, and go to state 98
+
+    $default  reduce using rule 47 (expressionseq)
+
+    expressionseq  go to state 99
 
 
 State 76
 
-   19 statements: statement SEMICOLON . statements
+   57 term: neg . ident termmatch
+   58     | neg . termoption
 
-    IDENT      shift, and go to state 6
-    IF         shift, and go to state 38
-    WHILE      shift, and go to state 39
-    DO         shift, and go to state 40
-    CONTINUE   shift, and go to state 41
-    READ       shift, and go to state 42
-    WRITE      shift, and go to state 43
-    RETURN     shift, and go to state 44
-    NO_IDENT1  shift, and go to state 7
-    NO_IDENT2  shift, and go to state 8
-    COMMENT    shift, and go to state 45
+    IDENT      shift, and go to state 14
+    NUMBER     shift, and go to state 100
+    L_PAREN    shift, and go to state 101
+    NO_IDENT1  shift, and go to state 15
+    NO_IDENT2  shift, and go to state 16
 
-    $default  reduce using rule 20 (statements)
-
-    ident       go to state 46
-    comment     go to state 47
-    statements  go to state 104
-    assignment  go to state 49
-    ifstmt      go to state 50
-    while       go to state 51
-    do          go to state 52
-    read        go to state 53
-    write       go to state 54
-    return      go to state 55
-    statement   go to state 56
-    var         go to state 57
+    ident       go to state 102
+    termoption  go to state 103
 
 
 State 77
 
-   21 assignment: var ASSIGN . expression
+   48 multexpression: term . termseq
 
-    SUB  shift, and go to state 68
+    MULT  shift, and go to state 104
+    DIV   shift, and go to state 105
+    MOD   shift, and go to state 106
 
-    $default  reduce using rule 51 (neg)
+    $default  reduce using rule 52 (termseq)
 
-    expression      go to state 105
-    multexpression  go to state 70
-    neg             go to state 71
-    term            go to state 72
+    termseq  go to state 107
 
 
 State 78
 
-   82 relationexproptions: TRUE .
+   68 var: ident L_SQUARE_BRACKET . expression R_SQUARE_BRACKET
 
-    $default  reduce using rule 82 (relationexproptions)
+    SUB  shift, and go to state 73
+
+    $default  reduce using rule 54 (neg)
+
+    expression      go to state 108
+    multexpression  go to state 75
+    neg             go to state 76
+    term            go to state 77
 
 
 State 79
 
-   83 relationexproptions: FALSE .
+   21 statements: comment statements .
 
-    $default  reduce using rule 83 (relationexproptions)
+    $default  reduce using rule 21 (statements)
 
 
 State 80
 
-   84 relationexproptions: L_PAREN . boolexpr R_PAREN
+    6 function: comments FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY .
 
-    NOT  shift, and go to state 58
-
-    $default  reduce using rule 67 (not)
-
-    not              go to state 59
-    boolexpr         go to state 106
-    relationandexpr  go to state 61
-    relationexpr     go to state 62
+    $default  reduce using rule 6 (function)
 
 
 State 81
 
-   81 relationexproptions: expression . comp expression
+   22 statements: statement SEMICOLON . statements
 
-    EQ   shift, and go to state 107
-    NEQ  shift, and go to state 108
-    LT   shift, and go to state 109
-    GT   shift, and go to state 110
-    LTE  shift, and go to state 111
-    GTE  shift, and go to state 112
+    IDENT      shift, and go to state 14
+    IF         shift, and go to state 44
+    WHILE      shift, and go to state 45
+    DO         shift, and go to state 46
+    CONTINUE   shift, and go to state 47
+    READ       shift, and go to state 48
+    WRITE      shift, and go to state 49
+    RETURN     shift, and go to state 50
+    NO_IDENT1  shift, and go to state 15
+    NO_IDENT2  shift, and go to state 16
+    COMMENT    shift, and go to state 1
 
-    comp  go to state 113
+    $default  reduce using rule 23 (statements)
+
+    ident       go to state 51
+    comment     go to state 52
+    statements  go to state 109
+    assignment  go to state 54
+    ifstmt      go to state 55
+    while       go to state 56
+    do          go to state 57
+    read        go to state 58
+    write       go to state 59
+    return      go to state 60
+    statement   go to state 61
+    var         go to state 62
 
 
 State 82
 
-   80 relationexpr: not relationexproptions .
+   24 assignment: var ASSIGN . expression
 
-    $default  reduce using rule 80 (relationexpr)
+    SUB  shift, and go to state 73
+
+    $default  reduce using rule 54 (neg)
+
+    expression      go to state 110
+    multexpression  go to state 75
+    neg             go to state 76
+    term            go to state 77
 
 
 State 83
 
-   22 ifstmt: IF boolexpr THEN . statements else ENDIF
+   85 relationexproptions: TRUE .
 
-    IDENT      shift, and go to state 6
-    IF         shift, and go to state 38
-    WHILE      shift, and go to state 39
-    DO         shift, and go to state 40
-    CONTINUE   shift, and go to state 41
-    READ       shift, and go to state 42
-    WRITE      shift, and go to state 43
-    RETURN     shift, and go to state 44
-    NO_IDENT1  shift, and go to state 7
-    NO_IDENT2  shift, and go to state 8
-    COMMENT    shift, and go to state 45
-
-    $default  reduce using rule 20 (statements)
-
-    ident       go to state 46
-    comment     go to state 47
-    statements  go to state 114
-    assignment  go to state 49
-    ifstmt      go to state 50
-    while       go to state 51
-    do          go to state 52
-    read        go to state 53
-    write       go to state 54
-    return      go to state 55
-    statement   go to state 56
-    var         go to state 57
+    $default  reduce using rule 85 (relationexproptions)
 
 
 State 84
 
-   75 boolexprseq: OR . relationandexpr boolexprseq
+   86 relationexproptions: FALSE .
 
-    NOT  shift, and go to state 58
-
-    $default  reduce using rule 67 (not)
-
-    not              go to state 59
-    relationandexpr  go to state 115
-    relationexpr     go to state 62
+    $default  reduce using rule 86 (relationexproptions)
 
 
 State 85
 
-   74 boolexpr: relationandexpr boolexprseq .
+   87 relationexproptions: L_PAREN . boolexpr R_PAREN
 
-    $default  reduce using rule 74 (boolexpr)
+    NOT  shift, and go to state 63
+
+    $default  reduce using rule 70 (not)
+
+    not              go to state 64
+    boolexpr         go to state 111
+    relationandexpr  go to state 66
+    relationexpr     go to state 67
 
 
 State 86
 
-   78 relationandexprseq: AND . relationexpr relationandexprseq
+   84 relationexproptions: expression . comp expression
 
-    NOT  shift, and go to state 58
+    EQ   shift, and go to state 112
+    NEQ  shift, and go to state 113
+    LT   shift, and go to state 114
+    GT   shift, and go to state 115
+    LTE  shift, and go to state 116
+    GTE  shift, and go to state 117
 
-    $default  reduce using rule 67 (not)
-
-    not           go to state 59
-    relationexpr  go to state 116
+    comp  go to state 118
 
 
 State 87
 
-   77 relationandexpr: relationexpr relationandexprseq .
+   83 relationexpr: not relationexproptions .
 
-    $default  reduce using rule 77 (relationandexpr)
+    $default  reduce using rule 83 (relationexpr)
 
 
 State 88
 
-   25 while: WHILE boolexpr BEGINLOOP . statements ENDLOOP
+   25 ifstmt: IF boolexpr THEN . statements else ENDIF
 
-    IDENT      shift, and go to state 6
-    IF         shift, and go to state 38
-    WHILE      shift, and go to state 39
-    DO         shift, and go to state 40
-    CONTINUE   shift, and go to state 41
-    READ       shift, and go to state 42
-    WRITE      shift, and go to state 43
-    RETURN     shift, and go to state 44
-    NO_IDENT1  shift, and go to state 7
-    NO_IDENT2  shift, and go to state 8
-    COMMENT    shift, and go to state 45
+    IDENT      shift, and go to state 14
+    IF         shift, and go to state 44
+    WHILE      shift, and go to state 45
+    DO         shift, and go to state 46
+    CONTINUE   shift, and go to state 47
+    READ       shift, and go to state 48
+    WRITE      shift, and go to state 49
+    RETURN     shift, and go to state 50
+    NO_IDENT1  shift, and go to state 15
+    NO_IDENT2  shift, and go to state 16
+    COMMENT    shift, and go to state 1
 
-    $default  reduce using rule 20 (statements)
+    $default  reduce using rule 23 (statements)
 
-    ident       go to state 46
-    comment     go to state 47
-    statements  go to state 117
-    assignment  go to state 49
-    ifstmt      go to state 50
-    while       go to state 51
-    do          go to state 52
-    read        go to state 53
-    write       go to state 54
-    return      go to state 55
-    statement   go to state 56
-    var         go to state 57
+    ident       go to state 51
+    comment     go to state 52
+    statements  go to state 119
+    assignment  go to state 54
+    ifstmt      go to state 55
+    while       go to state 56
+    do          go to state 57
+    read        go to state 58
+    write       go to state 59
+    return      go to state 60
+    statement   go to state 61
+    var         go to state 62
 
 
 State 89
 
-   26 do: DO BEGINLOOP statements . ENDLOOP WHILE boolexpr
+   78 boolexprseq: OR . relationandexpr boolexprseq
 
-    ENDLOOP  shift, and go to state 118
+    NOT  shift, and go to state 63
+
+    $default  reduce using rule 70 (not)
+
+    not              go to state 64
+    relationandexpr  go to state 120
+    relationexpr     go to state 67
 
 
 State 90
 
-   31 varcomma: COMMA . var varcomma
+   77 boolexpr: relationandexpr boolexprseq .
 
-    IDENT      shift, and go to state 6
-    NO_IDENT1  shift, and go to state 7
-    NO_IDENT2  shift, and go to state 8
-
-    ident  go to state 46
-    var    go to state 119
+    $default  reduce using rule 77 (boolexpr)
 
 
 State 91
 
-   30 vars: var varcomma .
+   81 relationandexprseq: AND . relationexpr relationandexprseq
 
-    $default  reduce using rule 30 (vars)
+    NOT  shift, and go to state 63
+
+    $default  reduce using rule 70 (not)
+
+    not           go to state 64
+    relationexpr  go to state 121
 
 
 State 92
 
-   43 expressionseq: SUB . multexpression expressionseq
+   80 relationandexpr: relationexpr relationandexprseq .
 
-    SUB  shift, and go to state 68
-
-    $default  reduce using rule 51 (neg)
-
-    multexpression  go to state 120
-    neg             go to state 71
-    term            go to state 72
+    $default  reduce using rule 80 (relationandexpr)
 
 
 State 93
 
-   42 expressionseq: ADD . multexpression expressionseq
+   28 while: WHILE boolexpr BEGINLOOP . statements ENDLOOP
 
-    SUB  shift, and go to state 68
+    IDENT      shift, and go to state 14
+    IF         shift, and go to state 44
+    WHILE      shift, and go to state 45
+    DO         shift, and go to state 46
+    CONTINUE   shift, and go to state 47
+    READ       shift, and go to state 48
+    WRITE      shift, and go to state 49
+    RETURN     shift, and go to state 50
+    NO_IDENT1  shift, and go to state 15
+    NO_IDENT2  shift, and go to state 16
+    COMMENT    shift, and go to state 1
 
-    $default  reduce using rule 51 (neg)
+    $default  reduce using rule 23 (statements)
 
-    multexpression  go to state 121
-    neg             go to state 71
-    term            go to state 72
+    ident       go to state 51
+    comment     go to state 52
+    statements  go to state 122
+    assignment  go to state 54
+    ifstmt      go to state 55
+    while       go to state 56
+    do          go to state 57
+    read        go to state 58
+    write       go to state 59
+    return      go to state 60
+    statement   go to state 61
+    var         go to state 62
 
 
 State 94
 
-   41 expression: multexpression expressionseq .
+   29 do: DO BEGINLOOP statements . ENDLOOP WHILE boolexpr
 
-    $default  reduce using rule 41 (expression)
+    ENDLOOP  shift, and go to state 123
 
 
 State 95
 
-   52 termoption: NUMBER .
+   34 varcomma: COMMA . var varcomma
 
-    $default  reduce using rule 52 (termoption)
+    IDENT      shift, and go to state 14
+    NO_IDENT1  shift, and go to state 15
+    NO_IDENT2  shift, and go to state 16
+
+    ident  go to state 51
+    var    go to state 124
 
 
 State 96
 
-   53 termoption: L_PAREN . expression R_PAREN
+   33 vars: var varcomma .
 
-    SUB  shift, and go to state 68
-
-    $default  reduce using rule 51 (neg)
-
-    expression      go to state 122
-    multexpression  go to state 70
-    neg             go to state 71
-    term            go to state 72
+    $default  reduce using rule 33 (vars)
 
 
 State 97
 
-   54 term: neg ident . termmatch
+   46 expressionseq: SUB . multexpression expressionseq
 
-    L_PAREN           shift, and go to state 123
-    L_SQUARE_BRACKET  shift, and go to state 124
+    SUB  shift, and go to state 73
 
-    $default  reduce using rule 58 (termmatch)
+    $default  reduce using rule 54 (neg)
 
-    termmatch     go to state 125
-    matchterm     go to state 126
-    notmatchterm  go to state 127
+    multexpression  go to state 125
+    neg             go to state 76
+    term            go to state 77
 
 
 State 98
 
-   55 term: neg termoption .
+   45 expressionseq: ADD . multexpression expressionseq
 
-    $default  reduce using rule 55 (term)
+    SUB  shift, and go to state 73
+
+    $default  reduce using rule 54 (neg)
+
+    multexpression  go to state 126
+    neg             go to state 76
+    term            go to state 77
 
 
 State 99
 
-   46 termseq: MULT . term termseq
+   44 expression: multexpression expressionseq .
 
-    SUB  shift, and go to state 68
-
-    $default  reduce using rule 51 (neg)
-
-    neg   go to state 71
-    term  go to state 128
+    $default  reduce using rule 44 (expression)
 
 
 State 100
 
-   47 termseq: DIV . term termseq
+   55 termoption: NUMBER .
 
-    SUB  shift, and go to state 68
-
-    $default  reduce using rule 51 (neg)
-
-    neg   go to state 71
-    term  go to state 129
+    $default  reduce using rule 55 (termoption)
 
 
 State 101
 
-   48 termseq: MOD . term termseq
+   56 termoption: L_PAREN . expression R_PAREN
 
-    SUB  shift, and go to state 68
+    SUB  shift, and go to state 73
 
-    $default  reduce using rule 51 (neg)
+    $default  reduce using rule 54 (neg)
 
-    neg   go to state 71
-    term  go to state 130
+    expression      go to state 127
+    multexpression  go to state 75
+    neg             go to state 76
+    term            go to state 77
 
 
 State 102
 
-   45 multexpression: term termseq .
+   57 term: neg ident . termmatch
 
-    $default  reduce using rule 45 (multexpression)
+    L_PAREN           shift, and go to state 128
+    L_SQUARE_BRACKET  shift, and go to state 129
+
+    $default  reduce using rule 61 (termmatch)
+
+    termmatch     go to state 130
+    matchterm     go to state 131
+    notmatchterm  go to state 132
 
 
 State 103
 
-   65 var: ident L_SQUARE_BRACKET expression . R_SQUARE_BRACKET
+   58 term: neg termoption .
 
-    R_SQUARE_BRACKET  shift, and go to state 131
+    $default  reduce using rule 58 (term)
 
 
 State 104
 
-   19 statements: statement SEMICOLON statements .
+   49 termseq: MULT . term termseq
 
-    $default  reduce using rule 19 (statements)
+    SUB  shift, and go to state 73
+
+    $default  reduce using rule 54 (neg)
+
+    neg   go to state 76
+    term  go to state 133
 
 
 State 105
 
-   21 assignment: var ASSIGN expression .
+   50 termseq: DIV . term termseq
 
-    $default  reduce using rule 21 (assignment)
+    SUB  shift, and go to state 73
+
+    $default  reduce using rule 54 (neg)
+
+    neg   go to state 76
+    term  go to state 134
 
 
 State 106
 
-   84 relationexproptions: L_PAREN boolexpr . R_PAREN
+   51 termseq: MOD . term termseq
 
-    R_PAREN  shift, and go to state 132
+    SUB  shift, and go to state 73
+
+    $default  reduce using rule 54 (neg)
+
+    neg   go to state 76
+    term  go to state 135
 
 
 State 107
 
-   68 comp: EQ .
+   48 multexpression: term termseq .
 
-    $default  reduce using rule 68 (comp)
+    $default  reduce using rule 48 (multexpression)
 
 
 State 108
 
-   69 comp: NEQ .
+   68 var: ident L_SQUARE_BRACKET expression . R_SQUARE_BRACKET
 
-    $default  reduce using rule 69 (comp)
+    R_SQUARE_BRACKET  shift, and go to state 136
 
 
 State 109
 
-   70 comp: LT .
+   22 statements: statement SEMICOLON statements .
 
-    $default  reduce using rule 70 (comp)
+    $default  reduce using rule 22 (statements)
 
 
 State 110
 
-   71 comp: GT .
+   24 assignment: var ASSIGN expression .
 
-    $default  reduce using rule 71 (comp)
+    $default  reduce using rule 24 (assignment)
 
 
 State 111
 
-   72 comp: LTE .
+   87 relationexproptions: L_PAREN boolexpr . R_PAREN
 
-    $default  reduce using rule 72 (comp)
+    R_PAREN  shift, and go to state 137
 
 
 State 112
 
-   73 comp: GTE .
+   71 comp: EQ .
 
-    $default  reduce using rule 73 (comp)
+    $default  reduce using rule 71 (comp)
 
 
 State 113
 
-   81 relationexproptions: expression comp . expression
+   72 comp: NEQ .
 
-    SUB  shift, and go to state 68
-
-    $default  reduce using rule 51 (neg)
-
-    expression      go to state 133
-    multexpression  go to state 70
-    neg             go to state 71
-    term            go to state 72
+    $default  reduce using rule 72 (comp)
 
 
 State 114
 
-   22 ifstmt: IF boolexpr THEN statements . else ENDIF
+   73 comp: LT .
 
-    ELSE  shift, and go to state 134
-
-    $default  reduce using rule 24 (else)
-
-    else  go to state 135
+    $default  reduce using rule 73 (comp)
 
 
 State 115
 
-   75 boolexprseq: OR relationandexpr . boolexprseq
+   74 comp: GT .
 
-    OR  shift, and go to state 84
-
-    $default  reduce using rule 76 (boolexprseq)
-
-    boolexprseq  go to state 136
+    $default  reduce using rule 74 (comp)
 
 
 State 116
 
-   78 relationandexprseq: AND relationexpr . relationandexprseq
+   75 comp: LTE .
 
-    AND  shift, and go to state 86
-
-    $default  reduce using rule 79 (relationandexprseq)
-
-    relationandexprseq  go to state 137
+    $default  reduce using rule 75 (comp)
 
 
 State 117
 
-   25 while: WHILE boolexpr BEGINLOOP statements . ENDLOOP
+   76 comp: GTE .
 
-    ENDLOOP  shift, and go to state 138
+    $default  reduce using rule 76 (comp)
 
 
 State 118
 
-   26 do: DO BEGINLOOP statements ENDLOOP . WHILE boolexpr
+   84 relationexproptions: expression comp . expression
 
-    WHILE  shift, and go to state 139
+    SUB  shift, and go to state 73
+
+    $default  reduce using rule 54 (neg)
+
+    expression      go to state 138
+    multexpression  go to state 75
+    neg             go to state 76
+    term            go to state 77
 
 
 State 119
 
-   31 varcomma: COMMA var . varcomma
+   25 ifstmt: IF boolexpr THEN statements . else ENDIF
 
-    COMMA  shift, and go to state 90
+    ELSE  shift, and go to state 139
 
-    $default  reduce using rule 32 (varcomma)
+    $default  reduce using rule 27 (else)
 
-    varcomma  go to state 140
+    else  go to state 140
 
 
 State 120
 
-   43 expressionseq: SUB multexpression . expressionseq
+   78 boolexprseq: OR relationandexpr . boolexprseq
 
-    SUB  shift, and go to state 92
-    ADD  shift, and go to state 93
+    OR  shift, and go to state 89
 
-    $default  reduce using rule 44 (expressionseq)
+    $default  reduce using rule 79 (boolexprseq)
 
-    expressionseq  go to state 141
+    boolexprseq  go to state 141
 
 
 State 121
 
-   42 expressionseq: ADD multexpression . expressionseq
+   81 relationandexprseq: AND relationexpr . relationandexprseq
 
-    SUB  shift, and go to state 92
-    ADD  shift, and go to state 93
+    AND  shift, and go to state 91
 
-    $default  reduce using rule 44 (expressionseq)
+    $default  reduce using rule 82 (relationandexprseq)
 
-    expressionseq  go to state 142
+    relationandexprseq  go to state 142
 
 
 State 122
 
-   53 termoption: L_PAREN expression . R_PAREN
+   28 while: WHILE boolexpr BEGINLOOP statements . ENDLOOP
 
-    R_PAREN  shift, and go to state 143
+    ENDLOOP  shift, and go to state 143
 
 
 State 123
 
-   59 matchterm: L_PAREN . expressionlist R_PAREN
+   29 do: DO BEGINLOOP statements ENDLOOP . WHILE boolexpr
 
-    SUB  shift, and go to state 68
-
-    $default  reduce using rule 51 (neg)
-
-    expression      go to state 144
-    multexpression  go to state 70
-    neg             go to state 71
-    term            go to state 72
-    expressionlist  go to state 145
+    WHILE  shift, and go to state 144
 
 
 State 124
 
-   60 notmatchterm: L_SQUARE_BRACKET . expression R_SQUARE_BRACKET
+   34 varcomma: COMMA var . varcomma
 
-    SUB  shift, and go to state 68
+    COMMA  shift, and go to state 95
 
-    $default  reduce using rule 51 (neg)
+    $default  reduce using rule 35 (varcomma)
 
-    expression      go to state 146
-    multexpression  go to state 70
-    neg             go to state 71
-    term            go to state 72
+    varcomma  go to state 145
 
 
 State 125
 
-   54 term: neg ident termmatch .
+   46 expressionseq: SUB multexpression . expressionseq
 
-    $default  reduce using rule 54 (term)
+    SUB  shift, and go to state 97
+    ADD  shift, and go to state 98
+
+    $default  reduce using rule 47 (expressionseq)
+
+    expressionseq  go to state 146
 
 
 State 126
 
-   56 termmatch: matchterm .
+   45 expressionseq: ADD multexpression . expressionseq
 
-    $default  reduce using rule 56 (termmatch)
+    SUB  shift, and go to state 97
+    ADD  shift, and go to state 98
+
+    $default  reduce using rule 47 (expressionseq)
+
+    expressionseq  go to state 147
 
 
 State 127
 
-   57 termmatch: notmatchterm .
+   56 termoption: L_PAREN expression . R_PAREN
 
-    $default  reduce using rule 57 (termmatch)
+    R_PAREN  shift, and go to state 148
 
 
 State 128
 
-   46 termseq: MULT term . termseq
+   62 matchterm: L_PAREN . expressionlist R_PAREN
 
-    MULT  shift, and go to state 99
-    DIV   shift, and go to state 100
-    MOD   shift, and go to state 101
+    SUB  shift, and go to state 73
 
-    $default  reduce using rule 49 (termseq)
+    $default  reduce using rule 54 (neg)
 
-    termseq  go to state 147
+    expression      go to state 149
+    multexpression  go to state 75
+    neg             go to state 76
+    term            go to state 77
+    expressionlist  go to state 150
 
 
 State 129
 
-   47 termseq: DIV term . termseq
+   63 notmatchterm: L_SQUARE_BRACKET . expression R_SQUARE_BRACKET
 
-    MULT  shift, and go to state 99
-    DIV   shift, and go to state 100
-    MOD   shift, and go to state 101
+    SUB  shift, and go to state 73
 
-    $default  reduce using rule 49 (termseq)
+    $default  reduce using rule 54 (neg)
 
-    termseq  go to state 148
+    expression      go to state 151
+    multexpression  go to state 75
+    neg             go to state 76
+    term            go to state 77
 
 
 State 130
 
-   48 termseq: MOD term . termseq
+   57 term: neg ident termmatch .
 
-    MULT  shift, and go to state 99
-    DIV   shift, and go to state 100
-    MOD   shift, and go to state 101
-
-    $default  reduce using rule 49 (termseq)
-
-    termseq  go to state 149
+    $default  reduce using rule 57 (term)
 
 
 State 131
 
-   65 var: ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET .
+   59 termmatch: matchterm .
 
-    $default  reduce using rule 65 (var)
+    $default  reduce using rule 59 (termmatch)
 
 
 State 132
 
-   84 relationexproptions: L_PAREN boolexpr R_PAREN .
+   60 termmatch: notmatchterm .
 
-    $default  reduce using rule 84 (relationexproptions)
+    $default  reduce using rule 60 (termmatch)
 
 
 State 133
 
-   81 relationexproptions: expression comp expression .
+   49 termseq: MULT term . termseq
 
-    $default  reduce using rule 81 (relationexproptions)
+    MULT  shift, and go to state 104
+    DIV   shift, and go to state 105
+    MOD   shift, and go to state 106
+
+    $default  reduce using rule 52 (termseq)
+
+    termseq  go to state 152
 
 
 State 134
 
-   23 else: ELSE . statements
+   50 termseq: DIV term . termseq
 
-    IDENT      shift, and go to state 6
-    IF         shift, and go to state 38
-    WHILE      shift, and go to state 39
-    DO         shift, and go to state 40
-    CONTINUE   shift, and go to state 41
-    READ       shift, and go to state 42
-    WRITE      shift, and go to state 43
-    RETURN     shift, and go to state 44
-    NO_IDENT1  shift, and go to state 7
-    NO_IDENT2  shift, and go to state 8
-    COMMENT    shift, and go to state 45
+    MULT  shift, and go to state 104
+    DIV   shift, and go to state 105
+    MOD   shift, and go to state 106
 
-    $default  reduce using rule 20 (statements)
+    $default  reduce using rule 52 (termseq)
 
-    ident       go to state 46
-    comment     go to state 47
-    statements  go to state 150
-    assignment  go to state 49
-    ifstmt      go to state 50
-    while       go to state 51
-    do          go to state 52
-    read        go to state 53
-    write       go to state 54
-    return      go to state 55
-    statement   go to state 56
-    var         go to state 57
+    termseq  go to state 153
 
 
 State 135
 
-   22 ifstmt: IF boolexpr THEN statements else . ENDIF
+   51 termseq: MOD term . termseq
 
-    ENDIF  shift, and go to state 151
+    MULT  shift, and go to state 104
+    DIV   shift, and go to state 105
+    MOD   shift, and go to state 106
+
+    $default  reduce using rule 52 (termseq)
+
+    termseq  go to state 154
 
 
 State 136
 
-   75 boolexprseq: OR relationandexpr boolexprseq .
+   68 var: ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET .
 
-    $default  reduce using rule 75 (boolexprseq)
+    $default  reduce using rule 68 (var)
 
 
 State 137
 
-   78 relationandexprseq: AND relationexpr relationandexprseq .
+   87 relationexproptions: L_PAREN boolexpr R_PAREN .
 
-    $default  reduce using rule 78 (relationandexprseq)
+    $default  reduce using rule 87 (relationexproptions)
 
 
 State 138
 
-   25 while: WHILE boolexpr BEGINLOOP statements ENDLOOP .
+   84 relationexproptions: expression comp expression .
 
-    $default  reduce using rule 25 (while)
+    $default  reduce using rule 84 (relationexproptions)
 
 
 State 139
 
-   26 do: DO BEGINLOOP statements ENDLOOP WHILE . boolexpr
+   26 else: ELSE . statements
 
-    NOT  shift, and go to state 58
+    IDENT      shift, and go to state 14
+    IF         shift, and go to state 44
+    WHILE      shift, and go to state 45
+    DO         shift, and go to state 46
+    CONTINUE   shift, and go to state 47
+    READ       shift, and go to state 48
+    WRITE      shift, and go to state 49
+    RETURN     shift, and go to state 50
+    NO_IDENT1  shift, and go to state 15
+    NO_IDENT2  shift, and go to state 16
+    COMMENT    shift, and go to state 1
 
-    $default  reduce using rule 67 (not)
+    $default  reduce using rule 23 (statements)
 
-    not              go to state 59
-    boolexpr         go to state 152
-    relationandexpr  go to state 61
-    relationexpr     go to state 62
+    ident       go to state 51
+    comment     go to state 52
+    statements  go to state 155
+    assignment  go to state 54
+    ifstmt      go to state 55
+    while       go to state 56
+    do          go to state 57
+    read        go to state 58
+    write       go to state 59
+    return      go to state 60
+    statement   go to state 61
+    var         go to state 62
 
 
 State 140
 
-   31 varcomma: COMMA var varcomma .
+   25 ifstmt: IF boolexpr THEN statements else . ENDIF
 
-    $default  reduce using rule 31 (varcomma)
+    ENDIF  shift, and go to state 156
 
 
 State 141
 
-   43 expressionseq: SUB multexpression expressionseq .
+   78 boolexprseq: OR relationandexpr boolexprseq .
 
-    $default  reduce using rule 43 (expressionseq)
+    $default  reduce using rule 78 (boolexprseq)
 
 
 State 142
 
-   42 expressionseq: ADD multexpression expressionseq .
+   81 relationandexprseq: AND relationexpr relationandexprseq .
 
-    $default  reduce using rule 42 (expressionseq)
+    $default  reduce using rule 81 (relationandexprseq)
 
 
 State 143
 
-   53 termoption: L_PAREN expression R_PAREN .
+   28 while: WHILE boolexpr BEGINLOOP statements ENDLOOP .
 
-    $default  reduce using rule 53 (termoption)
+    $default  reduce using rule 28 (while)
 
 
 State 144
 
-   61 expressionlist: expression . expressioncomma
+   29 do: DO BEGINLOOP statements ENDLOOP WHILE . boolexpr
 
-    COMMA  shift, and go to state 153
+    NOT  shift, and go to state 63
 
-    $default  reduce using rule 63 (expressioncomma)
+    $default  reduce using rule 70 (not)
 
-    expressioncomma  go to state 154
+    not              go to state 64
+    boolexpr         go to state 157
+    relationandexpr  go to state 66
+    relationexpr     go to state 67
 
 
 State 145
 
-   59 matchterm: L_PAREN expressionlist . R_PAREN
+   34 varcomma: COMMA var varcomma .
 
-    R_PAREN  shift, and go to state 155
+    $default  reduce using rule 34 (varcomma)
 
 
 State 146
 
-   60 notmatchterm: L_SQUARE_BRACKET expression . R_SQUARE_BRACKET
+   46 expressionseq: SUB multexpression expressionseq .
 
-    R_SQUARE_BRACKET  shift, and go to state 156
+    $default  reduce using rule 46 (expressionseq)
 
 
 State 147
 
-   46 termseq: MULT term termseq .
+   45 expressionseq: ADD multexpression expressionseq .
 
-    $default  reduce using rule 46 (termseq)
+    $default  reduce using rule 45 (expressionseq)
 
 
 State 148
 
-   47 termseq: DIV term termseq .
+   56 termoption: L_PAREN expression R_PAREN .
 
-    $default  reduce using rule 47 (termseq)
+    $default  reduce using rule 56 (termoption)
 
 
 State 149
 
-   48 termseq: MOD term termseq .
+   64 expressionlist: expression . expressioncomma
 
-    $default  reduce using rule 48 (termseq)
+    COMMA  shift, and go to state 158
+
+    $default  reduce using rule 66 (expressioncomma)
+
+    expressioncomma  go to state 159
 
 
 State 150
 
-   23 else: ELSE statements .
+   62 matchterm: L_PAREN expressionlist . R_PAREN
 
-    $default  reduce using rule 23 (else)
+    R_PAREN  shift, and go to state 160
 
 
 State 151
 
-   22 ifstmt: IF boolexpr THEN statements else ENDIF .
+   63 notmatchterm: L_SQUARE_BRACKET expression . R_SQUARE_BRACKET
 
-    $default  reduce using rule 22 (ifstmt)
+    R_SQUARE_BRACKET  shift, and go to state 161
 
 
 State 152
 
-   26 do: DO BEGINLOOP statements ENDLOOP WHILE boolexpr .
+   49 termseq: MULT term termseq .
 
-    $default  reduce using rule 26 (do)
+    $default  reduce using rule 49 (termseq)
 
 
 State 153
 
-   62 expressioncomma: COMMA . expression expressioncomma
+   50 termseq: DIV term termseq .
 
-    SUB  shift, and go to state 68
-
-    $default  reduce using rule 51 (neg)
-
-    expression      go to state 157
-    multexpression  go to state 70
-    neg             go to state 71
-    term            go to state 72
+    $default  reduce using rule 50 (termseq)
 
 
 State 154
 
-   61 expressionlist: expression expressioncomma .
+   51 termseq: MOD term termseq .
 
-    $default  reduce using rule 61 (expressionlist)
+    $default  reduce using rule 51 (termseq)
 
 
 State 155
 
-   59 matchterm: L_PAREN expressionlist R_PAREN .
+   26 else: ELSE statements .
 
-    $default  reduce using rule 59 (matchterm)
+    $default  reduce using rule 26 (else)
 
 
 State 156
 
-   60 notmatchterm: L_SQUARE_BRACKET expression R_SQUARE_BRACKET .
+   25 ifstmt: IF boolexpr THEN statements else ENDIF .
 
-    $default  reduce using rule 60 (notmatchterm)
+    $default  reduce using rule 25 (ifstmt)
 
 
 State 157
 
-   62 expressioncomma: COMMA expression . expressioncomma
+   29 do: DO BEGINLOOP statements ENDLOOP WHILE boolexpr .
 
-    COMMA  shift, and go to state 153
-
-    $default  reduce using rule 63 (expressioncomma)
-
-    expressioncomma  go to state 158
+    $default  reduce using rule 29 (do)
 
 
 State 158
 
-   62 expressioncomma: COMMA expression expressioncomma .
+   65 expressioncomma: COMMA . expression expressioncomma
 
-    $default  reduce using rule 62 (expressioncomma)
+    SUB  shift, and go to state 73
+
+    $default  reduce using rule 54 (neg)
+
+    expression      go to state 162
+    multexpression  go to state 75
+    neg             go to state 76
+    term            go to state 77
+
+
+State 159
+
+   64 expressionlist: expression expressioncomma .
+
+    $default  reduce using rule 64 (expressionlist)
+
+
+State 160
+
+   62 matchterm: L_PAREN expressionlist R_PAREN .
+
+    $default  reduce using rule 62 (matchterm)
+
+
+State 161
+
+   63 notmatchterm: L_SQUARE_BRACKET expression R_SQUARE_BRACKET .
+
+    $default  reduce using rule 63 (notmatchterm)
+
+
+State 162
+
+   65 expressioncomma: COMMA expression . expressioncomma
+
+    COMMA  shift, and go to state 158
+
+    $default  reduce using rule 66 (expressioncomma)
+
+    expressioncomma  go to state 163
+
+
+State 163
+
+   65 expressioncomma: COMMA expression expressioncomma .
+
+    $default  reduce using rule 65 (expressioncomma)

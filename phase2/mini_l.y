@@ -31,14 +31,14 @@ line: '\n'
     | function line
     |
 
-function: FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
+function: comments FUNCTION ident SEMICOLON BEGIN_PARAMS declarationseq END_PARAMS BEGIN_LOCALS declarationseq END_LOCALS BEGIN_BODY statements END_BODY
 
 ident:
 NO_IDENT1 {yyerror("syntax error, identifier must begin with a letter" );} 
 | NO_IDENT2 {yyerror("syntax error, identifier must begin with a letter" );} 
 | IDENT {printf("ident -> IDENT %s\n", $1);} 
 
-declarationseq: declaration declarationseq | {printf("declaration -> epsilone\n");}
+declarationseq: declaration declarationseq | comment declarationseq | {printf("declaration -> epsilone\n");}
 
 declaration:
     ident declarations {printf("identifiers -> ident\n");}
@@ -51,7 +51,7 @@ arr: ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF {printf("declaration -> i
 
 /*Statement*/
 comment: COMMENT
-
+comments: comment comments | 
 statements: 
 comment statements {printf("statement -> comment\n");}
 | statement SEMICOLON statements 
