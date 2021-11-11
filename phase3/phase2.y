@@ -14,6 +14,11 @@
 %}
 
 
+%union{
+  int int_val;
+  char *op_val;
+}
+
 %error-verbose
 %start prog_start
 %token BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY END_BODY
@@ -42,12 +47,18 @@ functions:
 	| function functions
 		{};
 
-function: 
-	FUNCTION ident SEMICOLON
+function: function_ident
+	SEMICOLON
 	BEGIN_PARAMS declarations END_PARAMS
 	BEGIN_LOCALS declarations END_LOCALS
 	BEGIN_BODY statements END_BODY
 		{};
+
+function_ident: FUNCTION ident 
+{
+	char *token = identToken;
+	printf("func name: %s\n", token);
+}
 
 ident:
 	IDENT
