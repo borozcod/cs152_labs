@@ -38,6 +38,8 @@
 %token SEMICOLON COLON COMMA L_PAREN R_PAREN ASSIGN
 %token NUMBER
 %token <op_val> IDENT
+%type <op_val> var
+%type <op_val> ident
 
 %%
 
@@ -68,7 +70,7 @@ function_ident: FUNCTION ident
 
 ident:
 	IDENT
-		{};
+		{ $$ = $1};
 
 declarations: 
 	/* epsilon */
@@ -91,7 +93,10 @@ identifiers:
 
 statement: 
 	var ASSIGN expression
-		{}
+		{
+            char *name = $1;
+            printf("name = %s\n", name);
+        }
 	| IF bool_exp THEN statements ENDIF
 		{}
 	| IF bool_exp THEN statements ELSE statements ENDIF
@@ -207,9 +212,11 @@ comp:
 
 var: 
 	ident
-		{}
+		{$$ = $1}
 	| ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
-		{};
+		{
+            $$ = 0; /*test*/
+        };
 vars:
 	var
 		{}
