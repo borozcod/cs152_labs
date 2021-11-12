@@ -1,5 +1,6 @@
 %option noyywrap
 %{   
+#include<string.h>
 #include "phase2.tab.h"
    int currLine = 1, currPos = 1;
    
@@ -67,7 +68,14 @@ return         {currPos += yyleng; return RETURN;}
 
 "\n"           {currLine++; currPos = 1;}
 
-({LETTER})|({LETTER}({LETTER}|{DIGIT}|"_")*({LETTER}|{DIGIT}))     {currPos += yyleng; identToken = yytext; return IDENT;}
+({LETTER})|({LETTER}({LETTER}|{DIGIT}|"_")*({LETTER}|{DIGIT}))     {
+   
+   currPos += yyleng;
+   char * token = malloc(sizeof(char) * yyleng);
+   strcpy(token, yytext);
+   identToken = yytext;
+   return IDENT;
+}
 
 ((("_")+)|(({DIGIT})+({LETTER}|"_")))({DIGIT}|{LETTER}|"_")*                { printf("Error at line %d, column %d: identifier \"%s\" must begin with a letter\n", currLine, currPos, yytext); exit(0);}
 

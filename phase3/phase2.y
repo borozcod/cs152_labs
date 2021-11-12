@@ -36,7 +36,8 @@
 %token SUB ADD MULT DIV MOD
 %token EQ NEQ LT GT LTE GTE
 %token SEMICOLON COLON COMMA L_PAREN R_PAREN ASSIGN
-%token NUMBER IDENT
+%token NUMBER
+%token <op_val> IDENT
 
 %%
 
