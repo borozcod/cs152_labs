@@ -11,6 +11,7 @@
     int productionID = 0;
     char list_of_function_names[100][100];
     int count_names = 0;
+    // we might need a temp var
 
 //#define YYDEBUG 1
 //yydebug=1;
@@ -37,9 +38,12 @@
 %token EQ NEQ LT GT LTE GTE
 %token SEMICOLON COLON COMMA L_PAREN R_PAREN ASSIGN
 %token NUMBER
+
 %token <op_val> IDENT
 %type <op_val> var
 %type <op_val> ident
+%type <op_val> expression
+%type <op_val> multiplicative_expression
 
 %%
 
@@ -94,8 +98,11 @@ identifiers:
 statement: 
 	var ASSIGN expression
 		{
+            char *dest = $1;
+            char *src = "filler";
             char *name = $1;
             printf("name = %s\n", name);
+            printf("= %s, %s\n", dest, src);
         }
 	| IF bool_exp THEN statements ENDIF
 		{}
@@ -122,9 +129,15 @@ statements:
 
 expression: 
 	multiplicative_expression
-		{}
+		{ $$ = $1}
 	| multiplicative_expression ADD expression
-		{}
+		{
+            char *src1 = $1;
+            char *src2 = $3;
+            char *dest = "_temp";
+            printf("+ %s, %s, %s\n", dest, src1, src2);
+
+        }
 	| multiplicative_expression SUB expression
 		{};
 
