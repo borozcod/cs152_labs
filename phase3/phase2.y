@@ -70,7 +70,7 @@ function_ident: FUNCTION ident
 
 ident:
 	IDENT
-		{ $$ = $1};
+		{ $$ = $1;};
 
 declarations: 
 	/* epsilon */
@@ -212,7 +212,7 @@ comp:
 
 var: 
 	ident
-		{$$ = $1}
+		{$$ = $1;}
 	| ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
 		{
             $$ = 0; /*test*/
