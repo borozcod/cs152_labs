@@ -11,7 +11,7 @@
     int productionID = 0;
     char list_of_function_names[100][100];
     int count_names = 0;
-    
+	int inParam = 0;    
     // FROM: https://www.gnu.org/software/bison/manual/html_node/Mfcalc-Symbol-Table.html
     typedef double (func_t) (double);
 
@@ -30,6 +30,8 @@
     extern symrec *sym_table;
     symrec *putsym (char const *name, char *sym_type);
     symrec *getsym (char const *name);
+	char *newTemp();
+	char *newReg();
     // we might need a temp var
 
 //#define YYDEBUG 1
@@ -65,7 +67,8 @@
 %type <op_val> multiplicative_expression
 %type <op_val> term
 %type <op_val> identifiers
-
+%type <op_val> statement
+%type <op_val> vars
 %%
 
 prog_start: 
@@ -80,8 +83,8 @@ functions:
 
 function: function_ident
 	SEMICOLON
-	BEGIN_PARAMS declarations END_PARAMS
-	BEGIN_LOCALS declarations END_LOCALS
+	BEGIN_PARAMS {inParam = 1;} declarations END_PARAMS
+	BEGIN_LOCALS {inParam = 0;} declarations END_LOCALS
 	BEGIN_BODY statements end_body
 		{};
 
@@ -99,7 +102,12 @@ function_ident: FUNCTION ident
 
 ident:
 	IDENT
-		{ $$ = $1;};
+		{
+			$$ = $1;
+			putsym($1, "i");
+			symrec *token = getsym($1);
+			printf("IDENTTT %s\n", token->name);
+		};
 
 declarations: 
 	/* epsilon */
@@ -114,32 +122,40 @@ declaration:
         }
 	| identifiers COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
 		{
-	char *token = $1;
+	symrec *token = getsym($1);
 	char *num = $5;
-	printf(".[] _%s, %s\n", token, num);
+	printf(".[] %s, %s\n", token->name, num);
 };
+
 identifiers: 
 	ident
     {
-	putsym($1, "i");
-	symrec *res = getsym($1);
-        printf(". _%s\n", res->name);
-	$$ = $1;
+		putsym($1, "i");
+		symrec *res = getsym($1);
+        printf(". %s\n", res->name);
+ 		if(inParam == 1) {
+			printf("= %s, %s\n", res->name, newReg());
+		}           
+		$$ = $1;
     }
 	| ident COMMA identifiers
 	{
 	    $$ = $1;
-	    char *token = $1;
-            printf(". _%s\n", token);
+	    symrec *token = getsym($1);
+        printf(". %s\n", token->name);
 	};
 
 statement: 
 	var ASSIGN expression
 		{
-            char *dest = $1;
-            char *src = $3;
-            char *name = $1;
-            printf("= %s, %s\n", dest, src);
+			char *destID = newTemp();
+			symrec *temp = putsym(destID, "t");
+			symrec *dest = getsym($1);
+			symrec *src = getsym($3);
+            printf(". %s\n", temp->name);
+            printf("= %s, %s\n", temp->name, src->name);
+            //printf("= %s, %s\n", dest->name, temp->name);
+			$$ = dest->name;
         }
 	| IF bool_exp THEN statements ENDIF
 		{}
@@ -150,7 +166,10 @@ statement:
 	| DO BEGINLOOP statements ENDLOOP WHILE bool_exp
 		{}
 	| READ vars
-		{}
+		{
+		  symrec *src1 = getsym($2);
+		  printf(".< %s\n", src1->name);
+		}
 	| WRITE vars
 		{}
 	| CONTINUE
@@ -169,20 +188,24 @@ expression:
 		{ $$ = $1;}
 	| multiplicative_expression ADD expression
 		{
-            char *src1 = $1;
-            char *src2 = $3;
-            char *dest = "_temp";
-            printf("+ %s, %s, %s\n", dest, src1, src2);
-            $$ = dest;
+            symrec *src1 = getsym($1);
+            symrec *src2 = getsym($3);
+            char *destID = newTemp();
+			symrec *dest = putsym(destID, "t");
+            printf(". %s\n", dest->name);
+            printf("+ %s, %s, %s\n", dest->name, src1->name, src2->name);
+			$$ = dest->name;
 
         }
 	| multiplicative_expression SUB expression
 		{
-            char *src1 = $1;
-            char *src2 = $3;
-            char *dest = "_temp";
-            printf("- %s, %s, %s\n", dest, src1, src2);
-            $$ = dest;
+			symrec *src1 = getsym($1);
+            symrec *src2 = getsym($3);
+            char *destID = newTemp();
+            symrec *dest = putsym(destID, "t");
+            printf(". %s\n", dest->name);
+            printf("- %s, %s, %s\n", dest->name, src1->name, src2->name);
+            $$ = dest->name;
         };
 
 multiplicative_expression: 
@@ -276,7 +299,7 @@ var:
         };
 vars:
 	var
-		{}
+		{$$ = $1;}
 	| var COMMA vars
 		{};
 	
@@ -315,7 +338,6 @@ void yyerror(const char *msg)
 }
 
 symrec *sym_table;
-
 symrec *
 putsym (char const *name, char *sym_type)
 {
@@ -337,6 +359,23 @@ getsym (char const *name)
     if (strcmp (p->name, name) == 0)
       return p;
   return NULL;
+}
+
+
+int tempID = 0;
+char *newTemp() {
+	char *temp = (char *) malloc (sizeof (char));
+    sprintf(temp, "__temp%d__", tempID);
+    tempID++;
+    return temp;
+}
+
+int regID = 0;
+char *newReg() {
+    char *temp = (char *) malloc (sizeof (char));
+    sprintf(temp, "$%d", regID);
+    regID++;
+    return temp;
 }
 
 

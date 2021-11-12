@@ -1,12 +1,15 @@
 function main;
 beginparams
+s : integer;
+o : integer;
 endparams
 
 beginlocals
+  n : integer;
+  x : integer;
   a : integer;
   b : integer;
   i, j, k: integer;
- t : array [20] of integer;
 endlocals
 
 beginbody	
@@ -14,5 +17,7 @@ beginbody
   a := 100;
   b := 50;
   c := a + b;
-
+  d := c - b;
+  read n;
+  x := n;
 endbody
