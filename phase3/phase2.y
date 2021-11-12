@@ -84,7 +84,7 @@ declarations:
 		{};
 
 
-/*
+
 declaration: 
 	IDENT COLON INTEGER
 		{
@@ -93,7 +93,7 @@ declaration:
         }
 	| IDENT COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
 		{};
-*/
+
 /*
 declaration: 
 	identifiers COLON INTEGER
