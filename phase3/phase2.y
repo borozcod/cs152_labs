@@ -129,7 +129,7 @@ statements:
 
 expression: 
 	multiplicative_expression
-		{ $$ = $1}
+		{ $$ = $1;}
 	| multiplicative_expression ADD expression
 		{
             char *src1 = $1;
