@@ -73,6 +73,7 @@ return         {currPos += yyleng; return RETURN;}
    currPos += yyleng;
    char * token = malloc(sizeof(char) * yyleng);
    strcpy(token, yytext);
+   yyval.op_val = token;
    identToken = yytext;
    return IDENT;
 }
