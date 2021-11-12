@@ -83,18 +83,33 @@ declarations:
 	| declaration SEMICOLON declarations
 		{};
 
+
+/*
+declaration: 
+	IDENT COLON INTEGER
+		{
+            char *token = $1;
+            printf(". %s\n", token);
+        }
+	| IDENT COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
+		{};
+*/
+/*
 declaration: 
 	identifiers COLON INTEGER
-		{}
+		{
+            
+        }
 	| identifiers COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
 		{};
-
+*/
+/*
 identifiers: 
 	ident
 		{}
 	| ident COMMA identifiers
 		{};
-
+*/
 
 statement: 
 	var ASSIGN expression
