@@ -60,7 +60,14 @@ return         {currPos += yyleng; return RETURN;}
 ":="           {currPos += yyleng; return ASSIGN;}
 "continue"     {currPos += yyleng; return CONTINUE;}
 
-{DIGIT}+       {currPos += yyleng; numberToken = atoi(yytext); return NUMBER;}
+{DIGIT}+       {
+   currPos += yyleng;
+   char * token = malloc(sizeof(char) * yyleng);
+   strcpy(token, yytext);
+   yylval.op_val = token;
+   numberToken = atoi(yytext);
+   return NUMBER;
+}
 
 ##(.)*\n       {/* do not print comments */ currLine++; currPos = 1;}
 

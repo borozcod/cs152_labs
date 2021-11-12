@@ -37,13 +37,14 @@
 %token SUB ADD MULT DIV MOD
 %token EQ NEQ LT GT LTE GTE
 %token SEMICOLON COLON COMMA L_PAREN R_PAREN ASSIGN
-%token NUMBER
 
+%token <op_val> NUMBER
 %token <op_val> IDENT
 %type <op_val> var
 %type <op_val> ident
 %type <op_val> expression
 %type <op_val> multiplicative_expression
+%type <op_val> term
 
 %%
 
@@ -99,7 +100,7 @@ statement:
 	var ASSIGN expression
 		{
             char *dest = $1;
-            char *src = "filler";
+            char *src = $3;
             char *name = $1;
             printf("name = %s\n", name);
             printf("= %s, %s\n", dest, src);
@@ -129,35 +130,42 @@ statements:
 
 expression: 
 	multiplicative_expression
-		{ $$ = $1;}
+		{ $$ = "_temp";}
 	| multiplicative_expression ADD expression
 		{
             char *src1 = $1;
             char *src2 = $3;
             char *dest = "_temp";
             printf("+ %s, %s, %s\n", dest, src1, src2);
+            $$ = dest;
 
         }
 	| multiplicative_expression SUB expression
-		{};
+		{
+            char *src1 = $1;
+            char *src2 = $3;
+            char *dest = "_temp";
+            printf("- %s, %s, %s\n", dest, src1, src2);
+            $$ = dest;
+        };
 
 multiplicative_expression: 
 	term
-		{}
+		{ $$ = $1; }
 	| term MULT multiplicative_expression
-		{}
+		{ $$ = "FILL1"; }
 	| term DIV multiplicative_expression
-		{}
+		{ $$ = "FILL2"; }
 	| term MOD multiplicative_expression
-		{};
+		{ $$ = "FILL3"; };
 
 term: 
 	var
-		{}
+		{$$ = $1; }
 	| SUB var
 		{}
 	| NUMBER
-		{}
+		{$$ = $1; }
 	| SUB NUMBER
 		{}
 	| L_PAREN expression R_PAREN
