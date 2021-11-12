@@ -102,7 +102,6 @@ statement:
             char *dest = $1;
             char *src = $3;
             char *name = $1;
-            printf("name = %s\n", name);
             printf("= %s, %s\n", dest, src);
         }
 	| IF bool_exp THEN statements ENDIF
