@@ -1,13 +1,16 @@
 %{
-   #include<stdio.h>
-   void yyerror(const char *msg);
-   extern int currLine;
-   int myError = 0;
-   int otherError = 0;
-   
-   char *identToken;
-   int numberToken;
-   int productionID = 0;
+    #include<stdio.h>
+    #include<string.h>
+    void yyerror(const char *msg);
+    extern int currLine;
+    int myError = 0;
+    int otherError = 0;
+    
+    char *identToken;
+    int numberToken;
+    int productionID = 0;
+    char list_of_function_names[100][100];
+    int count_names = 0;
 
 //#define YYDEBUG 1
 //yydebug=1;
@@ -57,7 +60,10 @@ function: function_ident
 function_ident: FUNCTION ident 
 {
 	char *token = identToken;
+	std::string funct_name = identToken;
 	printf("func name: %s\n", token);
+    strcpy( list_of_function_names[count_names], token)
+    count_names++;
 }
 
 ident:
@@ -215,7 +221,14 @@ vars:
 
 int main(int argc, char **argv)
 {
-   return yyparse();
+    yyparse();
+
+    int i = 0
+    for(i = 0; i < count_names; i++){
+        printf("%s\%n", list_of_function_names[i]);
+    }
+
+    return 0;
 }
 
 void yyerror(const char *msg)
