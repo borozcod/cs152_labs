@@ -62,13 +62,17 @@ function: function_ident
 	SEMICOLON
 	BEGIN_PARAMS declarations END_PARAMS
 	BEGIN_LOCALS declarations END_LOCALS
-	BEGIN_BODY statements END_BODY
+	BEGIN_BODY statements end_body
 		{};
+
+end_body: END_BODY {
+    printf("endfunc\n");
+}
 
 function_ident: FUNCTION ident 
 {
 	char *token = identToken;
-	printf("func name: %s\n", token);
+	printf("func %s\n", token);
     strcpy( list_of_function_names[count_names], token);
     count_names++;
 }
