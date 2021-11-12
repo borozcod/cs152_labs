@@ -61,7 +61,7 @@ function_ident: FUNCTION ident
 {
 	char *token = identToken;
 	printf("func name: %s\n", token);
-    strcpy( list_of_function_names[count_names], token)
+    strcpy( list_of_function_names[count_names], token);
     count_names++;
 }
 
