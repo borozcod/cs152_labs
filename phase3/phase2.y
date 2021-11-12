@@ -11,6 +11,25 @@
     int productionID = 0;
     char list_of_function_names[100][100];
     int count_names = 0;
+    
+    // FROM: https://www.gnu.org/software/bison/manual/html_node/Mfcalc-Symbol-Table.html
+    typedef double (func_t) (double);
+
+    struct symrec {
+	char *name;
+	char *type;
+	union
+	{
+	    double var;
+	    func_t *fun;
+	} value;
+	struct symrec *next;
+	
+    };
+    typedef struct symrec symrec;
+    extern symrec *sym_table;
+    symrec *putsym (char const *name, char *sym_type);
+    symrec *getsym (char const *name);
     // we might need a temp var
 
 //#define YYDEBUG 1
@@ -45,6 +64,7 @@
 %type <op_val> expression
 %type <op_val> multiplicative_expression
 %type <op_val> term
+%type <op_val> identifiers
 
 %%
 
@@ -88,32 +108,30 @@ declarations:
 		{};
 
 
-
-declaration: 
-	IDENT COLON INTEGER
-		{
-            char *token = $1;
-            printf(". %s\n", token);
-        }
-	| IDENT COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
-		{};
-
-/*
 declaration: 
 	identifiers COLON INTEGER
 		{
-            
         }
 	| identifiers COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
-		{};
-*/
-/*
+		{
+	char *token = $1;
+	char *num = $5;
+	printf(".[] _%s, %s\n", token, num);
+};
 identifiers: 
 	ident
-		{}
+    {
+	putsym($1, "i");
+	symrec *res = getsym($1);
+        printf(". _%s\n", res->name);
+	$$ = $1;
+    }
 	| ident COMMA identifiers
-		{};
-*/
+	{
+	    $$ = $1;
+	    char *token = $1;
+            printf(". _%s\n", token);
+	};
 
 statement: 
 	var ASSIGN expression
@@ -295,3 +313,30 @@ void yyerror(const char *msg)
    }
    myError = 0;
 }
+
+symrec *sym_table;
+
+symrec *
+putsym (char const *name, char *sym_type)
+{
+  symrec *res = (symrec *) malloc (sizeof (symrec));
+  res->name = strdup (name);
+  res->type = sym_type;
+  res->value.var = 0; /* Set value to 0 even if fun. */
+  res->next = sym_table;
+  sym_table = res;
+  return res;
+}
+
+
+symrec *
+getsym (char const *name)
+{
+   symrec *p = sym_table;
+  for (p = sym_table; p; p = p->next)
+    if (strcmp (p->name, name) == 0)
+      return p;
+  return NULL;
+}
+
+
