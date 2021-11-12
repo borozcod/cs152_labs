@@ -224,7 +224,7 @@ int main(int argc, char **argv)
     yyparse();
 
     int i = 0
-    for(i = 0; i < count_names; i++){
+    for(i = 0; i < count_names; i++;){
         printf("%s\%n", list_of_function_names[i]);
     }
 
