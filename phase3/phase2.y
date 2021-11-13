@@ -140,7 +140,8 @@ declarations_local:
 		{}
 	| declaration SEMICOLON declarations_local
 		{
-		for(int i = 0; i < numidents; i++){
+		int i = 0;
+		for( i = 0; i < numidents; i++){
 			if(array[i]){
 			//set symbol in table to array
 			updatesym (idents[i], "t" , "a");
@@ -160,7 +161,8 @@ declarations_param:
 		{}
 	| declaration SEMICOLON declarations_param
 		{
-		for(int i = 0; i < numidents; i++){
+		int i = 0;
+		for(i = 0; i < numidents; i++){
 			if(array[i]){
 			printf(".[] %s, %d \n", idents[i], asize[i]);
 			}else{
@@ -179,14 +181,16 @@ declarations_param:
 declaration: 
 	identifiers COLON INTEGER
 		{
-		for(int i = 0; i < numdecs; i++){
+		int i = 0;
+		for(i = 0; i < numdecs; i++){
 			array[numidents + i] = 0;
 		}
 		numidents += numdecs; numdecs = 0;
         }
 	| identifiers COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
 		{
-		for(int i = 0; i < numdecs; i++){
+		int i = 0;
+		for(i = 0; i < numdecs; i++){
 			array[numidents + i] = 1;
 			asize[numidents + i] = atoi($5);
 		}
@@ -238,7 +242,7 @@ statement:
 		{
 			symrec *src1 = getsym($2);
 			if(src1->type == "a") {
-				printf(".[] > %s, %s\n", src1->name, src1->index);
+				printf(".[] > %s, %s\n", src1->name, src1->type);
 			} else {
 				printf(".> %s\n", src1->name);
 			}
@@ -458,7 +462,9 @@ updatesym (char const *name, char *attr, char *val)
 			p->name = val;
 		}else if(attr == "t"){
 			p->type = val;
-		}
+		} else if (attr == "i") {
+            p->index = val;
+        }
       return p;
   return NULL;
 }

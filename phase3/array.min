@@ -3,7 +3,7 @@ beginparams
 endparams
 beginlocals
 
-  a1, a2, a3 : array [20] of integer;
+  a, a2, a3 : array [20] of integer;
   b1, b2: integer;
   c : integer;
   d : integer;
