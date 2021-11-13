@@ -3,4 +3,5 @@ calc.l
 phase2.tab.c
 phase2.tab.h
 lex.yy.c
+phase2.output
 .nfs*
