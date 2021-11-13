@@ -1,6 +1,7 @@
 %{
-    #include<stdio.h>
-    #include<string.h>
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <string.h>
 	extern int yylex();
 	extern int yyparse();
     void yyerror(const char *msg);
@@ -14,7 +15,15 @@
     char list_of_function_names[100][100];
     int count_names = 0;
 	int inParam = 0;    
-	int inArray = 0;    
+	int inArray = 0;
+
+	//declaration handling 
+	int numidents = 0;
+	int numdecs = 0;
+	char idents[100][100];
+	int array[100];
+	int asize[100];
+
     // FROM: https://www.gnu.org/software/bison/manual/html_node/Mfcalc-Symbol-Table.html
     typedef double (func_t) (double);
 
@@ -89,8 +98,8 @@ functions:
 
 function: function_ident
 	SEMICOLON
-	BEGIN_PARAMS {inParam = 1;} declarations END_PARAMS
-	BEGIN_LOCALS {inParam = 0;} declarations END_LOCALS
+	BEGIN_PARAMS {inParam = 1;} declarations_param END_PARAMS
+	BEGIN_LOCALS {inParam = 0;} declarations_local END_LOCALS
 	BEGIN_BODY statements end_body
 		{};
 
@@ -115,39 +124,79 @@ ident:
 			} 
 		};
 
-declarations: 
+declarations_local: 
 	/* epsilon */
 		{}
-	| declaration SEMICOLON declarations
-		{};
+	| declaration SEMICOLON declarations_local
+		{
+		for(int i = 0; i < numidents; i++){
+			if(array[i]){
+			//set symbol in table to array
+			updatesym (idents[i], "t" , "a");
+			printf(".[] %s, %d \n", idents[i], asize[i]);
+			}else{
+			//set symbol in table to int
+			updatesym (idents[i], "t" , "i");
+			printf(". %s\n", idents[i]);
+			}
+		}
+		numidents = 0;
+		numdecs = 0;
+		};
+
+declarations_param: 
+	/* epsilon */
+		{}
+	| declaration SEMICOLON declarations_param
+		{
+		for(int i = 0; i < numidents; i++){
+			if(array[i]){
+			printf(".[] %s, %d \n", idents[i], asize[i]);
+			}else{
+			printf(". %s\n", idents[i]);
+			}
+			//set symbol in table to int
+			updatesym (idents[i], "t" , "i");
+			printf(". %s, $%d\n", idents[i], i);
+		}
+		numidents = 0;
+		numdecs = 0;
+		
+		};
 
 
 declaration: 
 	identifiers COLON INTEGER
 		{
+		for(int i = 0; i < numdecs; i++){
+			array[numidents + i] = 0;
+		}
+		numidents += numdecs; numdecs = 0;
         }
 	| identifiers COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
 		{
-	symrec *token = getsym($1);
-	char *num = $5;
-	printf(".[] %s, %s\n", token->name, num);
+		for(int i = 0; i < numdecs; i++){
+			array[numidents + i] = 1;
+			asize[numidents + i] = atoi($5);
+		}
+		numidents += numdecs; numdecs = 0;
 };
 
 identifiers: 
 	ident
-    {
-		symrec *res = getsym($1);
-        printf(". %s\n", res->name);
- 		if(inParam == 1) {
-			printf("= %s, %s\n", res->name, newReg());
-		}           
+    {   
 		$$ = $1;
+		//printf("NEW TOKEN ADDED: %s, num tokens: %d\n", $1, numidents+numdecs);
+		strcpy(idents[numidents + numdecs], $1);
+  		numdecs ++;
     }
 	| ident COMMA identifiers
 	{
+		//printf("NEW TOKEN ADDED: %s, num tokens: %d\n", $1, numidents+numdecs);
+		strcpy(idents[numidents + numdecs], $1);
+  		numdecs ++;
 	    $$ = $1;
 	    symrec *token = getsym($1);
-        printf(". %s\n", token->name);
 	};
 
 statement: 
@@ -385,8 +434,10 @@ updatesym (char const *name, char *attr, char *val)
    symrec *p = sym_table;
   for (p = sym_table; p; p = p->next)
     if (strcmp (p->id, name) == 0)
-		if(attr = "n"){
+		if(attr == "n"){
 			p->name = val;
+		}else if(attr == "t"){
+			p->type = val;
 		}
       return p;
   return NULL;
