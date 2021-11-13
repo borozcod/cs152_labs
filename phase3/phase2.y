@@ -10,6 +10,7 @@
     int otherError = 0;
     
     char *identToken;
+    char *compToken;
     int numberToken;
     int productionID = 0;
     char list_of_function_names[100][100];
@@ -33,6 +34,7 @@
 	char *type;
 	int val;
 	char *index;
+	char *comp;
 	union
 	{
 	    double var;
@@ -77,6 +79,13 @@
 
 %token <op_val> NUMBER
 %token <op_val> IDENT
+%type <op_val> EQ
+%type <op_val> NEQ
+%type <op_val> LT
+%type <op_val> GT
+%type <op_val> LTE
+%type <op_val> GTE
+%type <op_val> comp
 %type <op_val> var
 %type <op_val> ident
 %type <op_val> expression
@@ -357,7 +366,15 @@ relation_and_exp:
 
 relation_exp:
 	expression comp expression
-		{}
+		{
+			char *compID = newTemp();
+	        symrec *dest = putsym(compID, "t");
+	        symrec *src1 = getsym($1);
+	        symrec *src2 = getsym($3);
+       		printf(". %s\n", dest->name);
+        	printf("%s %s, %s, %s \n", $2,  dest->name, src1->name, src2->name);
+        	//$$ = num->name;		
+		}
 	| NOT expression comp expression
 		{}
 	| TRUE
@@ -375,17 +392,19 @@ relation_exp:
 
 comp:
 	EQ
-		{}
+		{$$ = $1;}
 	| NEQ
-		{}
+		{
+			$$ = "!=";// Only one that is different
+		}
 	| LT
-		{}
+		{$$ = $1;}
 	| GT
-		{}
+		{$$ = $1;}
 	| LTE
-		{}
+		{$$ = $1;}
 	| GTE
-		{};
+		{$$ = $1;};
 
 var: 
 	ident

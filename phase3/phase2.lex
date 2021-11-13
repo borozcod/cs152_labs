@@ -5,6 +5,7 @@
    int currLine = 1, currPos = 1;
    
    extern char *identToken;
+   extern char *compToken;
    extern int numberToken;
 %}
 
@@ -44,12 +45,54 @@ return         {currPos += yyleng; return RETURN;}
 "*"            {currPos += yyleng; return MULT;}
 "/"            {currPos += yyleng; return DIV;}
 "%"            {currPos += yyleng; return MOD;}
-"=="           {currPos += yyleng; return EQ;}
-"<>"           {currPos += yyleng; return NEQ;}
-"<"            {currPos += yyleng; return LT;}
-">"            {currPos += yyleng; return GT;}
-"<="           {currPos += yyleng; return LTE;}
-">="           {currPos += yyleng; return GTE;}
+"=="           {
+	currPos += yyleng;
+	char * token = malloc(sizeof(char) * yyleng);
+	strcpy(token, yytext);
+	yylval.op_val = token;
+	compToken = yytext;
+	return EQ;
+}
+"<>"           {
+	currPos += yyleng;
+	char * token = malloc(sizeof(char) * yyleng);
+	strcpy(token, yytext);
+	yylval.op_val = token;
+	compToken = yytext;
+	return NEQ;
+}
+"<"            {
+	currPos += yyleng;
+	char * token = malloc(sizeof(char) * yyleng);
+	strcpy(token, yytext);
+	yylval.op_val = token;
+	compToken = yytext;
+	return LT;
+}
+">"            {
+	currPos += yyleng;
+	char * token = malloc(sizeof(char) * yyleng);
+	strcpy(token, yytext);
+	yylval.op_val = token;
+	compToken = yytext;
+	return GT;
+}
+"<="           {
+	currPos += yyleng; 
+	char * token = malloc(sizeof(char) * yyleng);
+	strcpy(token, yytext);
+	yylval.op_val = token;
+	compToken = yytext;
+	return LTE;
+}
+">="           {
+	currPos += yyleng;
+    char * token = malloc(sizeof(char) * yyleng);
+    strcpy(token, yytext);
+    yylval.op_val = token;
+    compToken = yytext;
+	return GTE;
+}
 ";"            {currPos += yyleng; return SEMICOLON;}
 ":"            {currPos += yyleng; return COLON;}
 ","            {currPos += yyleng; return COMMA;}

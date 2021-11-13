@@ -6,3 +6,4 @@ lex.yy.c
 phase2.output
 .nfs*
 test.min
+*.swp
