@@ -107,7 +107,10 @@ ident:
 	IDENT
 		{
 			$$ = $1;
-			putsym($1, "i");
+			symrec *temp = getsym($1);
+			if(temp == NULL) {
+				putsym($1, "i");
+			} 
 		};
 
 declarations: 
@@ -151,11 +154,9 @@ statement:
 			symrec *dest = getsym($1);
 			symrec *src = getsym($3);
 
-            printf("ASSIGN\n");
             printf("= %s, %s\n", dest->name, src->name);
 			updatesym($1, "n", src->name);
 			symrec *dest2 = getsym($1);
-			printf("NEW NAME: %s, %s\n",dest2->name, $1);
 			$$ = dest->name;
         }
 	| IF bool_exp THEN statements ENDIF
@@ -189,7 +190,6 @@ expression:
 		{ $$ = $1;}
 	| multiplicative_expression ADD expression
 		{
-            printf("ADD\n");
             symrec *src1 = getsym("b");
             symrec *src2 = getsym($3);
             char *destID = newTemp();
@@ -214,7 +214,8 @@ multiplicative_expression:
 	term
 		{ 
 			symrec *src1 = getsym($1);
-			$$ = $1; printf("TERM %s\n", src1->name);}
+			$$ = $1;
+	}
 	| term MULT multiplicative_expression
 		{ $$ = "FILL1"; }
 	| term DIV multiplicative_expression
@@ -352,7 +353,6 @@ symrec *sym_table;
 symrec *
 putsym (char const *name, char *sym_type)
 {
-printf("ADD: %s\n", name);
   symrec *res = (symrec *) malloc (sizeof (symrec));
   res->id = strdup (name);
   res->name = strdup (name);
