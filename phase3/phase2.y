@@ -290,7 +290,15 @@ multiplicative_expression:
 			$$ = $1;
 	}
 	| term MULT multiplicative_expression
-		{ $$ = "FILL1"; }
+		{ 
+			symrec *src1 = getsym($1);
+            symrec *src2 = getsym($3);
+            char *destID = newTemp();
+            symrec *dest = putsym(destID, "t");
+            printf(". %s\n", dest->name);
+            printf("* %s, %s, %s\n", dest->name, src1->name, src2->name);
+            $$ = dest->name;
+		}
 	| term DIV multiplicative_expression
 		{ $$ = "FILL2"; }
 	| term MOD multiplicative_expression
