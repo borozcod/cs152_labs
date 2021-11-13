@@ -9,7 +9,7 @@ beginlocals
   x : integer;
   a : integer;
   b : integer;
-  i, j, k: integer;
+  c : integer;
 endlocals
 
 beginbody	
@@ -17,7 +17,4 @@ beginbody
   a := 100;
   b := 50;
   c := a + b;
-  d := c - b;
-  read n;
-  x := n;
 endbody

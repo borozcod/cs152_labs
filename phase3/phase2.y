@@ -12,12 +12,15 @@
     char list_of_function_names[100][100];
     int count_names = 0;
 	int inParam = 0;    
+	int inArray = 0;    
     // FROM: https://www.gnu.org/software/bison/manual/html_node/Mfcalc-Symbol-Table.html
     typedef double (func_t) (double);
 
     struct symrec {
 	char *name;
+	char *id;
 	char *type;
+	int val;
 	union
 	{
 	    double var;
@@ -30,6 +33,7 @@
     extern symrec *sym_table;
     symrec *putsym (char const *name, char *sym_type);
     symrec *getsym (char const *name);
+    symrec *updatesym (char const *name, char *attr, char *val);
 	char *newTemp();
 	char *newReg();
     // we might need a temp var
@@ -96,7 +100,6 @@ function_ident: FUNCTION ident
 {
 	char *token = identToken;
 	printf("func %s\n", token);
-    strcpy( list_of_function_names[count_names], token);
     count_names++;
 }
 
@@ -105,8 +108,6 @@ ident:
 		{
 			$$ = $1;
 			putsym($1, "i");
-			symrec *token = getsym($1);
-			printf("IDENTTT %s\n", token->name);
 		};
 
 declarations: 
@@ -130,7 +131,6 @@ declaration:
 identifiers: 
 	ident
     {
-		putsym($1, "i");
 		symrec *res = getsym($1);
         printf(". %s\n", res->name);
  		if(inParam == 1) {
@@ -148,13 +148,14 @@ identifiers:
 statement: 
 	var ASSIGN expression
 		{
-			char *destID = newTemp();
-			symrec *temp = putsym(destID, "t");
 			symrec *dest = getsym($1);
 			symrec *src = getsym($3);
-            printf(". %s\n", temp->name);
-            printf("= %s, %s\n", temp->name, src->name);
-            //printf("= %s, %s\n", dest->name, temp->name);
+
+            printf("ASSIGN\n");
+            printf("= %s, %s\n", dest->name, src->name);
+			updatesym($1, "n", src->name);
+			symrec *dest2 = getsym($1);
+			printf("NEW NAME: %s, %s\n",dest2->name, $1);
 			$$ = dest->name;
         }
 	| IF bool_exp THEN statements ENDIF
@@ -188,7 +189,8 @@ expression:
 		{ $$ = $1;}
 	| multiplicative_expression ADD expression
 		{
-            symrec *src1 = getsym($1);
+            printf("ADD\n");
+            symrec *src1 = getsym("b");
             symrec *src2 = getsym($3);
             char *destID = newTemp();
 			symrec *dest = putsym(destID, "t");
@@ -210,7 +212,9 @@ expression:
 
 multiplicative_expression: 
 	term
-		{ $$ = $1; }
+		{ 
+			symrec *src1 = getsym($1);
+			$$ = $1; printf("TERM %s\n", src1->name);}
 	| term MULT multiplicative_expression
 		{ $$ = "FILL1"; }
 	| term DIV multiplicative_expression
@@ -224,7 +228,14 @@ term:
 	| SUB var
 		{}
 	| NUMBER
-		{$$ = $1; }
+	{	
+		char *numID = newTemp();
+		symrec *num = putsym(numID, "t");	
+		num->val = numberToken;
+		printf(". %s\n", num->name);
+		printf("= %s, %d\n", num->name, num->val);
+		$$ = num->name; 
+	}
 	| SUB NUMBER
 		{}
 	| L_PAREN expression R_PAREN
@@ -341,9 +352,12 @@ symrec *sym_table;
 symrec *
 putsym (char const *name, char *sym_type)
 {
+printf("ADD: %s\n", name);
   symrec *res = (symrec *) malloc (sizeof (symrec));
+  res->id = strdup (name);
   res->name = strdup (name);
   res->type = sym_type;
+ // res->val = NULL;
   res->value.var = 0; /* Set value to 0 even if fun. */
   res->next = sym_table;
   sym_table = res;
@@ -354,9 +368,26 @@ putsym (char const *name, char *sym_type)
 symrec *
 getsym (char const *name)
 {
+//printf("GET: %s\n", name);
+   symrec *p = sym_table;
+es->name = strdup (name);
+  res->type = sym_type;
+ // res->val = NULL;  for (p = sym_table; p; p = p->next)
+    if (strcmp (p->id, name) == 0)
+      return p;
+  return NULL;
+}
+
+symrec *
+updatesym (char const *name, char *attr, char *val)
+{
+//printf("GET: %s\n", name);
    symrec *p = sym_table;
   for (p = sym_table; p; p = p->next)
-    if (strcmp (p->name, name) == 0)
+    if (strcmp (p->id, name) == 0)
+		if(attr = "n"){
+			p->name = val;
+		}
       return p;
   return NULL;
 }
