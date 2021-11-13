@@ -370,9 +370,7 @@ getsym (char const *name)
 {
 //printf("GET: %s\n", name);
    symrec *p = sym_table;
-es->name = strdup (name);
-  res->type = sym_type;
- // res->val = NULL;  for (p = sym_table; p; p = p->next)
+  for (p = sym_table; p; p = p->next)
     if (strcmp (p->id, name) == 0)
       return p;
   return NULL;
