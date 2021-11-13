@@ -21,6 +21,7 @@
 	char *id;
 	char *type;
 	int val;
+	char *index;
 	union
 	{
 	    double var;
@@ -108,8 +109,18 @@ ident:
 		{
 			$$ = $1;
 			symrec *temp = getsym($1);
+			/*
+				KEY:
+				a = array
+				i = var
+				f = func
+			*/
 			if(temp == NULL) {
-				putsym($1, "i");
+				if(inArray){
+					putsym($1, "a");
+				} else {
+				    putsym($1, "i");
+				}
 			} 
 		};
 
@@ -173,7 +184,14 @@ statement:
 		  printf(".< %s\n", src1->name);
 		}
 	| WRITE vars
-		{}
+		{
+			symrec *src1 = getsym($2);
+			if(src1->type == "a") {
+				printf(".[] > %s, %s\n", src1->name, src1->index);
+			} else {
+				printf(".> %s\n", src1->name);
+			}
+		}
 	| CONTINUE
 		{}
 	| RETURN expression
@@ -305,9 +323,11 @@ comp:
 var: 
 	ident
 		{$$ = $1;}
-	| ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
+	|  ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
 		{
-            $$ = 0; /*test*/
+			//putsym($1, "a");
+			//updatesym($1, "i", $3);
+            $$ = $1; /*test*/
         };
 vars:
 	var
