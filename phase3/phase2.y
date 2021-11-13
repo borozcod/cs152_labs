@@ -235,14 +235,18 @@ statement:
 		{}
 	| READ vars
 		{
-		  symrec *src1 = getsym($2);
-		  printf(".< %s\n", src1->name);
+			symrec *src1 = getsym($2);
+            if(src1->type == "a") {
+                printf(".[] < %s, %s\n", src1->name, src1->index);
+            } else {
+                printf(".> %s\n", src1->name);
+            }
 		}
 	| WRITE vars
 		{
 			symrec *src1 = getsym($2);
 			if(src1->type == "a") {
-				printf(".[] > %s, %s\n", src1->name, src1->type);
+				printf(".[] > %s, %s\n", src1->name, src1->index);
 			} else {
 				printf(".> %s\n", src1->name);
 			}
@@ -381,7 +385,7 @@ var:
 	|  ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
 		{
 			//putsym($1, "a");
-			//updatesym($1, "i", $3);
+			updatesym($1, "i", $3);
             $$ = $1; /*test*/
         };
 vars:

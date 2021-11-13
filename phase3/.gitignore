@@ -5,3 +5,4 @@ phase2.tab.h
 lex.yy.c
 phase2.output
 .nfs*
+test.min
