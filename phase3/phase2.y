@@ -17,6 +17,10 @@
     int count_names = 0;
 	int inParam = 0;    
 	int inArray = 0;
+	
+	//function call handling
+	char funcParams[100][100];
+	int numParams;
 
 	//array assignment handling
 	int firstArray = 1;
@@ -66,7 +70,7 @@
   char *op_val;
 }
 
-%error-verbose
+%define parse.error verbose
 %start prog_start
 %token BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY END_BODY
 %token FUNCTION RETURN MAIN
@@ -112,13 +116,13 @@ functions:
 
 function: function_ident
 	SEMICOLON
-	BEGIN_PARAMS {inParam = 1;} declarations_param END_PARAMS
-	BEGIN_LOCALS {inParam = 0;} declarations_local END_LOCALS
+	BEGIN_PARAMS declarations_param END_PARAMS
+	BEGIN_LOCALS declarations_local END_LOCALS
 	BEGIN_BODY statements end_body
 		{};
 
 end_body: END_BODY {
-    printf("endfunc\n");
+    printf("endfunc\n\n");
 }
 
 function_ident: FUNCTION ident 
@@ -126,7 +130,7 @@ function_ident: FUNCTION ident
 	char *token = identToken;
 	printf("func %s\n", token);
     count_names++;
-}
+};
 
 ident:
 	IDENT
@@ -183,7 +187,7 @@ declarations_param:
 			}
 			//set symbol in table to int
 			updatesym (idents[i], "t" , "i");
-			printf(". %s, $%d\n", idents[i], i);
+			printf("= %s, $%d\n", idents[i], i);
 		}
 		numidents = 0;
 		numdecs = 0;
@@ -278,7 +282,10 @@ statement:
 	| CONTINUE
 		{}
 	| RETURN expression
-		{};
+		{
+			symrec *src1 = getsym($2);
+			printf("ret %s\n", src1->name);
+		};
 	
 statements: 
 	statement SEMICOLON/* epsilon */
@@ -366,19 +373,40 @@ term:
 	| SUB L_PAREN expression R_PAREN
 		{}
 	| ident L_PAREN expressions R_PAREN
-	{	};
+	{  
+		char *varID = newTemp();
+		symrec *tempvar = putsym(varID, "t");	
+		symrec *src1 = getsym($1);
+		printf(". %s\n", tempvar->name);
+		printf("call %s, %s\n", $1, tempvar->name);
+		$$ = tempvar->name; 
+		
+	};
 
 expressions: 
 	/* epsilon */
 		{}
 	| comma_sep_expressions
-		{};
+		{
+			for(int i = numParams-1; i >= 0; i--){
+				printf("param %s\n", funcParams[i]);
+			}
+			numParams = 0;
+		};
 
 comma_sep_expressions: 
 	expression
-		{}
+	{ 
+		symrec *src1 = getsym($1);
+		strcpy(funcParams[numParams],src1->name);
+		numParams++;
+	}
 	| expression COMMA comma_sep_expressions
-		{};
+	{
+		symrec *src1 = getsym($1);
+		strcpy(funcParams[numParams],src1->name);
+		numParams++;
+	};
 
 bool_exp:
 	relation_and_exp

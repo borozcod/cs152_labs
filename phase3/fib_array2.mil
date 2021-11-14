@@ -65,3 +65,4 @@ func main
 = __temp__26, 4
 .[]> fib, __temp__26
 endfunc
+

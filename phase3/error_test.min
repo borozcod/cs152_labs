@@ -1,0 +1,17 @@
+function main;
+beginparams
+endparams
+beginlocals
+
+  a : array [20] of integer;
+  b : integer;
+  c : integer;
+
+endlocals
+
+beginbody	## main program
+
+  b := 3;
+  q := 5;
+  
+endbody
