@@ -79,6 +79,11 @@
 
 %token <op_val> NUMBER
 %token <op_val> IDENT
+%type <op_val> AND
+%type <op_val> OR
+%type <op_val> NOT
+%type <op_val> TRUE
+%type <op_val> FALSE
 %type <op_val> EQ
 %type <op_val> NEQ
 %type <op_val> LT
@@ -88,6 +93,7 @@
 %type <op_val> comp
 %type <op_val> var
 %type <op_val> ident
+%type <op_val> relation_exp
 %type <op_val> expression
 %type <op_val> multiplicative_expression
 %type <op_val> term
@@ -365,10 +371,27 @@ relation_exp:
 	        symrec *src2 = getsym($3);
        		printf(". %s\n", dest->name);
         	printf("%s %s, %s, %s \n", $2,  dest->name, src1->name, src2->name);
-        	//$$ = num->name;		
+        	$$ = dest->name;		
 		}
 	| NOT expression comp expression
-		{}
+		{
+			// For the not
+			char *compID1 = newTemp();
+	        symrec *dest1 = putsym(compID1, "t");
+			// For the comp
+			char *compID2 = newTemp();
+	        symrec *dest2 = putsym(compID2, "t");
+
+	        symrec *src1 = getsym($2);
+	        symrec *src2 = getsym($4);
+
+       		printf(". %s\n", dest2->name);
+			printf("%s %s, %s, %s \n", $3,  dest2->name, src1->name, src2->name);
+
+       		printf(". %s\n", dest1->name);
+        	printf("! %s, %s \n", dest1->name, dest2->name);
+        	$$ = dest2->name;
+		}
 	| TRUE
 		{}
 	| NOT TRUE

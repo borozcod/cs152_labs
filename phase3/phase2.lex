@@ -36,7 +36,13 @@ read           {currPos += yyleng; return READ;}
 write          {currPos += yyleng; return WRITE;}
 and            {currPos += yyleng; return AND;}
 or             {currPos += yyleng; return OR;}
-not            {currPos += yyleng; return NOT;}
+not            {
+	currPos += yyleng;
+	char * token = malloc(sizeof(char) * yyleng);
+    strcpy(token, yytext);
+    yylval.op_val = token;
+    compToken = yytext;
+	return NOT;}
 true           {currPos += yyleng; return TRUE;}
 false          {currPos += yyleng; return FALSE;}
 return         {currPos += yyleng; return RETURN;}
