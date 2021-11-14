@@ -22,7 +22,7 @@ func main
 =[] __temp__8, fib, __temp__7
 . __temp__9
 + __temp__9, __temp__6, __temp__8
-[]= fib, __temp__7, __temp__9
+[]= fib, __temp__4, __temp__9
 . __temp__10
 = __temp__10, 3
 . __temp__11
@@ -35,7 +35,7 @@ func main
 =[] __temp__14, fib, __temp__13
 . __temp__15
 + __temp__15, __temp__12, __temp__14
-[]= fib, __temp__13, __temp__15
+[]= fib, __temp__10, __temp__15
 . __temp__16
 = __temp__16, 4
 . __temp__17
@@ -48,7 +48,7 @@ func main
 =[] __temp__20, fib, __temp__19
 . __temp__21
 + __temp__21, __temp__18, __temp__20
-[]= fib, __temp__19, __temp__21
+[]= fib, __temp__16, __temp__21
 . __temp__22
 = __temp__22, 0
 .[]> fib, __temp__22

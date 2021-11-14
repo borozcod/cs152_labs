@@ -18,6 +18,10 @@
 	int inParam = 0;    
 	int inArray = 0;
 
+	//array assignment handling
+	int firstArray = 1;
+	char * lastSetIndex;
+
 	//declaration handling 
 	int numidents = 0;
 	int numdecs = 0;
@@ -229,7 +233,7 @@ statement:
 			symrec *dest = getsym($1);
 			symrec *src = getsym($3);
 			if(dest->type == "a") {
-            	printf("[]= %s, %s, %s\n", dest->name, dest->index, src->name);
+            	printf("[]= %s, %s, %s\n", dest->name, lastSetIndex, src->name);
 			}
 			else if(src->type == "a"){
 				printf("=[] %s, %s, %s\n", dest->name, src->name, src->index);
@@ -239,6 +243,7 @@ statement:
 			//updatesym($3, "n", dest->name);
 			symrec *dest2 = getsym($1);
 			$$ = dest->name;
+			firstArray = 1;
         }
 	| IF bool_exp THEN statements ENDIF
 		{}
@@ -424,6 +429,10 @@ var:
 		{$$ = $1;}
 	|  ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
 		{
+			if(firstArray){
+				lastSetIndex = $3;
+				firstArray = 0;
+			}
 			//putsym($1, "a");
 			updatesym($1, "i", $3);
             $$ = $1; /*test*/
