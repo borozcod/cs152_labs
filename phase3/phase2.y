@@ -177,7 +177,7 @@ declarations_param:
 		int i = 0;
 		for(i = 0; i < numidents; i++){
 			if(array[i]){
-			printf(".[] %s, %d \n", idents[i], asize[i]);
+			printf(".[] %s, %d\n", idents[i], asize[i]);
 			}else{
 			printf(". %s\n", idents[i]);
 			}
