@@ -14,12 +14,13 @@
     int numberToken;
     int productionID = 0;
     char list_of_function_names[100][100];
-    int count_names = 0;
+    int numfuncs = 0;
 	int inParam = 0;    
 	int inArray = 0;
 	
 	//function call handling
 	char funcParams[100][100];
+	int funcRet[100];
 	int numParams;
 
 	//array assignment handling
@@ -106,7 +107,28 @@
 
 prog_start: 
 	functions
-		{};
+		{
+			int foundmain = 0;
+			char * maintext = "main";
+			int i = 0;
+			for(i = 0; i < numfuncs; i++){
+				if(!strcmp(list_of_function_names[i], maintext)){
+					foundmain = 1;
+					if(funcRet[i] == 1){
+						printf("** Line %d: Main function should not return\n", currLine);
+						exit(0);
+					}
+				}else if(funcRet[i] != 1){
+					printf("** Line %d: Non-main function '%s' does not return scalar\n", 
+					currLine, list_of_function_names[i]);
+					exit(0);
+				}
+			}
+			if(!foundmain){
+				printf("** Line %d: Missing main function\n", currLine);
+				exit(0);
+			}
+		};
 
 functions: 
 	/* epsilon */
@@ -130,7 +152,8 @@ function_ident: FUNCTION ident
 	char *token = identToken;
 	putsym($2, "f");
 	printf("func %s\n", token);
-    count_names++;
+	strcpy(list_of_function_names[numfuncs], token);
+    numfuncs++;
 };
 
 ident:
@@ -287,6 +310,7 @@ statement:
 	| RETURN expression
 		{
 			symrec *src1 = getsym($2);
+			funcRet[numfuncs-1] = 1;
 			printf("ret %s\n", src1->name);
 		};
 	
@@ -338,9 +362,23 @@ multiplicative_expression:
             $$ = dest->name;
 		}
 	| term DIV multiplicative_expression
-		{ $$ = "FILL2"; }
+		{ 	symrec *src1 = getsym($1);
+            symrec *src2 = getsym($3);
+            char *destID = newTemp();
+            symrec *dest = putsym(destID, "t");
+            printf(". %s\n", dest->name);
+            printf("/ %s, %s, %s\n", dest->name, src1->name, src2->name);
+            $$ = dest->name; 
+			}
 	| term MOD multiplicative_expression
-		{ $$ = "FILL3"; };
+		{ 	symrec *src1 = getsym($1);
+            symrec *src2 = getsym($3);
+            char *destID = newTemp();
+            symrec *dest = putsym(destID, "t");
+            printf(". %s\n", dest->name);
+            printf("%% %s, %s, %s\n", dest->name, src1->name, src2->name);
+            $$ = dest->name;
+			};
 
 term: 
 	var

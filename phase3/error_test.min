@@ -12,6 +12,7 @@ endlocals
 beginbody	## main program
 
   b := 3;
-  q := 5;
-  
+  c := 6 / b;
+  write c;
+
 endbody

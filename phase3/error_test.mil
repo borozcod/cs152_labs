@@ -6,5 +6,12 @@ func main
 = __temp__0, 3
 = b, __temp__0
 . __temp__1
-= __temp__1, 5
-** Line 15: Undeclared variable: q
+= __temp__1, 6
+. __temp__2
+= __temp__2, b
+. __temp__3
+/ __temp__3, __temp__1, __temp__2
+= c, __temp__3
+.> c
+endfunc
+
