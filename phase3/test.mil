@@ -1,0 +1,59 @@
+func main
+.[] a, 20
+. b
+. c
+. __temp__0
+= __temp__0, 3
+= b, __temp__0
+. __temp__1
+= __temp__1, 5
+= c, __temp__1
+. __temp__2
+= __temp__2, 0
+. __temp__3
+= __temp__3, b
+. __temp__4
+= __temp__4, c
+. __temp__5
++ __temp__5, __temp__3, __temp__4
+[]= a, __temp__2, __temp__5
+. __temp__6
+= __temp__6, 0
+.[]> a, __temp__6
+. __temp__7
+= __temp__7, 1
+. __temp__8
+= __temp__8, 100
+[]= a, __temp__7, __temp__8
+. __temp__9
+= __temp__9, 1
+.[]> a, __temp__9
+. __temp__10
+= __temp__10, 2
+. __temp__11
+= __temp__11, 200
+[]= a, __temp__10, __temp__11
+. __temp__12
+= __temp__12, 2
+.[]> a, __temp__12
+. __temp__13
+= __temp__13, 3
+. __temp__14
+= __temp__14, 0
+. __temp__15
+=[] __temp__15, a, __temp__14
+. __temp__16
+= __temp__16, 1
+. __temp__17
+=[] __temp__17, a, __temp__16
+. __temp__18
+= __temp__18, c
+. __temp__19
++ __temp__19, __temp__17, __temp__18
+. __temp__20
+* __temp__20, __temp__15, __temp__19
+[]= a, __temp__13, __temp__20
+. __temp__21
+= __temp__21, 3
+.[]> a, __temp__21
+endfunc

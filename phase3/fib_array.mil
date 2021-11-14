@@ -1,0 +1,67 @@
+func main
+.[] fib, 5
+. __temp__0
+= __temp__0, 0
+. __temp__1
+= __temp__1, 1
+[]= fib, __temp__0, __temp__1
+. __temp__2
+= __temp__2, 1
+. __temp__3
+= __temp__3, 1
+[]= fib, __temp__2, __temp__3
+. __temp__4
+= __temp__4, 2
+. __temp__5
+= __temp__5, 0
+. __temp__6
+=[] __temp__6, fib, __temp__5
+. __temp__7
+= __temp__7, 1
+. __temp__8
+=[] __temp__8, fib, __temp__7
+. __temp__9
++ __temp__9, __temp__6, __temp__8
+[]= fib, __temp__4, __temp__9
+. __temp__10
+= __temp__10, 3
+. __temp__11
+= __temp__11, 1
+. __temp__12
+=[] __temp__12, fib, __temp__11
+. __temp__13
+= __temp__13, 2
+. __temp__14
+=[] __temp__14, fib, __temp__13
+. __temp__15
++ __temp__15, __temp__12, __temp__14
+[]= fib, __temp__10, __temp__15
+. __temp__16
+= __temp__16, 4
+. __temp__17
+= __temp__17, 3
+. __temp__18
+=[] __temp__18, fib, __temp__17
+. __temp__19
+= __temp__19, 2
+. __temp__20
+=[] __temp__20, fib, __temp__19
+. __temp__21
++ __temp__21, __temp__18, __temp__20
+[]= fib, __temp__16, __temp__21
+. __temp__22
+= __temp__22, 0
+.[]> fib, __temp__22
+. __temp__23
+= __temp__23, 1
+.[]> fib, __temp__23
+. __temp__24
+= __temp__24, 2
+.[]> fib, __temp__24
+. __temp__25
+= __temp__25, 3
+.[]> fib, __temp__25
+. __temp__26
+= __temp__26, 4
+.[]> fib, __temp__26
+endfunc

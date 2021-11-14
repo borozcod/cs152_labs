@@ -228,9 +228,15 @@ statement:
 		{
 			symrec *dest = getsym($1);
 			symrec *src = getsym($3);
-
-            printf("= %s, %s\n", dest->name, src->name);
-			updatesym($1, "n", src->name);
+			if(dest->type == "a") {
+            	printf("[]= %s, %s, %s\n", dest->name, dest->index, src->name);
+			}
+			else if(src->type == "a"){
+				printf("=[] %s, %s, %s\n", dest->name, src->name, src->index);
+			}else{
+				printf("= %s, %s\n", dest->name, src->name);
+			}
+			//updatesym($3, "n", dest->name);
 			symrec *dest2 = getsym($1);
 			$$ = dest->name;
         }
@@ -246,7 +252,7 @@ statement:
 		{
 			symrec *src1 = getsym($2);
             if(src1->type == "a") {
-                printf(".[] < %s, %s\n", src1->name, src1->index);
+                printf(".[]< %s, %s\n", src1->name, src1->index);
             } else {
                 printf(".> %s\n", src1->name);
             }
@@ -255,7 +261,7 @@ statement:
 		{
 			symrec *src1 = getsym($2);
 			if(src1->type == "a") {
-				printf(".[] > %s, %s\n", src1->name, src1->index);
+				printf(".[]> %s, %s\n", src1->id, src1->index);
 			} else {
 				printf(".> %s\n", src1->name);
 			}
@@ -276,7 +282,7 @@ expression:
 		{ $$ = $1;}
 	| multiplicative_expression ADD expression
 		{
-            symrec *src1 = getsym("b");
+            symrec *src1 = getsym($1);
             symrec *src2 = getsym($3);
             char *destID = newTemp();
 			symrec *dest = putsym(destID, "t");
@@ -304,13 +310,7 @@ multiplicative_expression:
 	}
 	| term MULT multiplicative_expression
 		{ 
-			symrec *src1 = getsym($1);
-            symrec *src2 = getsym($3);
-            char *destID = newTemp();
-            symrec *dest = putsym(destID, "t");
-            printf(". %s\n", dest->name);
-            printf("* %s, %s, %s\n", dest->name, src1->name, src2->name);
-            $$ = dest->name;
+			$$ = "FILL1"; 
 		}
 	| term DIV multiplicative_expression
 		{ $$ = "FILL2"; }
@@ -319,7 +319,20 @@ multiplicative_expression:
 
 term: 
 	var
-		{$$ = $1; }
+		{
+		char *varID = newTemp();
+		symrec *tempvar = putsym(varID, "t");	
+		symrec *src1 = getsym($1);
+		if(src1->type == "a"){
+			printf(". %s\n", tempvar->name);
+			printf("=[] %s, %s, %s\n", tempvar->name, src1->name, src1->index);
+		}else{
+			printf(". %s\n", tempvar->name);
+			printf("= %s, %s\n", tempvar->name, src1->name);
+		}
+		
+		$$ = tempvar->name; 
+	    }
 	| SUB var
 		{}
 	| NUMBER
@@ -338,7 +351,7 @@ term:
 	| SUB L_PAREN expression R_PAREN
 		{}
 	| ident L_PAREN expressions R_PAREN
-		{};
+	{	};
 
 expressions: 
 	/* epsilon */
@@ -504,7 +517,7 @@ updatesym (char const *name, char *attr, char *val)
 int tempID = 0;
 char *newTemp() {
 	char *temp = (char *) malloc (sizeof (char));
-    sprintf(temp, "__temp%d__", tempID);
+    sprintf(temp, "__temp__%d", tempID);
     tempID++;
     return temp;
 }
