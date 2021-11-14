@@ -19,5 +19,3 @@ beginbody	## main program
   write fib[3];    ## should print 3
   write fib[4];    ## should print 5
 endbody
-
-
