@@ -1,0 +1,65 @@
+func add
+. a
+= a, $0
+. b
+= b, $1
+. __temp__0
+= __temp__0, a
+. __temp__1
+= __temp__1, b
+. __temp__2
++ __temp__2, __temp__0, __temp__1
+ret __temp__2
+endfunc
+
+func mult
+. a
+= a, $0
+. b
+= b, $1
+. __temp__3
+= __temp__3, a
+. __temp__4
+= __temp__4, b
+. __temp__5
+* __temp__5, __temp__3, __temp__4
+ret __temp__5
+endfunc
+
+func main
+. a
+. b
+. c
+. d
+. __temp__6
+= __temp__6, 100
+= a, __temp__6
+. __temp__7
+= __temp__7, 50
+= b, __temp__7
+. __temp__8
+= __temp__8, a
+. __temp__9
+= __temp__9, b
+param __temp__8
+param __temp__9
+. __temp__10
+call add, __temp__10
+= c, __temp__10
+.> c
+. __temp__11
+= __temp__11, c
+. __temp__12
+= __temp__12, a
+. __temp__13
+= __temp__13, b
+. __temp__14
++ __temp__14, __temp__12, __temp__13
+param __temp__11
+param __temp__14
+. __temp__15
+call mult, __temp__15
+= d, __temp__15
+.> d
+endfunc
+

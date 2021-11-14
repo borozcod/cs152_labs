@@ -1,0 +1,10 @@
+func main
+.[] a, 20 
+. b
+. c
+. __temp__0
+= __temp__0, 3
+= b, __temp__0
+. __temp__1
+= __temp__1, 5
+** Line 15: Undeclared variable: q

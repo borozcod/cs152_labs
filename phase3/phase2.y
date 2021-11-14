@@ -128,6 +128,7 @@ end_body: END_BODY {
 function_ident: FUNCTION ident 
 {
 	char *token = identToken;
+	putsym($2, "f");
 	printf("func %s\n", token);
     count_names++;
 };
@@ -135,21 +136,21 @@ function_ident: FUNCTION ident
 ident:
 	IDENT
 		{
-			$$ = $1;
-			symrec *temp = getsym($1);
-			/*
-				KEY:
-				a = array
-				i = var
-				f = func
-			*/
-			if(temp == NULL) {
-				if(inArray){
-					putsym($1, "a");
-				} else {
-				    putsym($1, "i");
-				}
-			} 
+			// $$ = $1;
+			// symrec *temp = getsym($1);
+			// /*
+			// 	KEY:
+			// 	a = array
+			// 	i = var
+			// 	f = func
+			// */
+			// if(temp == NULL) {
+			// 	if(inArray){
+			// 		putsym($1, "a");
+			// 	} else {
+			// 	    putsym($1, "i");
+			// 	}
+			// } 
 		};
 
 declarations_local: 
@@ -159,6 +160,7 @@ declarations_local:
 		{
 		int i = 0;
 		for( i = 0; i < numidents; i++){
+			putsym(idents[i], "i");
 			if(array[i]){
 			//set symbol in table to array
 			updatesym (idents[i], "t" , "a");
@@ -180,6 +182,7 @@ declarations_param:
 		{
 		int i = 0;
 		for(i = 0; i < numidents; i++){
+			putsym(idents[i], "i");
 			if(array[i]){
 			printf(".[] %s, %d\n", idents[i], asize[i]);
 			}else{
@@ -539,6 +542,8 @@ getsym (char const *name)
   for (p = sym_table; p; p = p->next)
     if (strcmp (p->id, name) == 0)
       return p;
+  printf("** Line %d: Undeclared variable: %s\n", currLine, name);
+  exit(0);
   return NULL;
 }
 
