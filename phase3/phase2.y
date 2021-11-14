@@ -232,6 +232,7 @@ statement:
 		{
 			symrec *dest = getsym($1);
 			symrec *src = getsym($3);
+			//printf("last set index: %s\n", lastSetIndex);
 			if(dest->type == "a") {
             	printf("[]= %s, %s, %s\n", dest->name, lastSetIndex, src->name);
 			}
@@ -242,8 +243,9 @@ statement:
 			}
 			//updatesym($3, "n", dest->name);
 			symrec *dest2 = getsym($1);
-			$$ = dest->name;
 			firstArray = 1;
+			$$ = dest->name;
+			
         }
 	| IF bool_exp THEN statements ENDIF
 		{}
@@ -261,6 +263,7 @@ statement:
             } else {
                 printf(".> %s\n", src1->name);
             }
+			firstArray = 1;
 		}
 	| WRITE vars
 		{
@@ -270,6 +273,7 @@ statement:
 			} else {
 				printf(".> %s\n", src1->name);
 			}
+			firstArray = 1;
 		}
 	| CONTINUE
 		{}
@@ -287,6 +291,7 @@ expression:
 		{ $$ = $1;}
 	| multiplicative_expression ADD expression
 		{
+			//printf("IM GONNA GET %s and %s\n", $1,$3);
             symrec *src1 = getsym($1);
             symrec *src2 = getsym($3);
             char *destID = newTemp();
@@ -310,12 +315,17 @@ expression:
 multiplicative_expression: 
 	term
 		{ 
-			symrec *src1 = getsym($1);
 			$$ = $1;
 	}
 	| term MULT multiplicative_expression
 		{ 
-			$$ = "FILL1"; 
+			symrec *src1 = getsym($1);
+            symrec *src2 = getsym($3);
+            char *destID = newTemp();
+            symrec *dest = putsym(destID, "t");
+            printf(". %s\n", dest->name);
+            printf("* %s, %s, %s\n", dest->name, src1->name, src2->name);
+            $$ = dest->name;
 		}
 	| term DIV multiplicative_expression
 		{ $$ = "FILL2"; }
@@ -352,7 +362,7 @@ term:
 	| SUB NUMBER
 		{}
 	| L_PAREN expression R_PAREN
-		{}
+		{ $$ = $2; }
 	| SUB L_PAREN expression R_PAREN
 		{}
 	| ident L_PAREN expressions R_PAREN
