@@ -1,0 +1,12 @@
+#!/bin/bash
+./phase2 < array.min > array2.min
+./phase2 < fib_array.min > fib_array2.min
+./phase2 < function.min > function2.min
+echo "ARRAY.min"
+./mil_run array2.min
+echo "FIB_ARRAY.min"
+./mil_run fib_array2.min
+echo "FUNCTION.min"
+./mil_run function2.min
+echo "ERROR_TEST.min"
+./phase2 < error_test.min > error_test.mil

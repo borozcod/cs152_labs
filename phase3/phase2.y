@@ -14,9 +14,14 @@
     int numberToken;
     int productionID = 0;
     char list_of_function_names[100][100];
-    int count_names = 0;
+    int numfuncs = 0;
 	int inParam = 0;    
 	int inArray = 0;
+	
+	//function call handling
+	char funcParams[100][100];
+	int funcRet[100];
+	int numParams;
 
 	//array assignment handling
 	int firstArray = 1;
@@ -66,7 +71,7 @@
   char *op_val;
 }
 
-%error-verbose
+%define parse.error verbose
 %start prog_start
 %token BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY END_BODY
 %token FUNCTION RETURN MAIN
@@ -108,7 +113,28 @@
 
 prog_start: 
 	functions
-		{};
+		{
+			int foundmain = 0;
+			char * maintext = "main";
+			int i = 0;
+			for(i = 0; i < numfuncs; i++){
+				if(!strcmp(list_of_function_names[i], maintext)){
+					foundmain = 1;
+					if(funcRet[i] == 1){
+						printf("** Line %d: Main function should not return\n", currLine);
+						exit(0);
+					}
+				}else if(funcRet[i] != 1){
+					printf("** Line %d: Non-main function '%s' does not return scalar\n", 
+					currLine, list_of_function_names[i]);
+					exit(0);
+				}
+			}
+			if(!foundmain){
+				printf("** Line %d: Missing main function\n", currLine);
+				exit(0);
+			}
+		};
 
 functions: 
 	/* epsilon */
@@ -118,40 +144,42 @@ functions:
 
 function: function_ident
 	SEMICOLON
-	BEGIN_PARAMS {inParam = 1;} declarations_param END_PARAMS
-	BEGIN_LOCALS {inParam = 0;} declarations_local END_LOCALS
+	BEGIN_PARAMS declarations_param END_PARAMS
+	BEGIN_LOCALS declarations_local END_LOCALS
 	BEGIN_BODY statements end_body
 		{};
 
 end_body: END_BODY {
-    printf("endfunc\n");
+    printf("endfunc\n\n");
 }
 
 function_ident: FUNCTION ident 
 {
 	char *token = identToken;
+	putsym($2, "f");
 	printf("func %s\n", token);
-    count_names++;
-}
+	strcpy(list_of_function_names[numfuncs], token);
+    numfuncs++;
+};
 
 ident:
 	IDENT
 		{
-			$$ = $1;
-			symrec *temp = getsym($1);
-			/*
-				KEY:
-				a = array
-				i = var
-				f = func
-			*/
-			if(temp == NULL) {
-				if(inArray){
-					putsym($1, "a");
-				} else {
-				    putsym($1, "i");
-				}
-			} 
+			// $$ = $1;
+			// symrec *temp = getsym($1);
+			// /*
+			// 	KEY:
+			// 	a = array
+			// 	i = var
+			// 	f = func
+			// */
+			// if(temp == NULL) {
+			// 	if(inArray){
+			// 		putsym($1, "a");
+			// 	} else {
+			// 	    putsym($1, "i");
+			// 	}
+			// } 
 		};
 
 declarations_local: 
@@ -161,6 +189,7 @@ declarations_local:
 		{
 		int i = 0;
 		for( i = 0; i < numidents; i++){
+			putsym(idents[i], "i");
 			if(array[i]){
 			//set symbol in table to array
 			updatesym (idents[i], "t" , "a");
@@ -182,6 +211,7 @@ declarations_param:
 		{
 		int i = 0;
 		for(i = 0; i < numidents; i++){
+			putsym(idents[i], "i");
 			if(array[i]){
 			printf(".[] %s, %d\n", idents[i], asize[i]);
 			}else{
@@ -189,7 +219,7 @@ declarations_param:
 			}
 			//set symbol in table to int
 			updatesym (idents[i], "t" , "i");
-			printf(". %s, $%d\n", idents[i], i);
+			printf("= %s, $%d\n", idents[i], i);
 		}
 		numidents = 0;
 		numdecs = 0;
@@ -238,6 +268,7 @@ statement:
 		{
 			symrec *dest = getsym($1);
 			symrec *src = getsym($3);
+			//printf("last set index: %s\n", lastSetIndex);
 			if(dest->type == "a") {
             	printf("[]= %s, %s, %s\n", dest->name, lastSetIndex, src->name);
 			}
@@ -248,8 +279,9 @@ statement:
 			}
 			//updatesym($3, "n", dest->name);
 			symrec *dest2 = getsym($1);
-			$$ = dest->name;
 			firstArray = 1;
+			$$ = dest->name;
+			
         }
 	| IF bool_exp THEN statements ENDIF
 		{}
@@ -267,6 +299,7 @@ statement:
             } else {
                 printf(".> %s\n", src1->name);
             }
+			firstArray = 1;
 		}
 	| WRITE vars
 		{
@@ -276,11 +309,16 @@ statement:
 			} else {
 				printf(".> %s\n", src1->name);
 			}
+			firstArray = 1;
 		}
 	| CONTINUE
 		{}
 	| RETURN expression
-		{};
+		{
+			symrec *src1 = getsym($2);
+			funcRet[numfuncs-1] = 1;
+			printf("ret %s\n", src1->name);
+		};
 	
 statements: 
 	statement SEMICOLON/* epsilon */
@@ -293,6 +331,7 @@ expression:
 		{ $$ = $1;}
 	| multiplicative_expression ADD expression
 		{
+			//printf("IM GONNA GET %s and %s\n", $1,$3);
             symrec *src1 = getsym($1);
             symrec *src2 = getsym($3);
             char *destID = newTemp();
@@ -316,17 +355,36 @@ expression:
 multiplicative_expression: 
 	term
 		{ 
-			symrec *src1 = getsym($1);
 			$$ = $1;
 	}
 	| term MULT multiplicative_expression
 		{ 
-			$$ = "FILL1"; 
+			symrec *src1 = getsym($1);
+            symrec *src2 = getsym($3);
+            char *destID = newTemp();
+            symrec *dest = putsym(destID, "t");
+            printf(". %s\n", dest->name);
+            printf("* %s, %s, %s\n", dest->name, src1->name, src2->name);
+            $$ = dest->name;
 		}
 	| term DIV multiplicative_expression
-		{ $$ = "FILL2"; }
+		{ 	symrec *src1 = getsym($1);
+            symrec *src2 = getsym($3);
+            char *destID = newTemp();
+            symrec *dest = putsym(destID, "t");
+            printf(". %s\n", dest->name);
+            printf("/ %s, %s, %s\n", dest->name, src1->name, src2->name);
+            $$ = dest->name; 
+			}
 	| term MOD multiplicative_expression
-		{ $$ = "FILL3"; };
+		{ 	symrec *src1 = getsym($1);
+            symrec *src2 = getsym($3);
+            char *destID = newTemp();
+            symrec *dest = putsym(destID, "t");
+            printf(". %s\n", dest->name);
+            printf("%% %s, %s, %s\n", dest->name, src1->name, src2->name);
+            $$ = dest->name;
+			};
 
 term: 
 	var
@@ -358,23 +416,44 @@ term:
 	| SUB NUMBER
 		{}
 	| L_PAREN expression R_PAREN
-		{}
+		{ $$ = $2; }
 	| SUB L_PAREN expression R_PAREN
 		{}
 	| ident L_PAREN expressions R_PAREN
-	{	};
+	{  
+		char *varID = newTemp();
+		symrec *tempvar = putsym(varID, "t");	
+		symrec *src1 = getsym($1);
+		printf(". %s\n", tempvar->name);
+		printf("call %s, %s\n", $1, tempvar->name);
+		$$ = tempvar->name; 
+		
+	};
 
 expressions: 
 	/* epsilon */
 		{}
 	| comma_sep_expressions
-		{};
+		{
+			for(int i = numParams-1; i >= 0; i--){
+				printf("param %s\n", funcParams[i]);
+			}
+			numParams = 0;
+		};
 
 comma_sep_expressions: 
 	expression
-		{}
+	{ 
+		symrec *src1 = getsym($1);
+		strcpy(funcParams[numParams],src1->name);
+		numParams++;
+	}
 	| expression COMMA comma_sep_expressions
-		{};
+	{
+		symrec *src1 = getsym($1);
+		strcpy(funcParams[numParams],src1->name);
+		numParams++;
+	};
 
 bool_exp:
 	relation_and_exp
@@ -524,6 +603,8 @@ getsym (char const *name)
   for (p = sym_table; p; p = p->next)
     if (strcmp (p->id, name) == 0)
       return p;
+  printf("** Line %d: Undeclared variable: %s\n", currLine, name);
+  exit(0);
   return NULL;
 }
 
