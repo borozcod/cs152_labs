@@ -473,7 +473,24 @@ relation_exp:
         	//$$ = num->name;		
 		}
 	| NOT expression comp expression
-		{}
+		{
+			// For the not
+			char *compID1 = newTemp();
+	        symrec *dest1 = putsym(compID1, "t");
+			// For the comp
+			char *compID2 = newTemp();
+	        symrec *dest2 = putsym(compID2, "t");
+
+	        symrec *src1 = getsym($2);
+	        symrec *src2 = getsym($4);
+
+       		printf(". %s\n", dest2->name);
+			printf("%s %s, %s, %s \n", $3,  dest2->name, src1->name, src2->name);
+
+       		printf(". %s\n", dest1->name);
+        	printf("! %s, %s \n", dest1->name, dest2->name);
+        	$$ = dest2->name;
+		}
 	| TRUE
 		{}
 	| NOT TRUE
