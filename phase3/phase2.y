@@ -103,6 +103,7 @@
 %type <op_val> identifiers
 %type <op_val> statement
 %type <op_val> vars
+%type <op_val> relation_exp
 %%
 
 prog_start: 
@@ -282,7 +283,9 @@ statement:
 	| IF bool_exp THEN statements ELSE statements ENDIF
 		{}
 	| WHILE bool_exp BEGINLOOP statements ENDLOOP
-		{}
+		{ 
+			printf("in loop\n");
+		}
 	| DO BEGINLOOP statements ENDLOOP WHILE bool_exp
 		{}
 	| READ vars
@@ -428,8 +431,9 @@ expressions:
 	/* epsilon */
 		{}
 	| comma_sep_expressions
-		{
-			for(int i = numParams-1; i >= 0; i--){
+		{	
+			int i = numParams-1;
+			for( i = numParams-1; i >= 0; i--){
 				printf("param %s\n", funcParams[i]);
 			}
 			numParams = 0;
