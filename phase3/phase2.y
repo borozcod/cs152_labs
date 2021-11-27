@@ -66,6 +66,7 @@
     symrec *updatesym (char const *name, char *attr, char *val);
 	char *newTemp();
 	char *newReg();
+	char *newLabel();
     // we might need a temp var
 
 //#define YYDEBUG 1
@@ -118,6 +119,8 @@
 %type <op_val> comma_sep_expressions
 %type <op_val> end_body
 %type <op_val> statements
+%type <op_val> bool_exp
+%type <op_val> relation_and_exp
 %%
 
 prog_start: 
@@ -303,7 +306,29 @@ statement:
 	| IF bool_exp THEN statements ENDIF
 		{}
 	| IF bool_exp THEN statements ELSE statements ENDIF
-		{}
+		{
+			char *elseLabel = newLabel();
+			char *endIfLabel = newLabel();
+
+			strcat($$.code,$2.code);
+
+			sprintf(code,"! %s, %s\n", $2.name, $2.name);
+			strcat($$.code, code);
+
+			sprintf(code,"?:= %s, %s\n", elseLabel, $2.name); // check
+			strcat($$.code, code); 
+
+			strcat($$.code,$4.code); //  code for if
+			sprintf(code,":= %s\n", endIfLabel); // go to endif
+			strcat($$.code, code); 
+
+			sprintf(code,": %s\n", elseLabel); // else label
+			strcat($$.code, code); 
+			strcat($$.code,$6.code); // code for else
+
+			sprintf(code,": %s\n", endIfLabel); // endif label
+			strcat($$.code, code); 
+		}
 	| WHILE bool_exp BEGINLOOP statements ENDLOOP 
 		{
 			sprintf(code, ": loop_begin%d\n",numloops);
@@ -542,13 +567,13 @@ comma_sep_expressions:
 
 bool_exp:
 	relation_and_exp
-		{}
+		{{$$ = $1;}}
 	| relation_and_exp OR bool_exp
 		{};
 
 relation_and_exp:
 	relation_exp
-		{}
+		{$$ = $1;}
 	| relation_exp AND relation_and_exp
 		{};
 
@@ -559,11 +584,15 @@ relation_exp:
 	        symrec *dest = putsym(compID, "t");
 	        symrec *src1 = getsym($1.name);
 	        symrec *src2 = getsym($3.name);
+
+			strcat($$.code,$3.code);
+
        		sprintf(code,". %s\n", dest->name);
-			   strcat($$.code,code);
+			strcat($$.code,code);
         	sprintf(code,"%s %s, %s, %s \n", $2.name,  dest->name, src1->name, src2->name);
 			strcat($$.code,code);
-        	//$$ = num->name;		
+
+        	$$.name = dest->name;	
 		}
 	| NOT expression comp expression
 		{}
@@ -720,4 +749,10 @@ char *newReg() {
     return temp;
 }
 
-
+int labelIdD = 0;
+char *newLabel() {
+    char *temp = (char *) malloc (sizeof (char));
+    sprintf(temp, "__label__%d", labelIdD);
+    labelIdD++;
+    return temp;
+}

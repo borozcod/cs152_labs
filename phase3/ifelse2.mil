@@ -1,0 +1,30 @@
+func main
+. a
+. b
+. c
+. __temp__0
+= __temp__0, 100
+= a, __temp__0
+. __temp__1
+= __temp__1, 50
+= b, __temp__1
+. __temp__2
+= __temp__2, a
+. __temp__3
+= __temp__3, b
+. __temp__4
+< __temp__4, __temp__2, __temp__3 
+! __temp__4, __temp__4
+?:= __label__0, __temp__4
+. __temp__5
+= __temp__5, b
+= c, __temp__5
+:= __label__1
+: __label__0
+. __temp__6
+= __temp__6, a
+= c, __temp__6
+: __label__1
+.> c
+endfunc
+
