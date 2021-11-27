@@ -11,6 +11,8 @@
     
     char *identToken;
     char *compToken;
+	int currentLoop = 0;
+
     int numberToken;
     int productionID = 0;
     char list_of_function_names[100][100];
@@ -349,8 +351,12 @@ statement:
 		}
 	| WHILE bool_exp BEGINLOOP statements ENDLOOP 
 		{
+			// parentLoop = "a"
 			char *loopBegin = newLabel();
-			char *loopEnd = newLabel();
+			
+			char loopEnd[15];
+			sprintf(loopEnd,"__endloop__%d", currentLoop);
+			currentLoop++;
 
 			sprintf(code,": %s\n", loopBegin);
 			strcat($$.code, code); // bool_exp code
@@ -404,7 +410,10 @@ statement:
 			firstArray = 1;
 		}
 	| CONTINUE
-		{}
+		{
+			sprintf(code, ":= __endloop__%d\n", currentLoop);
+			strcat($$.code,code);
+		}
 	| RETURN expression
 		{
 			strcat($$.code, $2.code);
@@ -593,7 +602,7 @@ comma_sep_expressions:
 
 bool_exp:
 	relation_and_exp
-		{{$$ = $1;}}
+		{$$ = $1;}
 	| relation_and_exp OR bool_exp
 		{};
 
