@@ -34,6 +34,7 @@
 	char idents[100][100];
 	int array[100];
 	int asize[100];
+	char code[10000];
 
     // FROM: https://www.gnu.org/software/bison/manual/html_node/Mfcalc-Symbol-Table.html
     typedef double (func_t) (double);
@@ -111,6 +112,8 @@
 %type <op_val> vars
 %type <op_val> relation_exp
 %type <op_val> expressions
+%type <op_val> end_body
+%type <op_val> statements
 %%
 
 prog_start: 
@@ -149,10 +152,14 @@ function: function_ident
 	BEGIN_PARAMS declarations_param END_PARAMS
 	BEGIN_LOCALS declarations_local END_LOCALS
 	BEGIN_BODY statements end_body
-		{};
+		{
+			printf("%s",$10.code);
+			printf("%s",$11.code);
+			strcpy(code,"");
+		};
 
 end_body: END_BODY {
-    printf("endfunc\n\n");
+    sprintf($$.code,"endfunc\n\n");
 }
 
 function_ident: FUNCTION ident 
@@ -272,12 +279,15 @@ statement:
 			symrec *src = getsym($3.name);
 			//printf("last set index: %s\n", lastSetIndex);
 			if(dest->type == "a") {
-            	sprintf($$.code,"[]= %s, %s, %s\n", dest->name, lastSetIndex, src->name);
+            	sprintf(code,"[]= %s, %s, %s\n", dest->name, lastSetIndex, src->name);
+				strcat($$.code,code);
 			}
 			else if(src->type == "a"){
-				sprintf($$.code,"=[] %s, %s, %s\n", dest->name, src->name, src->index);
+				sprintf(code,"=[] %s, %s, %s\n", dest->name, src->name, src->index);
+				strcat($$.code,code);
 			}else{
-				sprintf($$.code,"= %s, %s\n", dest->name, src->name);
+				sprintf(code,"= %s, %s\n", dest->name, src->name);
+				strcat($$.code,code);
 			}
 			//updatesym($3, "n", dest->name);
 			symrec *dest2 = getsym($1.name);
@@ -297,9 +307,12 @@ statement:
 		{
 			symrec *src1 = getsym($2.name);
             if(src1->type == "a") {
-                sprintf($$.code,".[]< %s, %s\n", src1->name, src1->index);
+                sprintf(code,".[]< %s, %s\n", src1->name, src1->index);
+				strcat($$.code,code);
+				
             } else {
-                sprintf($$.code,".> %s\n", src1->name);
+                sprintf(code,".> %s\n", src1->name);
+				strcat($$.code,code);
             }
 			firstArray = 1;
 		}
@@ -307,9 +320,11 @@ statement:
 		{
 			symrec *src1 = getsym($2.name);
 			if(src1->type == "a") {
-				sprintf($$.code,".[]> %s, %s\n", src1->id, src1->index);
+				sprintf(code,".[]> %s, %s\n", src1->id, src1->index);
+				strcat($$.code,code);
 			} else {
-				sprintf($$.code,".> %s\n", src1->name);
+				sprintf(code,".> %s\n", src1->name);
+				strcat($$.code,code);
 			}
 			firstArray = 1;
 		}
@@ -319,27 +334,35 @@ statement:
 		{
 			symrec *src1 = getsym($2.name);
 			funcRet[numfuncs-1] = 1;
-			sprintf($$.code,"ret %s\n", src1->name);
+			sprintf(code,"ret %s\n", src1->name);
+			strcat($$.code,code);
 		};
 	
 statements: 
 	statement SEMICOLON/* epsilon */
-		{}
+		{
+			strcat($$.code,$1.code);
+		}
 	| statement SEMICOLON statements
-		{};
+		{	
+			//strcat($$.code,$1.code);
+			strcat($$.code,$3.code);
+		};
 
 expression: 
 	multiplicative_expression
 		{ $$.name = $1.name;}
 	| multiplicative_expression ADD expression
 		{
-			//sprintf($$.code,"IM GONNA GET %s and %s\n", $1,$3);
+			
             symrec *src1 = getsym($1.name);
             symrec *src2 = getsym($3.name);
             char *destID = newTemp();
 			symrec *dest = putsym(destID, "t");
-            sprintf($$.code,$$.code,". %s\n", dest->name);
-            sprintf($$.code,$$.code,"+ %s, %s, %s\n", dest->name, src1->name, src2->name);
+            sprintf(code,". %s\n", dest->name);
+			strcat($$.code,code);
+            sprintf(code,"+ %s, %s, %s\n", dest->name, src1->name, src2->name);
+			strcat($$.code,code);
 			$$.name = dest->name;
 
         }
@@ -349,8 +372,10 @@ expression:
             symrec *src2 = getsym($3.name);
             char *destID = newTemp();
             symrec *dest = putsym(destID, "t");
-            sprintf($$.code,". %s\n", dest->name);
-            sprintf($$.code,"- %s, %s, %s\n", dest->name, src1->name, src2->name);
+            sprintf(code,". %s\n", dest->name);
+			strcat($$.code,code);
+            sprintf(code,"- %s, %s, %s\n", dest->name, src1->name, src2->name);
+			strcat($$.code,code);
             $$.name = dest->name;
         };
 
@@ -358,6 +383,7 @@ multiplicative_expression:
 	term
 		{ 
 			$$.name = $1.name;
+			
 	}
 	| term MULT multiplicative_expression
 		{ 
@@ -365,8 +391,10 @@ multiplicative_expression:
             symrec *src2 = getsym($3.name);
             char *destID = newTemp();
             symrec *dest = putsym(destID, "t");
-            sprintf($$.code,". %s\n", dest->name);
-            sprintf($$.code,"* %s, %s, %s\n", dest->name, src1->name, src2->name);
+            sprintf(code,". %s\n", dest->name);
+			strcat($$.code,code);
+            sprintf(code,"* %s, %s, %s\n", dest->name, src1->name, src2->name);
+			strcat($$.code,code);
             $$.name = dest->name;
 		}
 	| term DIV multiplicative_expression
@@ -374,8 +402,10 @@ multiplicative_expression:
             symrec *src2 = getsym($3.name);
             char *destID = newTemp();
             symrec *dest = putsym(destID, "t");
-            sprintf($$.code,". %s\n", dest->name);
-            sprintf($$.code,"/ %s, %s, %s\n", dest->name, src1->name, src2->name);
+            sprintf(code,". %s\n", dest->name);
+			strcat($$.code,code);
+            sprintf(code,"/ %s, %s, %s\n", dest->name, src1->name, src2->name);
+			strcat($$.code,code);
             $$.name = dest->name; 
 			}
 	| term MOD multiplicative_expression
@@ -383,8 +413,10 @@ multiplicative_expression:
             symrec *src2 = getsym($3.name);
             char *destID = newTemp();
             symrec *dest = putsym(destID, "t");
-            sprintf($$.code,". %s\n", dest->name);
-            sprintf($$.code,"%% %s, %s, %s\n", dest->name, src1->name, src2->name);
+            sprintf(code,". %s\n", dest->name);
+			strcat($$.code,code);
+            sprintf(code,"%% %s, %s, %s\n", dest->name, src1->name, src2->name);
+			strcat($$.code,code);
             $$.name = dest->name;
 			};
 
@@ -395,11 +427,15 @@ term:
 		symrec *tempvar = putsym(varID, "t");	
 		symrec *src1 = getsym($1.name);
 		if(src1->type == "a"){
-			sprintf($$.code,". %s\n", tempvar->name);
-			sprintf($$.code,"=[] %s, %s, %s\n", tempvar->name, src1->name, src1->index);
+			sprintf(code,". %s\n", tempvar->name);
+			strcat($$.code,code);
+			sprintf(code,"=[] %s, %s, %s\n", tempvar->name, src1->name, src1->index);
+			strcat($$.code,code);
 		}else{
-			sprintf($$.code,". %s\n", tempvar->name);
-			sprintf($$.code,"= %s, %s\n", tempvar->name, src1->name);
+			sprintf(code,". %s\n", tempvar->name);
+			strcat($$.code,code);
+			sprintf(code,"= %s, %s\n", tempvar->name, src1->name);
+			strcat($$.code,code);
 		}
 		
 		$$.name = tempvar->name; 
@@ -411,8 +447,10 @@ term:
 		char *numID = newTemp();
 		symrec *num = putsym(numID, "t");	
 		num->val = numberToken;
-		sprintf($$.code,". %s\n", num->name);
-		sprintf($$.code,"= %s, %d\n", num->name, num->val);
+		sprintf(code,". %s\n", num->name);
+		strcat($$.code,code);
+		sprintf(code,"= %s, %d\n", num->name, num->val);
+		strcat($$.code,code);
 		$$.name = num->name; 
 	}
 	| SUB NUMBER
@@ -426,8 +464,10 @@ term:
 		char *varID = newTemp();
 		symrec *tempvar = putsym(varID, "t");	
 		symrec *src1 = getsym($1.name);
-		sprintf($$.code,". %s\n", tempvar->name);
-		sprintf($$.code,"call %s, %s\n", $1.name, tempvar->name);
+		sprintf(code,". %s\n", tempvar->name);
+		strcat($$.code,code);
+		sprintf(code,"call %s, %s\n", $1.name, tempvar->name);
+		strcat($$.code,code);
 		$$.name = tempvar->name; 
 		
 	};
@@ -438,7 +478,8 @@ expressions:
 	| comma_sep_expressions
 		{
 			for(int i = numParams-1; i >= 0; i--){
-				sprintf($$.code,"param %s\n", funcParams[i]);
+				sprintf(code,"param %s\n", funcParams[i]);
+				strcat($$.code,code);
 			}
 			numParams = 0;
 		};
@@ -476,8 +517,10 @@ relation_exp:
 	        symrec *dest = putsym(compID, "t");
 	        symrec *src1 = getsym($1.name);
 	        symrec *src2 = getsym($3.name);
-       		sprintf($$.code,". %s\n", dest->name);
-        	sprintf($$.code,"%s %s, %s, %s \n", $2.name,  dest->name, src1->name, src2->name);
+       		sprintf(code,". %s\n", dest->name);
+			   strcat($$.code,code);
+        	sprintf(code,"%s %s, %s, %s \n", $2.name,  dest->name, src1->name, src2->name);
+			strcat($$.code,code);
         	//$$ = num->name;		
 		}
 	| NOT expression comp expression
