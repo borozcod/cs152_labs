@@ -45,7 +45,6 @@
 	int val;
 	char *index;
 	char *comp;
-	char code[10000];
 	union
 	{
 	    double var;
@@ -54,6 +53,8 @@
 	struct symrec *next;
 	
     };
+
+
     typedef struct symrec symrec;
     extern symrec *sym_table;
     symrec *putsym (char const *name, char *sym_type);
@@ -70,7 +71,10 @@
 
 %union{
   int int_val;
-  char *op_val;
+  struct{
+	char *name;
+	char code[10000];
+  } op_val;
 }
 
 %define parse.error verbose
@@ -105,6 +109,8 @@
 %type <op_val> identifiers
 %type <op_val> statement
 %type <op_val> vars
+%type <op_val> relation_exp
+%type <op_val> expressions
 %%
 
 prog_start: 
@@ -152,7 +158,7 @@ end_body: END_BODY {
 function_ident: FUNCTION ident 
 {
 	char *token = identToken;
-	putsym($2, "f");
+	putsym($2.name, "f");
 	printf("func %s\n", token);
 	strcpy(list_of_function_names[numfuncs], token);
     numfuncs++;
@@ -237,7 +243,7 @@ declaration:
 		int i = 0;
 		for(i = 0; i < numdecs; i++){
 			array[numidents + i] = 1;
-			asize[numidents + i] = atoi($5);
+			asize[numidents + i] = atoi($5.name);
 		}
 		numidents += numdecs; numdecs = 0;
 };
@@ -245,65 +251,65 @@ declaration:
 identifiers: 
 	ident
     {   
-		$$ = $1;
+		$$.name = $1.name;
 		//printf("NEW TOKEN ADDED: %s, num tokens: %d\n", $1, numidents+numdecs);
-		strcpy(idents[numidents + numdecs], $1);
+		strcpy(idents[numidents + numdecs], $1.name);
   		numdecs ++;
     }
 	| ident COMMA identifiers
 	{
 		//printf("NEW TOKEN ADDED: %s, num tokens: %d\n", $1, numidents+numdecs);
-		strcpy(idents[numidents + numdecs], $1);
+		strcpy(idents[numidents + numdecs], $1.name);
   		numdecs ++;
-	    $$ = $1;
-	    symrec *token = getsym($1);
+	    $$.name = $1.name;
+	    symrec *token = getsym($1.name);
 	};
 
 statement: 
 	var ASSIGN expression
 		{
-			symrec *dest = getsym($1);
-			symrec *src = getsym($3);
+			symrec *dest = getsym($1.name);
+			symrec *src = getsym($3.name);
 			//printf("last set index: %s\n", lastSetIndex);
 			if(dest->type == "a") {
-            	printf("[]= %s, %s, %s\n", dest->name, lastSetIndex, src->name);
+            	sprintf($$.code,"[]= %s, %s, %s\n", dest->name, lastSetIndex, src->name);
 			}
 			else if(src->type == "a"){
-				printf("=[] %s, %s, %s\n", dest->name, src->name, src->index);
+				sprintf($$.code,"=[] %s, %s, %s\n", dest->name, src->name, src->index);
 			}else{
-				printf("= %s, %s\n", dest->name, src->name);
+				sprintf($$.code,"= %s, %s\n", dest->name, src->name);
 			}
 			//updatesym($3, "n", dest->name);
-			symrec *dest2 = getsym($1);
+			symrec *dest2 = getsym($1.name);
 			firstArray = 1;
-			$$ = dest->name;
+			$$.name = dest->name;
 			
         }
 	| IF bool_exp THEN statements ENDIF
 		{}
 	| IF bool_exp THEN statements ELSE statements ENDIF
 		{}
-	| WHILE bool_exp BEGINLOOP statements ENDLOOP
-		{ printf("in loop"); }
+	| WHILE bool_exp BEGINLOOP statements ENDLOOP 
+		{}
 	| DO BEGINLOOP statements ENDLOOP WHILE bool_exp
 		{}
 	| READ vars
 		{
-			symrec *src1 = getsym($2);
+			symrec *src1 = getsym($2.name);
             if(src1->type == "a") {
-                printf(".[]< %s, %s\n", src1->name, src1->index);
+                sprintf($$.code,".[]< %s, %s\n", src1->name, src1->index);
             } else {
-                printf(".> %s\n", src1->name);
+                sprintf($$.code,".> %s\n", src1->name);
             }
 			firstArray = 1;
 		}
 	| WRITE vars
 		{
-			symrec *src1 = getsym($2);
+			symrec *src1 = getsym($2.name);
 			if(src1->type == "a") {
-				printf(".[]> %s, %s\n", src1->id, src1->index);
+				sprintf($$.code,".[]> %s, %s\n", src1->id, src1->index);
 			} else {
-				printf(".> %s\n", src1->name);
+				sprintf($$.code,".> %s\n", src1->name);
 			}
 			firstArray = 1;
 		}
@@ -311,9 +317,9 @@ statement:
 		{}
 	| RETURN expression
 		{
-			symrec *src1 = getsym($2);
+			symrec *src1 = getsym($2.name);
 			funcRet[numfuncs-1] = 1;
-			printf("ret %s\n", src1->name);
+			sprintf($$.code,"ret %s\n", src1->name);
 		};
 	
 statements: 
@@ -324,62 +330,62 @@ statements:
 
 expression: 
 	multiplicative_expression
-		{ $$ = $1;}
+		{ $$.name = $1.name;}
 	| multiplicative_expression ADD expression
 		{
-			//printf("IM GONNA GET %s and %s\n", $1,$3);
-            symrec *src1 = getsym($1);
-            symrec *src2 = getsym($3);
+			//sprintf($$.code,"IM GONNA GET %s and %s\n", $1,$3);
+            symrec *src1 = getsym($1.name);
+            symrec *src2 = getsym($3.name);
             char *destID = newTemp();
 			symrec *dest = putsym(destID, "t");
-            printf(". %s\n", dest->name);
-            printf("+ %s, %s, %s\n", dest->name, src1->name, src2->name);
-			$$ = dest->name;
+            sprintf($$.code,$$.code,". %s\n", dest->name);
+            sprintf($$.code,$$.code,"+ %s, %s, %s\n", dest->name, src1->name, src2->name);
+			$$.name = dest->name;
 
         }
 	| multiplicative_expression SUB expression
 		{
-			symrec *src1 = getsym($1);
-            symrec *src2 = getsym($3);
+			symrec *src1 = getsym($1.name);
+            symrec *src2 = getsym($3.name);
             char *destID = newTemp();
             symrec *dest = putsym(destID, "t");
-            printf(". %s\n", dest->name);
-            printf("- %s, %s, %s\n", dest->name, src1->name, src2->name);
-            $$ = dest->name;
+            sprintf($$.code,". %s\n", dest->name);
+            sprintf($$.code,"- %s, %s, %s\n", dest->name, src1->name, src2->name);
+            $$.name = dest->name;
         };
 
 multiplicative_expression: 
 	term
 		{ 
-			$$ = $1;
+			$$.name = $1.name;
 	}
 	| term MULT multiplicative_expression
 		{ 
-			symrec *src1 = getsym($1);
-            symrec *src2 = getsym($3);
+			symrec *src1 = getsym($1.name);
+            symrec *src2 = getsym($3.name);
             char *destID = newTemp();
             symrec *dest = putsym(destID, "t");
-            printf(". %s\n", dest->name);
-            printf("* %s, %s, %s\n", dest->name, src1->name, src2->name);
-            $$ = dest->name;
+            sprintf($$.code,". %s\n", dest->name);
+            sprintf($$.code,"* %s, %s, %s\n", dest->name, src1->name, src2->name);
+            $$.name = dest->name;
 		}
 	| term DIV multiplicative_expression
-		{ 	symrec *src1 = getsym($1);
-            symrec *src2 = getsym($3);
+		{ 	symrec *src1 = getsym($1.name);
+            symrec *src2 = getsym($3.name);
             char *destID = newTemp();
             symrec *dest = putsym(destID, "t");
-            printf(". %s\n", dest->name);
-            printf("/ %s, %s, %s\n", dest->name, src1->name, src2->name);
-            $$ = dest->name; 
+            sprintf($$.code,". %s\n", dest->name);
+            sprintf($$.code,"/ %s, %s, %s\n", dest->name, src1->name, src2->name);
+            $$.name = dest->name; 
 			}
 	| term MOD multiplicative_expression
-		{ 	symrec *src1 = getsym($1);
-            symrec *src2 = getsym($3);
+		{ 	symrec *src1 = getsym($1.name);
+            symrec *src2 = getsym($3.name);
             char *destID = newTemp();
             symrec *dest = putsym(destID, "t");
-            printf(". %s\n", dest->name);
-            printf("%% %s, %s, %s\n", dest->name, src1->name, src2->name);
-            $$ = dest->name;
+            sprintf($$.code,". %s\n", dest->name);
+            sprintf($$.code,"%% %s, %s, %s\n", dest->name, src1->name, src2->name);
+            $$.name = dest->name;
 			};
 
 term: 
@@ -387,16 +393,16 @@ term:
 		{
 		char *varID = newTemp();
 		symrec *tempvar = putsym(varID, "t");	
-		symrec *src1 = getsym($1);
+		symrec *src1 = getsym($1.name);
 		if(src1->type == "a"){
-			printf(". %s\n", tempvar->name);
-			printf("=[] %s, %s, %s\n", tempvar->name, src1->name, src1->index);
+			sprintf($$.code,". %s\n", tempvar->name);
+			sprintf($$.code,"=[] %s, %s, %s\n", tempvar->name, src1->name, src1->index);
 		}else{
-			printf(". %s\n", tempvar->name);
-			printf("= %s, %s\n", tempvar->name, src1->name);
+			sprintf($$.code,". %s\n", tempvar->name);
+			sprintf($$.code,"= %s, %s\n", tempvar->name, src1->name);
 		}
 		
-		$$ = tempvar->name; 
+		$$.name = tempvar->name; 
 	    }
 	| SUB var
 		{}
@@ -405,24 +411,24 @@ term:
 		char *numID = newTemp();
 		symrec *num = putsym(numID, "t");	
 		num->val = numberToken;
-		printf(". %s\n", num->name);
-		printf("= %s, %d\n", num->name, num->val);
-		$$ = num->name; 
+		sprintf($$.code,". %s\n", num->name);
+		sprintf($$.code,"= %s, %d\n", num->name, num->val);
+		$$.name = num->name; 
 	}
 	| SUB NUMBER
 		{}
 	| L_PAREN expression R_PAREN
-		{ $$ = $2; }
+		{ $$.name = $2.name; }
 	| SUB L_PAREN expression R_PAREN
 		{}
 	| ident L_PAREN expressions R_PAREN
 	{  
 		char *varID = newTemp();
 		symrec *tempvar = putsym(varID, "t");	
-		symrec *src1 = getsym($1);
-		printf(". %s\n", tempvar->name);
-		printf("call %s, %s\n", $1, tempvar->name);
-		$$ = tempvar->name; 
+		symrec *src1 = getsym($1.name);
+		sprintf($$.code,". %s\n", tempvar->name);
+		sprintf($$.code,"call %s, %s\n", $1.name, tempvar->name);
+		$$.name = tempvar->name; 
 		
 	};
 
@@ -432,7 +438,7 @@ expressions:
 	| comma_sep_expressions
 		{
 			for(int i = numParams-1; i >= 0; i--){
-				printf("param %s\n", funcParams[i]);
+				sprintf($$.code,"param %s\n", funcParams[i]);
 			}
 			numParams = 0;
 		};
@@ -440,13 +446,13 @@ expressions:
 comma_sep_expressions: 
 	expression
 	{ 
-		symrec *src1 = getsym($1);
+		symrec *src1 = getsym($1.name);
 		strcpy(funcParams[numParams],src1->name);
 		numParams++;
 	}
 	| expression COMMA comma_sep_expressions
 	{
-		symrec *src1 = getsym($1);
+		symrec *src1 = getsym($1.name);
 		strcpy(funcParams[numParams],src1->name);
 		numParams++;
 	};
@@ -468,10 +474,10 @@ relation_exp:
 		{
 			char *compID = newTemp();
 	        symrec *dest = putsym(compID, "t");
-	        symrec *src1 = getsym($1);
-	        symrec *src2 = getsym($3);
-       		printf(". %s\n", dest->name);
-        	printf("%s %s, %s, %s \n", $2,  dest->name, src1->name, src2->name);
+	        symrec *src1 = getsym($1.name);
+	        symrec *src2 = getsym($3.name);
+       		sprintf($$.code,". %s\n", dest->name);
+        	sprintf($$.code,"%s %s, %s, %s \n", $2.name,  dest->name, src1->name, src2->name);
         	//$$ = num->name;		
 		}
 	| NOT expression comp expression
@@ -491,36 +497,36 @@ relation_exp:
 
 comp:
 	EQ
-		{$$ = $1;}
+		{$$.name = $1.name;}
 	| NEQ
 		{
-			$$ = "!=";// Only one that is different
+			$$.name = "!=";// Only one that is different
 		}
 	| LT
-		{$$ = $1;}
+		{$$.name = $1.name;}
 	| GT
-		{$$ = $1;}
+		{$$.name = $1.name;}
 	| LTE
-		{$$ = $1;}
+		{$$.name = $1.name;}
 	| GTE
-		{$$ = $1;};
+		{$$.name = $1.name;};
 
 var: 
 	ident
-		{$$ = $1;}
+		{$$.name = $1.name;}
 	|  ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
 		{
 			if(firstArray){
-				lastSetIndex = $3;
+				lastSetIndex = $3.name;
 				firstArray = 0;
 			}
 			//putsym($1, "a");
-			updatesym($1, "i", $3);
-            $$ = $1; /*test*/
+			updatesym($1.name, "i", $3.name);
+            $$.name = $1.name; /*test*/
         };
 vars:
 	var
-		{$$ = $1;}
+		{$$.name = $1.name;}
 	| var COMMA vars
 		{};
 	
@@ -532,9 +538,9 @@ int main(int argc, char **argv)
     yyparse();
 /*
     int i = 0;
-    printf("%s\n", list_of_function_names[2]);
+    sprintf($$.code,"%s\n", list_of_function_names[2]);
     for(i = 0; i < count_names; i++) {
-	printf("%s\n", list_of_function_names[i]);
+	sprintf($$.code,"%s\n", list_of_function_names[i]);
     }
     */
     return 0;
