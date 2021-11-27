@@ -36,6 +36,9 @@
 	int asize[100];
 	char code[10000];
 
+	//loop and branch handling
+	int numloops = 0;
+
     // FROM: https://www.gnu.org/software/bison/manual/html_node/Mfcalc-Symbol-Table.html
     typedef double (func_t) (double);
 
@@ -302,9 +305,27 @@ statement:
 	| IF bool_exp THEN statements ELSE statements ENDIF
 		{}
 	| WHILE bool_exp BEGINLOOP statements ENDLOOP 
-		{}
+		{
+			sprintf(code, ": loop_begin%d\n",numloops);
+			strcat($$.code,code);
+			strcat($$.code,$2.code);
+			sprintf(code, "?:= loop_end%d, %s\n",numloops,$2.name);
+			strcat($$.code,code);
+			strcat($$.code,$4.code);
+			sprintf(code, ":= loop_begin%d, %s\n: loop_end%d\n",numloops,$2.name,numloops);
+			strcat($$.code,code);
+
+		}
 	| DO BEGINLOOP statements ENDLOOP WHILE bool_exp
-		{}
+		{
+			sprintf(code, ": loop_begin%d\n",numloops);
+			strcat($$.code,code);
+			strcat($$.code,$3.code);
+			strcat($$.code,code);
+			strcat($$.code,$6.code);
+			sprintf(code, "?:= loop_begin%d, %s\n",numloops,$6.name);
+			strcat($$.code,code);
+		}
 	| READ vars
 		{
 			symrec *src1 = getsym($2.name);
