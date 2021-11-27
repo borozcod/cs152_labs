@@ -349,15 +349,23 @@ statement:
 		}
 	| WHILE bool_exp BEGINLOOP statements ENDLOOP 
 		{
-			sprintf(code, ": loop_begin%d\n",numloops);
-			strcat($$.code,code);
-			strcat($$.code,$2.code);
-			sprintf(code, "?:= loop_end%d, %s\n",numloops,$2.name);
-			strcat($$.code,code);
-			strcat($$.code,$4.code);
-			sprintf(code, ":= loop_begin%d, %s\n: loop_end%d\n",numloops,$2.name,numloops);
+			char *loopBegin = newLabel();
+			char *loopEnd = newLabel();
+
+			sprintf(code,": %s\n", loopBegin);
+			strcat($$.code, code); // bool_exp code
+
+			strcat($$.code,$2.code); // bool_exp code
+			sprintf(code,"! %s, %s\n", $2.name, $2.name);
+			strcat($$.code, code); 
+
+			sprintf(code, "?:= %s, %s\n", loopEnd,$2.name);
 			strcat($$.code,code);
 
+			strcat($$.code,$4.code);
+
+			sprintf(code, ":= %s\n: %s\n", loopBegin, loopEnd);
+			strcat($$.code,code);
 		}
 	| DO BEGINLOOP statements ENDLOOP WHILE bool_exp
 		{
