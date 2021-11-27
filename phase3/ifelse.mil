@@ -1,0 +1,17 @@
+func main
+. a
+. b
+. c
+= a, 100
+= b, 50
+. __temp__0
+< __temp__0, a, b
+! __temp__0, __temp__0
+?:= else0, __temp__0
+= c, b
+:= endif0
+: else0
+= c, a
+: endif0
+.> c
+endfunc

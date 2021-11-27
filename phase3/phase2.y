@@ -17,6 +17,7 @@
     int numfuncs = 0;
 	int inParam = 0;    
 	int inArray = 0;
+	int numLabels = 0;
 	
 	//function call handling
 	char funcParams[100][100];
@@ -44,6 +45,7 @@
 	int val;
 	char *index;
 	char *comp;
+	char code[10000];
 	union
 	{
 	    double var;
@@ -282,7 +284,7 @@ statement:
 	| IF bool_exp THEN statements ELSE statements ENDIF
 		{}
 	| WHILE bool_exp BEGINLOOP statements ENDLOOP
-		{}
+		{ printf("in loop"); }
 	| DO BEGINLOOP statements ENDLOOP WHILE bool_exp
 		{}
 	| READ vars
