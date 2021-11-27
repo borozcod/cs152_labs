@@ -7,8 +7,6 @@ func main
 = b, __temp__0
 . __temp__1
 = __temp__1, 6
-. __temp__2
-= __temp__2, b
 . __temp__3
 / __temp__3, __temp__1, __temp__2
 = c, __temp__3

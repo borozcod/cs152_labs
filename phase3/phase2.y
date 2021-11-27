@@ -112,6 +112,7 @@
 %type <op_val> vars
 %type <op_val> relation_exp
 %type <op_val> expressions
+%type <op_val> comma_sep_expressions
 %type <op_val> end_body
 %type <op_val> statements
 %%
@@ -334,6 +335,7 @@ statement:
 		{}
 	| RETURN expression
 		{
+			strcat($$.code, $2.code);
 			symrec *src1 = getsym($2.name);
 			funcRet[numfuncs-1] = 1;
 			sprintf(code,"ret %s\n", src1->name);
@@ -462,16 +464,21 @@ term:
 		$$.name = num->name; 
 	}
 	| SUB NUMBER
-		{}
+		{ 
+			strcat($$.code,$2.code);
+		}
 	| L_PAREN expression R_PAREN
 		{ 
             strcat($$.code,$2.code);
             $$.name = $2.name;
         }
 	| SUB L_PAREN expression R_PAREN
-		{}
+		{
+			strcat($$.code,$3.code);
+		}
 	| ident L_PAREN expressions R_PAREN
 	{  
+		strcat($$.code,$3.code);
 		char *varID = newTemp();
 		symrec *tempvar = putsym(varID, "t");	
 		symrec *src1 = getsym($1.name);
@@ -498,12 +505,15 @@ expressions:
 comma_sep_expressions: 
 	expression
 	{ 
+		//strcat($$.code, $1.code);
 		symrec *src1 = getsym($1.name);
 		strcpy(funcParams[numParams],src1->name);
 		numParams++;
 	}
 	| expression COMMA comma_sep_expressions
 	{
+		//strcat($$.code, $1.code);
+		strcat($$.code, $3.code);
 		symrec *src1 = getsym($1.name);
 		strcpy(funcParams[numParams],src1->name);
 		numParams++;
@@ -581,9 +591,15 @@ var:
         };
 vars:
 	var
-		{$$.name = $1.name;}
+		{
+			$$.name = $1.name;
+			strcat($$.code,$1.code);
+		}
 	| var COMMA vars
-		{};
+		{
+			strcat($$.code,$1.code);
+			strcat($$.code,$3.code);
+		};
 	
 
 %%
