@@ -304,13 +304,31 @@ statement:
 			
         }
 	| IF bool_exp THEN statements ENDIF
-		{}
+		{
+
+			char *endIfLabel = newLabel();
+
+			strcat($$.code,$2.code); // bool_exp code
+
+			sprintf(code,"! %s, %s\n", $2.name, $2.name);
+			strcat($$.code, code);
+
+			sprintf(code,"?:= %s, %s\n", endIfLabel, $2.name); // check
+			strcat($$.code, code); 
+
+			strcat($$.code,$4.code); //  code for if
+			sprintf(code,":= %s\n", endIfLabel); // go to endif
+			strcat($$.code, code); 
+
+			sprintf(code,": %s\n", endIfLabel); // endif label
+			strcat($$.code, code); 
+		}
 	| IF bool_exp THEN statements ELSE statements ENDIF
 		{
 			char *elseLabel = newLabel();
 			char *endIfLabel = newLabel();
 
-			strcat($$.code,$2.code);
+			strcat($$.code,$2.code); // bool_exp code
 
 			sprintf(code,"! %s, %s\n", $2.name, $2.name);
 			strcat($$.code, code);
