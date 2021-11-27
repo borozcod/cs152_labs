@@ -278,6 +278,7 @@ statement:
 			symrec *dest = getsym($1.name);
 			symrec *src = getsym($3.name);
 			//printf("last set index: %s\n", lastSetIndex);
+            strcat($$.code, $3.code);
 			if(dest->type == "a") {
             	sprintf(code,"[]= %s, %s, %s\n", dest->name, lastSetIndex, src->name);
 				strcat($$.code,code);
@@ -319,6 +320,7 @@ statement:
 	| WRITE vars
 		{
 			symrec *src1 = getsym($2.name);
+            strcat($$.code,$2.code);
 			if(src1->type == "a") {
 				sprintf(code,".[]> %s, %s\n", src1->id, src1->index);
 				strcat($$.code,code);
@@ -341,7 +343,7 @@ statement:
 statements: 
 	statement SEMICOLON/* epsilon */
 		{
-			strcat($$.code,$1.code);
+			//strcat($$.code,$1.code);
 		}
 	| statement SEMICOLON statements
 		{	
@@ -357,6 +359,10 @@ expression:
 			
             symrec *src1 = getsym($1.name);
             symrec *src2 = getsym($3.name);
+
+            //strcat($$.code,$1.code);
+            strcat($$.code,$3.code);
+
             char *destID = newTemp();
 			symrec *dest = putsym(destID, "t");
             sprintf(code,". %s\n", dest->name);
@@ -390,6 +396,8 @@ multiplicative_expression:
 			symrec *src1 = getsym($1.name);
             symrec *src2 = getsym($3.name);
             char *destID = newTemp();
+            //strcat($$.code,$1.code);
+            strcat($$.code,$3.code);
             symrec *dest = putsym(destID, "t");
             sprintf(code,". %s\n", dest->name);
 			strcat($$.code,code);
@@ -456,7 +464,10 @@ term:
 	| SUB NUMBER
 		{}
 	| L_PAREN expression R_PAREN
-		{ $$.name = $2.name; }
+		{ 
+            strcat($$.code,$2.code);
+            $$.name = $2.name;
+        }
 	| SUB L_PAREN expression R_PAREN
 		{}
 	| ident L_PAREN expressions R_PAREN
@@ -563,6 +574,7 @@ var:
 				lastSetIndex = $3.name;
 				firstArray = 0;
 			}
+             strcat($$.code,$3.code);
 			//putsym($1, "a");
 			updatesym($1.name, "i", $3.name);
             $$.name = $1.name; /*test*/
