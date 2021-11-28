@@ -31,7 +31,6 @@ func main
 > __temp__10, __temp__8, __temp__9 
 ! __temp__10, __temp__10
 ?:= __label__0, __temp__10
-.> i
 := __BeginLoop__1
 := __label__0
 : __label__0

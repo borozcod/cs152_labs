@@ -1,0 +1,52 @@
+func main
+. i
+. j
+. __temp__0
+= __temp__0, 0
+= i, __temp__0
+. __temp__1
+= __temp__1, 100
+= j, __temp__1
+: __BeginLoop__1
+. __temp__2
+= __temp__2, i
+. __temp__3
+= __temp__3, 10
+. __temp__4
+< __temp__4, __temp__2, __temp__3 
+! __temp__4, __temp__4
+?:= __EndLoop__2, __temp__4
+. __temp__5
+= __temp__5, i
+. __temp__6
+= __temp__6, 1
+. __temp__7
++ __temp__7, __temp__5, __temp__6
+= i, __temp__7
+.> i
+. __temp__8
+= __temp__8, 100
+= j, __temp__8
+: __BeginLoop__2
+. __temp__9
+= __temp__9, j
+. __temp__10
+= __temp__10, 110
+. __temp__11
+< __temp__11, __temp__9, __temp__10 
+! __temp__11, __temp__11
+?:= __EndLoop__2, __temp__11
+. __temp__12
+= __temp__12, j
+. __temp__13
+= __temp__13, 1
+. __temp__14
++ __temp__14, __temp__12, __temp__13
+= j, __temp__14
+.> j
+:= __BeginLoop__2
+: __EndLoop__2
+:= __BeginLoop__1
+: __EndLoop__2
+endfunc
+

@@ -12,6 +12,7 @@
     char *identToken;
     char *compToken;
 	int currentLoop = 0;
+	int inLoop = 0;
 
     int numberToken;
     int productionID = 0;
@@ -125,6 +126,7 @@
 %type <op_val> statements
 %type <op_val> bool_exp
 %type <op_val> relation_and_exp
+%type <op_val> beginloop
 %%
 
 prog_start: 
@@ -351,13 +353,11 @@ statement:
 			sprintf(code,": %s\n", endIfLabel); // endif label
 			strcat($$.code, code); 
 		}
-	| WHILE bool_exp BEGINLOOP statements ENDLOOP 
+	| WHILE bool_exp beginloop statements endloop 
 		{
-			// parentLoop = "a"
-			char *loopBegin = newBeginLoop();
-			char *loopEnd = newEndLoop();
 
-			currentLoop++;
+			char *loopBegin = $3.code;
+			char *loopEnd = newEndLoop();
 
 			sprintf(code,": %s\n", loopBegin);
 			strcat($$.code, code); // bool_exp code
@@ -374,10 +374,10 @@ statement:
 			sprintf(code, ":= %s\n: %s\n", loopBegin, loopEnd);
 			strcat($$.code,code);
 		}
-	| DO BEGINLOOP statements ENDLOOP WHILE bool_exp
+	| DO beginloop statements endloop WHILE bool_exp
 		{
-			char *loopBegin = newLabel();
-			currentLoop++;
+			char *loopBegin = $2.code;
+
 			sprintf(code, ": %s\n", loopBegin);
 			strcat($$.code,code);
 			strcat($$.code,$3.code);
@@ -414,6 +414,11 @@ statement:
 		}
 	| CONTINUE
 		{
+			if(inLoop <= 0) {
+				printf("** Line %d: continue statement outside loop\n", currLine);
+				exit(0);
+			}
+
 			sprintf(code, ":= __BeginLoop__%d\n", currentLoop);
 			strcat($$.code,code);
 		}
@@ -425,7 +430,20 @@ statement:
 			sprintf(code,"ret %s\n", src1->name);
 			strcat($$.code,code);
 		};
-	
+beginloop: BEGINLOOP {
+
+	inLoop++;
+	currentLoop++;
+
+	char loopBegin[15];
+	sprintf(loopBegin,"__BeginLoop__%d", currentLoop);
+	strcat($$.code,loopBegin);
+}
+
+endloop: ENDLOOP {
+	inLoop--;
+}
+
 statements: 
 	statement SEMICOLON/* epsilon */
 		{
