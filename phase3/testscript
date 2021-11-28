@@ -17,3 +17,9 @@ echo "LOOP.min"
 echo "IFELSE.min"
 ./phase2 < ifelse.min > ifelse2.mil
 ./mil_run ifelse2.mil
+echo "CONTINUE.min"
+./phase2 < continue.min > continue2.mil
+./mil_run continue2.mil
+echo "NESTED_LOOP.min"
+./phase2 < nested_loop.min > nested_loop2.mil
+./mil_run nested_loop2.mil

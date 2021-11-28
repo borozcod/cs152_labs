@@ -23,49 +23,29 @@ func main
 . __temp__7
 + __temp__7, __temp__5, __temp__6
 = i, __temp__7
+.> i
 . __temp__8
-= __temp__8, i
-. __temp__9
-= __temp__9, 3
-. __temp__10
-> __temp__10, __temp__8, __temp__9 
-! __temp__10, __temp__10
-?:= __label__0, __temp__10
-.> i
-:= __BeginLoop__1
-:= __label__0
-: __label__0
-.> i
+= __temp__8, 100
+= j, __temp__8
 : __BeginLoop__2
+. __temp__9
+= __temp__9, j
+. __temp__10
+= __temp__10, 110
 . __temp__11
-= __temp__11, j
+< __temp__11, __temp__9, __temp__10 
+! __temp__11, __temp__11
+?:= __EndLoop__1, __temp__11
 . __temp__12
-= __temp__12, 110
+= __temp__12, j
 . __temp__13
-< __temp__13, __temp__11, __temp__12 
-! __temp__13, __temp__13
-?:= __EndLoop__2, __temp__13
+= __temp__13, 1
 . __temp__14
-= __temp__14, j
-. __temp__15
-= __temp__15, 1
-. __temp__16
-+ __temp__16, __temp__14, __temp__15
-= j, __temp__16
-. __temp__17
-= __temp__17, j
-. __temp__18
-= __temp__18, 109
-. __temp__19
-> __temp__19, __temp__17, __temp__18 
-! __temp__19, __temp__19
-?:= __label__1, __temp__19
-:= __BeginLoop__2
-:= __label__1
-: __label__1
++ __temp__14, __temp__12, __temp__13
+= j, __temp__14
 .> j
 := __BeginLoop__2
-: __EndLoop__2
+: __EndLoop__1
 := __BeginLoop__1
 : __EndLoop__2
 endfunc

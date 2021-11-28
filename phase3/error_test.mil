@@ -1,15 +1,36 @@
 func main
-.[] a, 20 
-. b
-. c
+** Line 8: identifier n is already declared
+. n
+** Line 8: Array r must of at least size 1 
+.[] r, 0 
+.[] n, 10 
+** Line 10: used array variable n is missing a specified index
+** Line 11: used array variable n is missing a specified index
+** Line 11: Undeclared variable: z
+** Line 11: used array variable z is missing a specified index
+** Line 11: Undeclared variable: z
+** Line 12: used array variable n is missing a specified index
+** Line 12: used array variable r is missing a specified index
+** Line 13: used array variable n is missing a specified index
+** Line 14: continue statement outside loop
+.[]< n, (null)
 . __temp__0
-= __temp__0, 3
-= b, __temp__0
+= __temp__0, __temp__0
 . __temp__1
-= __temp__1, 6
+= __temp__1, 1
+. __temp__2
++ __temp__2, __temp__0, __temp__1
+[]= n, (null), __temp__2
 . __temp__3
-/ __temp__3, __temp__1, __temp__2
-= c, __temp__3
-.> c
+= __temp__3, 1
+. __temp__4
+=[] __temp__4, n, __temp__3
+. __temp__5
+=[] __temp__5, r, (null)
+. __temp__6
++ __temp__6, __temp__4, __temp__5
+[]= n, __temp__3, __temp__6
+.[]> n, __temp__3
+:= __BeginLoop__0
 endfunc
 

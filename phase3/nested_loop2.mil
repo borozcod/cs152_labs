@@ -4,7 +4,7 @@ func main
 . __temp__0
 = __temp__0, 0
 = i, __temp__0
-: __label__1
+: __BeginLoop__1
 . __temp__1
 = __temp__1, i
 . __temp__2
@@ -12,11 +12,11 @@ func main
 . __temp__3
 < __temp__3, __temp__1, __temp__2 
 ! __temp__3, __temp__3
-?:= __endloop__1, __temp__3
+?:= __EndLoop__2, __temp__3
 . __temp__4
 = __temp__4, 1
 = j, __temp__4
-: __label__0
+: __BeginLoop__2
 . __temp__5
 = __temp__5, j
 . __temp__6
@@ -24,7 +24,7 @@ func main
 . __temp__7
 <= __temp__7, __temp__5, __temp__6 
 ! __temp__7, __temp__7
-?:= __endloop__0, __temp__7
+?:= __EndLoop__1, __temp__7
 .> j
 . __temp__8
 = __temp__8, j
@@ -33,8 +33,8 @@ func main
 . __temp__10
 + __temp__10, __temp__8, __temp__9
 = j, __temp__10
-:= __label__0
-: __endloop__0
+:= __BeginLoop__2
+: __EndLoop__1
 . __temp__11
 = __temp__11, i
 . __temp__12
@@ -42,7 +42,7 @@ func main
 . __temp__13
 + __temp__13, __temp__11, __temp__12
 = i, __temp__13
-:= __label__1
-: __endloop__1
+:= __BeginLoop__1
+: __EndLoop__2
 endfunc
 

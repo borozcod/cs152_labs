@@ -3,7 +3,7 @@ func main
 . __temp__0
 = __temp__0, 0
 = i, __temp__0
-: __label__0
+: __BeginLoop__1
 . __temp__1
 = __temp__1, i
 . __temp__2
@@ -11,7 +11,7 @@ func main
 . __temp__3
 < __temp__3, __temp__1, __temp__2 
 ! __temp__3, __temp__3
-?:= __endloop__0, __temp__3
+?:= __EndLoop__1, __temp__3
 . __temp__4
 = __temp__4, i
 . __temp__5
@@ -20,7 +20,7 @@ func main
 + __temp__6, __temp__4, __temp__5
 = i, __temp__6
 .> i
-:= __label__0
-: __endloop__0
+:= __BeginLoop__1
+: __EndLoop__1
 endfunc
 

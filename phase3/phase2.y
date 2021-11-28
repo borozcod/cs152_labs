@@ -11,8 +11,6 @@
     
     char *identToken;
     char *compToken;
-	int currentLoop = 0;
-	int inLoop = 0;
 
     int numberToken;
     int productionID = 0;
@@ -34,14 +32,46 @@
 	//declaration handling 
 	int numidents = 0;
 	int numdecs = 0;
+	#define numkeywords 26
+	char *kws[numkeywords] = {
+		"function",
+		"beginparams",
+		"endparams",
+		"beginlocals",
+		"endlocals",
+		"beginbody",
+		"endbody",
+		"integer",
+		"array",
+		"of",
+		"if",
+		"then",
+		"endif",
+		"else",
+		"while",
+		"do",
+		"beginloop",
+		"endloop",
+		"read",
+		"write",
+		"and",
+		"or",
+		"not",
+		"true",
+		"false",
+		"return"
+		};
+
 	char idents[100][100];
 	int array[100];
 	int asize[100];
 	char code[10000];
 
 	//loop and branch handling
+	int currentLoop = 0;
+	int inLoop = 0;
 	int numloops = 0;
-
+	int maxdepth = 0;
     // FROM: https://www.gnu.org/software/bison/manual/html_node/Mfcalc-Symbol-Table.html
     typedef double (func_t) (double);
 
@@ -140,17 +170,14 @@ prog_start:
 					foundmain = 1;
 					if(funcRet[i] == 1){
 						printf("** Line %d: Main function should not return\n", currLine);
-						exit(0);
 					}
 				}else if(funcRet[i] != 1){
 					printf("** Line %d: Non-main function '%s' does not return scalar\n", 
 					currLine, list_of_function_names[i]);
-					exit(0);
 				}
 			}
 			if(!foundmain){
 				printf("** Line %d: Missing main function\n", currLine);
-				exit(0);
 			}
 		};
 
@@ -209,12 +236,35 @@ declarations_local:
 		{}
 	| declaration SEMICOLON declarations_local
 		{
+		//check if duplicates in idents
+		int id1 = 0; int id2 = 0; int kw = 0;
+		for( id1 = 0; id1 < numidents; id1++){
+			
+			for( id2 = 0; id2 < id1; id2++){
+				if(id1 == id2){
+					continue;
+				}
+				if(strcmp(idents[id1], idents[id2]) == 0){
+					printf("** Line %d: identifier %s is already declared\n", currLine, idents[id1]);
+				}
+			}
+			
+			for(kw = 0; kw < numkeywords; kw++){
+				if(strcmp(idents[id1],  kws[kw]) == 0){
+					printf("** Line %d: identifier name %s is a restricted keyword\n", currLine, idents[id1]);
+				}
+			}
+		}
+
 		int i = 0;
 		for( i = 0; i < numidents; i++){
 			putsym(idents[i], "i");
 			if(array[i]){
 			//set symbol in table to array
 			updatesym (idents[i], "t" , "a");
+			if(asize[i] <= 0){
+				printf("** Line %d: Array %s must of at least size 1 \n", currLine, idents[i]);
+			}
 			printf(".[] %s, %d \n", idents[i], asize[i]);
 			}else{
 			//set symbol in table to int
@@ -231,6 +281,26 @@ declarations_param:
 		{}
 	| declaration SEMICOLON declarations_param
 		{
+		//check if duplicates in idents
+		int id1 = 0; int id2 = 0; int kw = 0;
+		for( id1 = 0; id1 < numidents; id1++){
+			
+			for( id2 = 0; id2 < id1; id2++){
+				if(id1 == id2){
+					continue;
+				}
+				if(strcmp(idents[id1], idents[id2]) == 0){
+					printf("** Line %d: identifier %s is already declared\n", currLine, idents[id1]);
+				}
+			}
+			
+			for(kw = 0; kw < numkeywords; kw++){
+				if(strcmp(idents[id1],  kws[kw]) == 0){
+					printf("** Line %d: identifier name %s is a restricted keyword\n", currLine, idents[id1]);
+				}
+			}
+		}
+
 		int i = 0;
 		for(i = 0; i < numidents; i++){
 			putsym(idents[i], "i");
@@ -416,7 +486,6 @@ statement:
 		{
 			if(inLoop <= 0) {
 				printf("** Line %d: continue statement outside loop\n", currLine);
-				exit(0);
 			}
 
 			sprintf(code, ":= __BeginLoop__%d\n", currentLoop);
@@ -434,6 +503,9 @@ beginloop: BEGINLOOP {
 
 	inLoop++;
 	currentLoop++;
+	if(currentLoop > maxdepth){
+		maxdepth = currentLoop;
+	}
 
 	char loopBegin[15];
 	sprintf(loopBegin,"__BeginLoop__%d", currentLoop);
@@ -442,6 +514,11 @@ beginloop: BEGINLOOP {
 
 endloop: ENDLOOP {
 	inLoop--;
+	currentLoop--;
+	if(inLoop==0){
+		currentLoop+=maxdepth;
+		maxdepth = 0;
+	}
 }
 
 statements: 
@@ -683,12 +760,22 @@ comp:
 
 var: 
 	ident
-		{$$.name = $1.name;}
+		{
+			$$.name = $1.name;
+			symrec *src1 = getsym($1.name);
+			if(strcmp(src1->type, "a") == 0){
+				printf("** Line %d: used array variable %s is missing a specified index\n", currLine, $1.name);
+			}
+		}
 	|  ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
 		{
 			if(firstArray){
 				lastSetIndex = $3.name;
 				firstArray = 0;
+			}
+			symrec *src1 = getsym($1.name);
+			if(strcmp(src1->type, "a") != 0){
+				printf("** Line %d: Attempting to get index of non-array %s\n", currLine, $1.name);
 			}
              strcat($$.code,$3.code);
 			//putsym($1, "a");
@@ -766,8 +853,7 @@ getsym (char const *name)
     if (strcmp (p->id, name) == 0)
       return p;
   printf("** Line %d: Undeclared variable: %s\n", currLine, name);
-  exit(0);
-  return NULL;
+  return sym_table;
 }
 
 symrec *
