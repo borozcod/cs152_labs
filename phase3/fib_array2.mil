@@ -51,16 +51,26 @@ func main
 []= fib, __temp__16, __temp__21
 . __temp__22
 = __temp__22, 0
+. __temp__22
+= __temp__22, 0
 .[]> fib, __temp__22
+. __temp__23
+= __temp__23, 1
 . __temp__23
 = __temp__23, 1
 .[]> fib, __temp__23
 . __temp__24
 = __temp__24, 2
+. __temp__24
+= __temp__24, 2
 .[]> fib, __temp__24
 . __temp__25
 = __temp__25, 3
+. __temp__25
+= __temp__25, 3
 .[]> fib, __temp__25
+. __temp__26
+= __temp__26, 4
 . __temp__26
 = __temp__26, 4
 .[]> fib, __temp__26

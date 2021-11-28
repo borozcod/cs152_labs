@@ -69,6 +69,8 @@
 	char *newTemp();
 	char *newReg();
 	char *newLabel();
+	char *newEndLoop();
+	char *newBeginLoop();
     // we might need a temp var
 
 //#define YYDEBUG 1
@@ -352,10 +354,9 @@ statement:
 	| WHILE bool_exp BEGINLOOP statements ENDLOOP 
 		{
 			// parentLoop = "a"
-			char *loopBegin = newLabel();
-			
-			char loopEnd[15];
-			sprintf(loopEnd,"__endloop__%d", currentLoop);
+			char *loopBegin = newBeginLoop();
+			char *loopEnd = newEndLoop();
+
 			currentLoop++;
 
 			sprintf(code,": %s\n", loopBegin);
@@ -375,12 +376,14 @@ statement:
 		}
 	| DO BEGINLOOP statements ENDLOOP WHILE bool_exp
 		{
-			sprintf(code, ": loop_begin%d\n",numloops);
+			char *loopBegin = newLabel();
+			currentLoop++;
+			sprintf(code, ": %s\n", loopBegin);
 			strcat($$.code,code);
 			strcat($$.code,$3.code);
 			strcat($$.code,code);
 			strcat($$.code,$6.code);
-			sprintf(code, "?:= loop_begin%d, %s\n",numloops,$6.name);
+			sprintf(code, "?:= %s, %s\n",loopBegin,$6.name);
 			strcat($$.code,code);
 		}
 	| READ vars
@@ -411,7 +414,7 @@ statement:
 		}
 	| CONTINUE
 		{
-			sprintf(code, ":= __endloop__%d\n", currentLoop);
+			sprintf(code, ":= __BeginLoop__%d\n", currentLoop);
 			strcat($$.code,code);
 		}
 	| RETURN expression
@@ -784,10 +787,23 @@ char *newReg() {
     return temp;
 }
 
-int labelIdD = 0;
+int labelID = 0;
 char *newLabel() {
     char *temp = (char *) malloc (sizeof (char));
-    sprintf(temp, "__label__%d", labelIdD);
-    labelIdD++;
+    sprintf(temp, "__label__%d", labelID);
+    labelID++;
     return temp;
 }
+
+char *newBeginLoop() {
+    char *temp = (char *) malloc (sizeof (char));
+    sprintf(temp, "__BeginLoop__%d", currentLoop);
+    return temp;
+}
+
+char *newEndLoop() {
+    char *temp = (char *) malloc (sizeof (char));
+    sprintf(temp, "__EndLoop__%d", currentLoop);
+    return temp;
+}
+

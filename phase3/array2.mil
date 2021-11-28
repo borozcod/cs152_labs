@@ -19,6 +19,8 @@ func main
 []= a, __temp__2, __temp__5
 . __temp__6
 = __temp__6, 0
+. __temp__6
+= __temp__6, 0
 .[]> a, __temp__6
 . __temp__7
 = __temp__7, 1
@@ -27,12 +29,16 @@ func main
 []= a, __temp__7, __temp__8
 . __temp__9
 = __temp__9, 1
+. __temp__9
+= __temp__9, 1
 .[]> a, __temp__9
 . __temp__10
 = __temp__10, 2
 . __temp__11
 = __temp__11, 200
 []= a, __temp__10, __temp__11
+. __temp__12
+= __temp__12, 2
 . __temp__12
 = __temp__12, 2
 .[]> a, __temp__12
@@ -53,6 +59,8 @@ func main
 . __temp__20
 * __temp__20, __temp__15, __temp__19
 []= a, __temp__13, __temp__20
+. __temp__21
+= __temp__21, 3
 . __temp__21
 = __temp__21, 3
 .[]> a, __temp__21
