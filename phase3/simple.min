@@ -1,20 +1,11 @@
 function main;
 beginparams
-s : integer;
-o : integer;
 endparams
 
 beginlocals
   n : integer;
-  x : integer;
-  a : integer;
-  b : integer;
-  c : integer;
 endlocals
 
 beginbody	
-
-  a := 100;
-  b := 50;
-  c := a + b;
+  n := n/n;
 endbody

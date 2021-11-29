@@ -348,11 +348,10 @@ identifiers:
     }
 	| ident COMMA identifiers
 	{
+		$$.name = $1.name;
 		//printf("NEW TOKEN ADDED: %s, num tokens: %d\n", $1, numidents+numdecs);
 		strcpy(idents[numidents + numdecs], $1.name);
   		numdecs ++;
-	    $$.name = $1.name;
-	    symrec *token = getsym($1.name);
 	};
 
 statement: 
@@ -464,7 +463,7 @@ statement:
 				strcat($$.code,code);
 				
             } else {
-                sprintf(code,".> %s\n", src1->name);
+                sprintf(code,".< %s\n", src1->name);
 				strcat($$.code,code);
             }
 			firstArray = 1;
@@ -534,7 +533,10 @@ statements:
 
 expression: 
 	multiplicative_expression
-		{ $$.name = $1.name;}
+		{ 
+			$$.name = $1.name;
+			//strcat($$.code, $1.code);
+		}
 	| multiplicative_expression ADD expression
 		{
 			
@@ -570,8 +572,9 @@ multiplicative_expression:
 	term
 		{ 
 			$$.name = $1.name;
+			//strcpy($$.code, $1.code);
 			
-	}
+		}
 	| term MULT multiplicative_expression
 		{ 
 			symrec *src1 = getsym($1.name);
@@ -590,6 +593,7 @@ multiplicative_expression:
 		{ 	symrec *src1 = getsym($1.name);
             symrec *src2 = getsym($3.name);
             char *destID = newTemp();
+			strcat($$.code,$3.code);
             symrec *dest = putsym(destID, "t");
             sprintf(code,". %s\n", dest->name);
 			strcat($$.code,code);
@@ -601,6 +605,7 @@ multiplicative_expression:
 		{ 	symrec *src1 = getsym($1.name);
             symrec *src2 = getsym($3.name);
             char *destID = newTemp();
+			strcat($$.code,$3.code);
             symrec *dest = putsym(destID, "t");
             sprintf(code,". %s\n", dest->name);
 			strcat($$.code,code);
