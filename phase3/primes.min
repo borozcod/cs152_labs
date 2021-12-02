@@ -25,6 +25,7 @@ beginbody	## main program
     ## compute the square root of n and put the result in sqrt_n
     read n;
     x := n;
+    write n;
     while x > n / x beginloop
 	    x := (x+n / x) / 2;
     endloop;

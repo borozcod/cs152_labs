@@ -11,12 +11,14 @@
     
     char *identToken;
     char *compToken;
+
     int numberToken;
     int productionID = 0;
     char list_of_function_names[100][100];
     int numfuncs = 0;
 	int inParam = 0;    
 	int inArray = 0;
+	int numLabels = 0;
 	
 	//function call handling
 	char funcParams[100][100];
@@ -30,10 +32,46 @@
 	//declaration handling 
 	int numidents = 0;
 	int numdecs = 0;
+	#define numkeywords 26
+	char *kws[numkeywords] = {
+		"function",
+		"beginparams",
+		"endparams",
+		"beginlocals",
+		"endlocals",
+		"beginbody",
+		"endbody",
+		"integer",
+		"array",
+		"of",
+		"if",
+		"then",
+		"endif",
+		"else",
+		"while",
+		"do",
+		"beginloop",
+		"endloop",
+		"read",
+		"write",
+		"and",
+		"or",
+		"not",
+		"true",
+		"false",
+		"return"
+		};
+
 	char idents[100][100];
 	int array[100];
 	int asize[100];
+	char code[10000];
 
+	//loop and branch handling
+	int currentLoop = 0;
+	int inLoop = 0;
+	int numloops = 0;
+	int maxdepth = 0;
     // FROM: https://www.gnu.org/software/bison/manual/html_node/Mfcalc-Symbol-Table.html
     typedef double (func_t) (double);
 
@@ -52,6 +90,8 @@
 	struct symrec *next;
 	
     };
+
+
     typedef struct symrec symrec;
     extern symrec *sym_table;
     symrec *putsym (char const *name, char *sym_type);
@@ -59,6 +99,9 @@
     symrec *updatesym (char const *name, char *attr, char *val);
 	char *newTemp();
 	char *newReg();
+	char *newLabel();
+	char *newEndLoop();
+	char *newBeginLoop();
     // we might need a temp var
 
 //#define YYDEBUG 1
@@ -68,7 +111,10 @@
 
 %union{
   int int_val;
-  char *op_val;
+  struct{
+	char *name;
+	char code[10000];
+  } op_val;
 }
 
 %define parse.error verbose
@@ -103,6 +149,14 @@
 %type <op_val> identifiers
 %type <op_val> statement
 %type <op_val> vars
+%type <op_val> relation_exp
+%type <op_val> expressions
+%type <op_val> comma_sep_expressions
+%type <op_val> end_body
+%type <op_val> statements
+%type <op_val> bool_exp
+%type <op_val> relation_and_exp
+%type <op_val> beginloop
 %%
 
 prog_start: 
@@ -116,17 +170,14 @@ prog_start:
 					foundmain = 1;
 					if(funcRet[i] == 1){
 						printf("** Line %d: Main function should not return\n", currLine);
-						exit(0);
 					}
 				}else if(funcRet[i] != 1){
 					printf("** Line %d: Non-main function '%s' does not return scalar\n", 
 					currLine, list_of_function_names[i]);
-					exit(0);
 				}
 			}
 			if(!foundmain){
 				printf("** Line %d: Missing main function\n", currLine);
-				exit(0);
 			}
 		};
 
@@ -141,16 +192,20 @@ function: function_ident
 	BEGIN_PARAMS declarations_param END_PARAMS
 	BEGIN_LOCALS declarations_local END_LOCALS
 	BEGIN_BODY statements end_body
-		{};
+		{
+			printf("%s",$10.code);
+			printf("%s",$11.code);
+			strcpy(code,"");
+		};
 
 end_body: END_BODY {
-    printf("endfunc\n\n");
+    sprintf($$.code,"endfunc\n\n");
 }
 
 function_ident: FUNCTION ident 
 {
 	char *token = identToken;
-	putsym($2, "f");
+	putsym($2.name, "f");
 	printf("func %s\n", token);
 	strcpy(list_of_function_names[numfuncs], token);
     numfuncs++;
@@ -181,12 +236,35 @@ declarations_local:
 		{}
 	| declaration SEMICOLON declarations_local
 		{
+		//check if duplicates in idents
+		int id1 = 0; int id2 = 0; int kw = 0;
+		for( id1 = 0; id1 < numidents; id1++){
+			
+			for( id2 = 0; id2 < id1; id2++){
+				if(id1 == id2){
+					continue;
+				}
+				if(strcmp(idents[id1], idents[id2]) == 0){
+					printf("** Line %d: identifier %s is already declared\n", currLine, idents[id1]);
+				}
+			}
+			
+			for(kw = 0; kw < numkeywords; kw++){
+				if(strcmp(idents[id1],  kws[kw]) == 0){
+					printf("** Line %d: identifier name %s is a restricted keyword\n", currLine, idents[id1]);
+				}
+			}
+		}
+
 		int i = 0;
 		for( i = 0; i < numidents; i++){
 			putsym(idents[i], "i");
 			if(array[i]){
 			//set symbol in table to array
 			updatesym (idents[i], "t" , "a");
+			if(asize[i] <= 0){
+				printf("** Line %d: Array %s must of at least size 1 \n", currLine, idents[i]);
+			}
 			printf(".[] %s, %d \n", idents[i], asize[i]);
 			}else{
 			//set symbol in table to int
@@ -203,6 +281,26 @@ declarations_param:
 		{}
 	| declaration SEMICOLON declarations_param
 		{
+		//check if duplicates in idents
+		int id1 = 0; int id2 = 0; int kw = 0;
+		for( id1 = 0; id1 < numidents; id1++){
+			
+			for( id2 = 0; id2 < id1; id2++){
+				if(id1 == id2){
+					continue;
+				}
+				if(strcmp(idents[id1], idents[id2]) == 0){
+					printf("** Line %d: identifier %s is already declared\n", currLine, idents[id1]);
+				}
+			}
+			
+			for(kw = 0; kw < numkeywords; kw++){
+				if(strcmp(idents[id1],  kws[kw]) == 0){
+					printf("** Line %d: identifier name %s is a restricted keyword\n", currLine, idents[id1]);
+				}
+			}
+		}
+
 		int i = 0;
 		for(i = 0; i < numidents; i++){
 			putsym(idents[i], "i");
@@ -235,7 +333,7 @@ declaration:
 		int i = 0;
 		for(i = 0; i < numdecs; i++){
 			array[numidents + i] = 1;
-			asize[numidents + i] = atoi($5);
+			asize[numidents + i] = atoi($5.name);
 		}
 		numidents += numdecs; numdecs = 0;
 };
@@ -243,141 +341,277 @@ declaration:
 identifiers: 
 	ident
     {   
-		$$ = $1;
+		$$.name = $1.name;
 		//printf("NEW TOKEN ADDED: %s, num tokens: %d\n", $1, numidents+numdecs);
-		strcpy(idents[numidents + numdecs], $1);
+		strcpy(idents[numidents + numdecs], $1.name);
   		numdecs ++;
     }
 	| ident COMMA identifiers
 	{
+		$$.name = $1.name;
 		//printf("NEW TOKEN ADDED: %s, num tokens: %d\n", $1, numidents+numdecs);
-		strcpy(idents[numidents + numdecs], $1);
+		strcpy(idents[numidents + numdecs], $1.name);
   		numdecs ++;
-	    $$ = $1;
-	    symrec *token = getsym($1);
 	};
 
 statement: 
 	var ASSIGN expression
 		{
-			symrec *dest = getsym($1);
-			symrec *src = getsym($3);
+			symrec *dest = getsym($1.name);
+			symrec *src = getsym($3.name);
 			//printf("last set index: %s\n", lastSetIndex);
+            strcat($$.code, $3.code);
 			if(dest->type == "a") {
-            	printf("[]= %s, %s, %s\n", dest->name, lastSetIndex, src->name);
+            	sprintf(code,"[]= %s, %s, %s\n", dest->name, lastSetIndex, src->name);
+				strcat($$.code,code);
 			}
 			else if(src->type == "a"){
-				printf("=[] %s, %s, %s\n", dest->name, src->name, src->index);
+				sprintf(code,"=[] %s, %s, %s\n", dest->name, src->name, src->index);
+				strcat($$.code,code);
 			}else{
-				printf("= %s, %s\n", dest->name, src->name);
+				sprintf(code,"= %s, %s\n", dest->name, src->name);
+				strcat($$.code,code);
 			}
 			//updatesym($3, "n", dest->name);
-			symrec *dest2 = getsym($1);
+			symrec *dest2 = getsym($1.name);
 			firstArray = 1;
-			$$ = dest->name;
+			$$.name = dest->name;
 			
         }
 	| IF bool_exp THEN statements ENDIF
-		{}
+		{
+
+			char *endIfLabel = newLabel();
+
+			strcat($$.code,$2.code); // bool_exp code
+
+			sprintf(code,"! %s, %s\n", $2.name, $2.name);
+			strcat($$.code, code);
+
+			sprintf(code,"?:= %s, %s\n", endIfLabel, $2.name); // check
+			strcat($$.code, code); 
+
+			strcat($$.code,$4.code); //  code for if
+			sprintf(code,":= %s\n", endIfLabel); // go to endif
+			strcat($$.code, code); 
+
+			sprintf(code,": %s\n", endIfLabel); // endif label
+			strcat($$.code, code); 
+		}
 	| IF bool_exp THEN statements ELSE statements ENDIF
-		{}
-	| WHILE bool_exp BEGINLOOP statements ENDLOOP
-		{}
-	| DO BEGINLOOP statements ENDLOOP WHILE bool_exp
-		{}
+		{
+			char *elseLabel = newLabel();
+			char *endIfLabel = newLabel();
+
+			strcat($$.code,$2.code); // bool_exp code
+
+			sprintf(code,"! %s, %s\n", $2.name, $2.name);
+			strcat($$.code, code);
+
+			sprintf(code,"?:= %s, %s\n", elseLabel, $2.name); // check
+			strcat($$.code, code); 
+
+			strcat($$.code,$4.code); //  code for if
+			sprintf(code,":= %s\n", endIfLabel); // go to endif
+			strcat($$.code, code); 
+
+			sprintf(code,": %s\n", elseLabel); // else label
+			strcat($$.code, code); 
+			strcat($$.code,$6.code); // code for else
+
+			sprintf(code,": %s\n", endIfLabel); // endif label
+			strcat($$.code, code); 
+		}
+	| WHILE bool_exp beginloop statements endloop 
+		{
+
+			char *loopBegin = $3.code;
+			char *loopEnd = newEndLoop();
+
+			sprintf(code,": %s\n", loopBegin);
+			strcat($$.code, code); // bool_exp code
+
+			strcat($$.code,$2.code); // bool_exp code
+			sprintf(code,"! %s, %s\n", $2.name, $2.name);
+			strcat($$.code, code); 
+
+			sprintf(code, "?:= %s, %s\n", loopEnd,$2.name);
+			strcat($$.code,code);
+
+			strcat($$.code,$4.code);
+
+			sprintf(code, ":= %s\n: %s\n", loopBegin, loopEnd);
+			strcat($$.code,code);
+		}
+	| DO beginloop statements endloop WHILE bool_exp
+		{
+			char *loopBegin = $2.code;
+
+			sprintf(code, ": %s\n", loopBegin);
+			strcat($$.code,code);
+			strcat($$.code,$3.code);
+			strcat($$.code,code);
+			strcat($$.code,$6.code);
+			sprintf(code, "?:= %s, %s\n",loopBegin,$6.name);
+			strcat($$.code,code);
+		}
 	| READ vars
 		{
-			symrec *src1 = getsym($2);
+			symrec *src1 = getsym($2.name);
             if(src1->type == "a") {
-                printf(".[]< %s, %s\n", src1->name, src1->index);
+                sprintf(code,".[]< %s, %s\n", src1->name, src1->index);
+				strcat($$.code,code);
+				
             } else {
-                printf(".> %s\n", src1->name);
+                sprintf(code,".< %s\n", src1->name);
+				strcat($$.code,code);
             }
 			firstArray = 1;
 		}
 	| WRITE vars
 		{
-			symrec *src1 = getsym($2);
+			symrec *src1 = getsym($2.name);
+            strcat($$.code,$2.code);
 			if(src1->type == "a") {
-				printf(".[]> %s, %s\n", src1->id, src1->index);
+				sprintf(code,".[]> %s, %s\n", src1->id, src1->index);
+				strcat($$.code,code);
 			} else {
-				printf(".> %s\n", src1->name);
+				sprintf(code,".> %s\n", src1->name);
+				strcat($$.code,code);
 			}
 			firstArray = 1;
 		}
 	| CONTINUE
-		{}
+		{
+			if(inLoop <= 0) {
+				printf("** Line %d: continue statement outside loop\n", currLine);
+			}
+
+			sprintf(code, ":= __BeginLoop__%d\n", currentLoop);
+			strcat($$.code,code);
+		}
 	| RETURN expression
 		{
-			symrec *src1 = getsym($2);
+			strcat($$.code, $2.code);
+			symrec *src1 = getsym($2.name);
 			funcRet[numfuncs-1] = 1;
-			printf("ret %s\n", src1->name);
+			sprintf(code,"ret %s\n", src1->name);
+			strcat($$.code,code);
 		};
-	
+beginloop: BEGINLOOP {
+
+	inLoop++;
+	currentLoop++;
+	if(currentLoop > maxdepth){
+		maxdepth = currentLoop;
+	}
+
+	char loopBegin[15];
+	sprintf(loopBegin,"__BeginLoop__%d", currentLoop);
+	strcat($$.code,loopBegin);
+}
+
+endloop: ENDLOOP {
+	inLoop--;
+	currentLoop--;
+	if(inLoop==0){
+		currentLoop+=maxdepth;
+		maxdepth = 0;
+	}
+}
+
 statements: 
 	statement SEMICOLON/* epsilon */
-		{}
+		{
+			//strcat($$.code,$1.code);
+		}
 	| statement SEMICOLON statements
-		{};
+		{	
+			//strcat($$.code,$1.code);
+			strcat($$.code,$3.code);
+		};
 
 expression: 
 	multiplicative_expression
-		{ $$ = $1;}
+		{ 
+			$$.name = $1.name;
+			//strcat($$.code, $1.code);
+		}
 	| multiplicative_expression ADD expression
 		{
-			//printf("IM GONNA GET %s and %s\n", $1,$3);
-            symrec *src1 = getsym($1);
-            symrec *src2 = getsym($3);
+			
+            symrec *src1 = getsym($1.name);
+            symrec *src2 = getsym($3.name);
+
+            //strcat($$.code,$1.code);
+            strcat($$.code,$3.code);
+
             char *destID = newTemp();
 			symrec *dest = putsym(destID, "t");
-            printf(". %s\n", dest->name);
-            printf("+ %s, %s, %s\n", dest->name, src1->name, src2->name);
-			$$ = dest->name;
+            sprintf(code,". %s\n", dest->name);
+			strcat($$.code,code);
+            sprintf(code,"+ %s, %s, %s\n", dest->name, src1->name, src2->name);
+			strcat($$.code,code);
+			$$.name = dest->name;
 
         }
 	| multiplicative_expression SUB expression
 		{
-			symrec *src1 = getsym($1);
-            symrec *src2 = getsym($3);
+			symrec *src1 = getsym($1.name);
+            symrec *src2 = getsym($3.name);
             char *destID = newTemp();
             symrec *dest = putsym(destID, "t");
-            printf(". %s\n", dest->name);
-            printf("- %s, %s, %s\n", dest->name, src1->name, src2->name);
-            $$ = dest->name;
+            sprintf(code,". %s\n", dest->name);
+			strcat($$.code,code);
+            sprintf(code,"- %s, %s, %s\n", dest->name, src1->name, src2->name);
+			strcat($$.code,code);
+            $$.name = dest->name;
         };
 
 multiplicative_expression: 
 	term
 		{ 
-			$$ = $1;
-	}
+			$$.name = $1.name;
+			//strcpy($$.code, $1.code);
+			
+		}
 	| term MULT multiplicative_expression
 		{ 
-			symrec *src1 = getsym($1);
-            symrec *src2 = getsym($3);
+			symrec *src1 = getsym($1.name);
+            symrec *src2 = getsym($3.name);
             char *destID = newTemp();
+            //strcat($$.code,$1.code);
+            strcat($$.code,$3.code);
             symrec *dest = putsym(destID, "t");
-            printf(". %s\n", dest->name);
-            printf("* %s, %s, %s\n", dest->name, src1->name, src2->name);
-            $$ = dest->name;
+            sprintf(code,". %s\n", dest->name);
+			strcat($$.code,code);
+            sprintf(code,"* %s, %s, %s\n", dest->name, src1->name, src2->name);
+			strcat($$.code,code);
+            $$.name = dest->name;
 		}
 	| term DIV multiplicative_expression
-		{ 	symrec *src1 = getsym($1);
-            symrec *src2 = getsym($3);
+		{ 	symrec *src1 = getsym($1.name);
+            symrec *src2 = getsym($3.name);
             char *destID = newTemp();
+			strcat($$.code,$3.code);
             symrec *dest = putsym(destID, "t");
-            printf(". %s\n", dest->name);
-            printf("/ %s, %s, %s\n", dest->name, src1->name, src2->name);
-            $$ = dest->name; 
+            sprintf(code,". %s\n", dest->name);
+			strcat($$.code,code);
+            sprintf(code,"/ %s, %s, %s\n", dest->name, src1->name, src2->name);
+			strcat($$.code,code);
+            $$.name = dest->name; 
 			}
 	| term MOD multiplicative_expression
-		{ 	symrec *src1 = getsym($1);
-            symrec *src2 = getsym($3);
+		{ 	symrec *src1 = getsym($1.name);
+            symrec *src2 = getsym($3.name);
             char *destID = newTemp();
+			strcat($$.code,$3.code);
             symrec *dest = putsym(destID, "t");
-            printf(". %s\n", dest->name);
-            printf("%% %s, %s, %s\n", dest->name, src1->name, src2->name);
-            $$ = dest->name;
+            sprintf(code,". %s\n", dest->name);
+			strcat($$.code,code);
+            sprintf(code,"%% %s, %s, %s\n", dest->name, src1->name, src2->name);
+			strcat($$.code,code);
+            $$.name = dest->name;
 			};
 
 term: 
@@ -385,16 +619,20 @@ term:
 		{
 		char *varID = newTemp();
 		symrec *tempvar = putsym(varID, "t");	
-		symrec *src1 = getsym($1);
+		symrec *src1 = getsym($1.name);
 		if(src1->type == "a"){
-			printf(". %s\n", tempvar->name);
-			printf("=[] %s, %s, %s\n", tempvar->name, src1->name, src1->index);
+			sprintf(code,". %s\n", tempvar->name);
+			strcat($$.code,code);
+			sprintf(code,"=[] %s, %s, %s\n", tempvar->name, src1->name, src1->index);
+			strcat($$.code,code);
 		}else{
-			printf(". %s\n", tempvar->name);
-			printf("= %s, %s\n", tempvar->name, src1->name);
+			sprintf(code,". %s\n", tempvar->name);
+			strcat($$.code,code);
+			sprintf(code,"= %s, %s\n", tempvar->name, src1->name);
+			strcat($$.code,code);
 		}
 		
-		$$ = tempvar->name; 
+		$$.name = tempvar->name; 
 	    }
 	| SUB var
 		{}
@@ -403,24 +641,36 @@ term:
 		char *numID = newTemp();
 		symrec *num = putsym(numID, "t");	
 		num->val = numberToken;
-		printf(". %s\n", num->name);
-		printf("= %s, %d\n", num->name, num->val);
-		$$ = num->name; 
+		sprintf(code,". %s\n", num->name);
+		strcat($$.code,code);
+		sprintf(code,"= %s, %d\n", num->name, num->val);
+		strcat($$.code,code);
+		$$.name = num->name; 
 	}
 	| SUB NUMBER
-		{}
+		{ 
+			strcat($$.code,$2.code);
+		}
 	| L_PAREN expression R_PAREN
-		{ $$ = $2; }
+		{ 
+            strcat($$.code,$2.code);
+            $$.name = $2.name;
+        }
 	| SUB L_PAREN expression R_PAREN
-		{}
+		{
+			strcat($$.code,$3.code);
+		}
 	| ident L_PAREN expressions R_PAREN
 	{  
+		strcat($$.code,$3.code);
 		char *varID = newTemp();
 		symrec *tempvar = putsym(varID, "t");	
-		symrec *src1 = getsym($1);
-		printf(". %s\n", tempvar->name);
-		printf("call %s, %s\n", $1, tempvar->name);
-		$$ = tempvar->name; 
+		symrec *src1 = getsym($1.name);
+		sprintf(code,". %s\n", tempvar->name);
+		strcat($$.code,code);
+		sprintf(code,"call %s, %s\n", $1.name, tempvar->name);
+		strcat($$.code,code);
+		$$.name = tempvar->name; 
 		
 	};
 
@@ -430,7 +680,8 @@ expressions:
 	| comma_sep_expressions
 		{
 			for(int i = numParams-1; i >= 0; i--){
-				printf("param %s\n", funcParams[i]);
+				sprintf(code,"param %s\n", funcParams[i]);
+				strcat($$.code,code);
 			}
 			numParams = 0;
 		};
@@ -438,26 +689,29 @@ expressions:
 comma_sep_expressions: 
 	expression
 	{ 
-		symrec *src1 = getsym($1);
+		//strcat($$.code, $1.code);
+		symrec *src1 = getsym($1.name);
 		strcpy(funcParams[numParams],src1->name);
 		numParams++;
 	}
 	| expression COMMA comma_sep_expressions
 	{
-		symrec *src1 = getsym($1);
+		//strcat($$.code, $1.code);
+		strcat($$.code, $3.code);
+		symrec *src1 = getsym($1.name);
 		strcpy(funcParams[numParams],src1->name);
 		numParams++;
 	};
 
 bool_exp:
 	relation_and_exp
-		{}
+		{$$ = $1;}
 	| relation_and_exp OR bool_exp
 		{};
 
 relation_and_exp:
 	relation_exp
-		{}
+		{$$ = $1;}
 	| relation_exp AND relation_and_exp
 		{};
 
@@ -466,11 +720,17 @@ relation_exp:
 		{
 			char *compID = newTemp();
 	        symrec *dest = putsym(compID, "t");
-	        symrec *src1 = getsym($1);
-	        symrec *src2 = getsym($3);
-       		printf(". %s\n", dest->name);
-        	printf("%s %s, %s, %s \n", $2,  dest->name, src1->name, src2->name);
-        	//$$ = num->name;		
+	        symrec *src1 = getsym($1.name);
+	        symrec *src2 = getsym($3.name);
+
+			strcat($$.code,$3.code);
+
+       		sprintf(code,". %s\n", dest->name);
+			strcat($$.code,code);
+        	sprintf(code,"%s %s, %s, %s \n", $2.name,  dest->name, src1->name, src2->name);
+			strcat($$.code,code);
+
+        	$$.name = dest->name;	
 		}
 	| NOT expression comp expression
 		{}
@@ -489,38 +749,55 @@ relation_exp:
 
 comp:
 	EQ
-		{$$ = $1;}
+		{$$.name = $1.name;}
 	| NEQ
 		{
-			$$ = "!=";// Only one that is different
+			$$.name = "!=";// Only one that is different
 		}
 	| LT
-		{$$ = $1;}
+		{$$.name = $1.name;}
 	| GT
-		{$$ = $1;}
+		{$$.name = $1.name;}
 	| LTE
-		{$$ = $1;}
+		{$$.name = $1.name;}
 	| GTE
-		{$$ = $1;};
+		{$$.name = $1.name;};
 
 var: 
 	ident
-		{$$ = $1;}
+		{
+			$$.name = $1.name;
+			symrec *src1 = getsym($1.name);
+			if(strcmp(src1->type, "a") == 0){
+				printf("** Line %d: used array variable %s is missing a specified index\n", currLine, $1.name);
+			}
+		}
 	|  ident L_SQUARE_BRACKET expression R_SQUARE_BRACKET
 		{
 			if(firstArray){
-				lastSetIndex = $3;
+				lastSetIndex = $3.name;
 				firstArray = 0;
 			}
+			symrec *src1 = getsym($1.name);
+			if(strcmp(src1->type, "a") != 0){
+				printf("** Line %d: Attempting to get index of non-array %s\n", currLine, $1.name);
+			}
+             strcat($$.code,$3.code);
 			//putsym($1, "a");
-			updatesym($1, "i", $3);
-            $$ = $1; /*test*/
+			updatesym($1.name, "i", $3.name);
+            $$.name = $1.name; /*test*/
         };
 vars:
 	var
-		{$$ = $1;}
+		{
+			$$.name = $1.name;
+			strcat($$.code,$1.code);
+		}
 	| var COMMA vars
-		{};
+		{
+			strcat($$.code,$1.code);
+			strcat($$.code,$3.code);
+		};
 	
 
 %%
@@ -530,9 +807,9 @@ int main(int argc, char **argv)
     yyparse();
 /*
     int i = 0;
-    printf("%s\n", list_of_function_names[2]);
+    sprintf($$.code,"%s\n", list_of_function_names[2]);
     for(i = 0; i < count_names; i++) {
-	printf("%s\n", list_of_function_names[i]);
+	sprintf($$.code,"%s\n", list_of_function_names[i]);
     }
     */
     return 0;
@@ -581,8 +858,7 @@ getsym (char const *name)
     if (strcmp (p->id, name) == 0)
       return p;
   printf("** Line %d: Undeclared variable: %s\n", currLine, name);
-  exit(0);
-  return NULL;
+  return sym_table;
 }
 
 symrec *
@@ -620,4 +896,23 @@ char *newReg() {
     return temp;
 }
 
+int labelID = 0;
+char *newLabel() {
+    char *temp = (char *) malloc (sizeof (char));
+    sprintf(temp, "__label__%d", labelID);
+    labelID++;
+    return temp;
+}
+
+char *newBeginLoop() {
+    char *temp = (char *) malloc (sizeof (char));
+    sprintf(temp, "__BeginLoop__%d", currentLoop);
+    return temp;
+}
+
+char *newEndLoop() {
+    char *temp = (char *) malloc (sizeof (char));
+    sprintf(temp, "__EndLoop__%d", currentLoop);
+    return temp;
+}
 

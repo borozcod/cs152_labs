@@ -1,0 +1,27 @@
+func main
+. i
+. j
+= i, 0
+: loop_begin0
+. __temp__0
+< __temp__0, i, 2
+! __temp__0, __temp__0
+?:= loop_end0, __temp__0
+= j, 1
+: loop_begin1
+. __temp__1
+<= __temp__1, j, 3
+! __temp__1, __temp__1
+?:= loop_end1, __temp__1
+.> j
+. __temp__2
++ __temp__2, j, 1
+= j, __temp__2
+:= loop_begin1
+: loop_end1
+. __temp__3
++ __temp__3, i, 1
+= i, __temp__3
+:= loop_begin0
+: loop_end0
+endfunc

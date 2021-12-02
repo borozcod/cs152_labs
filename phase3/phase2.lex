@@ -49,7 +49,7 @@ return         {currPos += yyleng; return RETURN;}
 	currPos += yyleng;
 	char * token = malloc(sizeof(char) * yyleng);
 	strcpy(token, yytext);
-	yylval.op_val = token;
+	yylval.op_val.name = token;
 	compToken = yytext;
 	return EQ;
 }
@@ -57,7 +57,7 @@ return         {currPos += yyleng; return RETURN;}
 	currPos += yyleng;
 	char * token = malloc(sizeof(char) * yyleng);
 	strcpy(token, yytext);
-	yylval.op_val = token;
+	yylval.op_val.name = token;
 	compToken = yytext;
 	return NEQ;
 }
@@ -65,7 +65,7 @@ return         {currPos += yyleng; return RETURN;}
 	currPos += yyleng;
 	char * token = malloc(sizeof(char) * yyleng);
 	strcpy(token, yytext);
-	yylval.op_val = token;
+	yylval.op_val.name = token;
 	compToken = yytext;
 	return LT;
 }
@@ -73,7 +73,7 @@ return         {currPos += yyleng; return RETURN;}
 	currPos += yyleng;
 	char * token = malloc(sizeof(char) * yyleng);
 	strcpy(token, yytext);
-	yylval.op_val = token;
+	yylval.op_val.name = token;
 	compToken = yytext;
 	return GT;
 }
@@ -81,7 +81,7 @@ return         {currPos += yyleng; return RETURN;}
 	currPos += yyleng; 
 	char * token = malloc(sizeof(char) * yyleng);
 	strcpy(token, yytext);
-	yylval.op_val = token;
+	yylval.op_val.name = token;
 	compToken = yytext;
 	return LTE;
 }
@@ -89,7 +89,7 @@ return         {currPos += yyleng; return RETURN;}
 	currPos += yyleng;
     char * token = malloc(sizeof(char) * yyleng);
     strcpy(token, yytext);
-    yylval.op_val = token;
+    yylval.op_val.name = token;
     compToken = yytext;
 	return GTE;
 }
@@ -107,7 +107,7 @@ return         {currPos += yyleng; return RETURN;}
    currPos += yyleng;
    char * token = malloc(sizeof(char) * yyleng);
    strcpy(token, yytext);
-   yylval.op_val = token;
+   yylval.op_val.name = token;
    numberToken = atoi(yytext);
    return NUMBER;
 }
@@ -123,7 +123,7 @@ return         {currPos += yyleng; return RETURN;}
    currPos += yyleng;
    char * token = malloc(sizeof(char) * yyleng);
    strcpy(token, yytext);
-   yylval.op_val = token;
+   yylval.op_val.name = token;
    identToken = yytext;
    return IDENT;
 }
